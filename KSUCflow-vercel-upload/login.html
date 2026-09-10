@@ -1,0 +1,15 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>KSUCflow | Sign in</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" /><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="login.css" />
+</head>
+<body>
+  <main><section class="intro"><div class="brand"><span>K</span><b>KSUC<span>flow</span></b></div><div class="intro-copy"><p class="eyebrow">KENYA SCIENCE UNIVERSITY COLLEGE</p><h1>Every document,<br />accounted for.</h1><p>Secure routing and document movement for every department.</p></div><div class="features"><span>✓ Departmental routing</span><span>✓ Accountable handoffs</span><span>✓ Administrative oversight</span></div></section>
+  <section class="login-area"><form id="loginForm"><p class="eyebrow">WELCOME BACK</p><h2>Sign in to KSUCflow</h2><p class="help">Use the account provided by your system administrator.</p><label>Email address<input required type="email" id="email" placeholder="name@ksuc.ac.ke" autocomplete="username" /></label><label>Password<div class="password"><input required id="password" type="password" placeholder="Enter your password" autocomplete="current-password" /><button type="button" id="showPassword">Show</button></div></label><p class="error" id="error" aria-live="polite"></p><button class="submit">Sign in</button><p class="support">Need access or a password reset? Contact the KSUCflow administrator.</p></form><div class="demo"><strong>Demo access</strong><p>Choose an account to fill the sign-in form.</p><button data-email="newton.mwangi@ksuc.ac.ke">Newton · Administrator</button><button data-email="james.kariuki@ksuc.ac.ke">James · Department Head</button><button data-email="sarah.mwangi@ksuc.ac.ke">Sarah · Staff</button></div></section></main>
+  <script src="login.js"></script>
+</body>
+</html>

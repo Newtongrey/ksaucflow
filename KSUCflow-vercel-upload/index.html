@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>KSUCflow | Document Tracker</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar">
+        <a class="brand" href="#dashboard"><span class="brand-mark" id="brandMark">K</span><span id="appTitle">KSUC<span>flow</span></span></a>
+        <div class="institution" id="institutionName">MAKENA INSTITUTE<br /><small id="portalLabel">Administration portal</small></div>
+        <nav>
+          <a class="nav-item active" data-view="overview" href="#dashboard"><span>▦</span> Overview</a>
+          <a class="nav-item" data-view="documents" href="#documents"><span>▤</span> All documents <b id="docCount">12</b></a>
+          <a class="nav-item" data-view="inbox" href="#inbox"><span>◷</span> My inbox <b>4</b></a>
+          <a class="nav-item" data-view="departments" href="#departments"><span>⌘</span> Departments</a>
+          <a class="nav-item" data-view="reports" href="#reports"><span>↗</span> Reports</a>
+          <a class="nav-item" id="openAdminDashboard" href="admin.html"><span>♙</span> Admin dashboard</a>
+        </nav>
+        <div class="sidebar-bottom">
+          <button class="nav-item settings-link" id="openCustomizer"><span>⚙</span> Site settings</button>
+          <div class="user-card"><div class="avatar">NM</div><div><strong>Newton Mwangi</strong><small>System Administrator</small></div><button id="signOut" style="margin-left:auto;border:0;background:transparent;color:#b8c8df;font-size:10px;cursor:pointer">Sign out</button></div>
+        </div>
+      </aside>
+
+      <main>
+        <header>
+          <div><p class="eyebrow">TUESDAY, 9 SEPTEMBER</p><h1>Good morning, Newton.</h1><p class="subhead" id="welcomeText">Here is the movement across the institution today.</p></div>
+          <div class="header-actions"><button class="icon-button" title="Notifications">♧<i></i></button><button class="primary" id="openModal">+ Register document</button></div>
+        </header>
+
+        <section class="stats" aria-label="Document statistics">
+          <article><div class="stat-icon blue">↗</div><div><p>Documents received</p><strong>24</strong><span class="trend">+12% <em>vs. last week</em></span></div></article>
+          <article><div class="stat-icon amber">◷</div><div><p>Awaiting action</p><strong>08</strong><span class="warning">Requires attention</span></div></article>
+          <article><div class="stat-icon violet">→</div><div><p>In transit</p><strong>15</strong><span class="muted">Across 6 departments</span></div></article>
+          <article><div class="stat-icon green">✓</div><div><p>Completed this month</p><strong>126</strong><span class="trend">+8% <em>vs. August</em></span></div></article>
+        </section>
+
+        <section class="workspace">
+          <div class="document-panel" id="documents">
+            <div class="panel-heading"><div><h2>Document movement</h2><p>Recent records routed through the registry</p></div><button class="text-button">View all <span>→</span></button></div>
+            <div class="toolbar"><label class="search"><span>⌕</span><input id="search" placeholder="Search by reference, subject or sender" /></label><button class="filter">≡ Filter</button></div>
+            <div class="table-wrap"><table><thead><tr><th>REFERENCE / SUBJECT</th><th>ORIGIN</th><th>ROUTED TO</th><th>INTENDED ACTION</th><th>STATUS</th><th>ACTION</th></tr></thead><tbody id="documentRows"></tbody></table></div>
+          </div>
+          <aside class="right-panel">
+            <section class="activity"><div class="panel-heading"><div><h2>Live activity</h2><p>Latest document updates</p></div><button class="dots">•••</button></div><div id="activityList"></div><button class="full-width">View all activity</button></section>
+            <section class="department-load"><div class="panel-heading"><div><h2>Department load</h2><p>Documents awaiting action</p></div></div><div class="load-item"><span>Finance</span><div><i style="width:84%"></i></div><b>12</b></div><div class="load-item"><span>Human Resources</span><div><i style="width:60%"></i></div><b>8</b></div><div class="load-item"><span>Academic Affairs</span><div><i style="width:42%"></i></div><b>5</b></div><div class="load-item"><span>Procurement</span><div><i style="width:30%"></i></div><b>3</b></div></section>
+          </aside>
+        </section>
+      </main>
+    </div>
+
+    <dialog id="documentModal"><form method="dialog" id="documentForm"><div class="modal-head"><div><p class="eyebrow">NEW RECORD</p><h2>Register a document</h2></div><button class="close" value="cancel">×</button></div><p class="modal-copy">Capture the origin, purpose and receiving department to create a traceable handoff.</p><div class="form-grid"><label>Reference number<input required id="reference" placeholder="e.g. MI/REG/2026/041" /></label><label>Received from<input required id="origin" placeholder="Organisation or department" /></label><label class="wide">Subject<input required id="subject" placeholder="Brief document description" /></label><label>Route to<select id="department"><option>Finance</option><option>Human Resources</option><option>Academic Affairs</option><option>Procurement</option><option>Office of the Director</option></select></label><label>Intended action<select id="action"><option>For approval</option><option>For review</option><option>For action</option><option>For information</option><option>For signature</option></select></label><label class="wide">Notes <textarea id="notes" placeholder="Optional handling notes"></textarea></label></div><div class="modal-actions"><button value="cancel" class="secondary">Cancel</button><button class="primary" value="default">Register & route</button></div></form></dialog>
+    <dialog id="reviewModal"><form method="dialog" id="reviewForm"><div class="modal-head"><div><p class="eyebrow">DOCUMENT DECISION</p><h2>Take action</h2></div><button class="close" value="cancel">×</button></div><p class="modal-copy" id="reviewDocument"></p><div class="form-grid"><label class="wide">Decision<select id="decision"><option value="approved">Approve document</option><option value="not-approved">Do not approve</option><option value="revert">Revert for changes</option></select></label><label id="returnDepartmentLabel" class="wide">Responsible department<select id="returnDepartment"><option>Finance</option><option>Human Resources</option><option>Academic Affairs</option><option>Procurement</option><option>Registry</option><option>Office of the Director</option></select></label><label class="wide">Reason / instructions<textarea required id="decisionReason" placeholder="State the approval note, reason for non-approval, or requested changes"></textarea></label></div><div class="modal-actions"><button value="cancel" class="secondary">Cancel</button><button class="primary" value="default">Save decision & notify department</button></div></form></dialog>
+    <dialog id="customizerModal"><form method="dialog" id="customizerForm"><div class="modal-head"><div><p class="eyebrow">ADMINISTRATION</p><h2>Portal configuration</h2></div><button class="close" value="cancel">×</button></div><p class="modal-copy">Only administrators can update the institution identity, colours and portal messaging.</p><div class="form-grid"><label>Application title<input id="settingTitle" maxlength="28" /></label><label>Institution name<input id="settingInstitution" maxlength="40" /></label><label class="wide">Portal label<input id="settingLabel" maxlength="60" /></label><label class="wide">Welcome message<input id="settingWelcome" maxlength="100" /></label><label>Primary brand colour<input id="settingPrimary" type="color" /></label><label>Sidebar colour<input id="settingSidebar" type="color" /></label></div><div class="modal-actions"><button type="button" class="secondary" id="resetSettings">Restore defaults</button><button class="primary" value="default">Save changes</button></div></form></dialog>
+    <dialog id="adminModal"><div class="admin-console"><div class="modal-head"><div><p class="eyebrow">ADMINISTRATION</p><h2>Admin dashboard</h2></div><button class="close" id="closeAdmin">×</button></div><p class="modal-copy">Manage system users, access roles and account security.</p><div class="admin-stats"><div><span>Total users</span><strong id="totalUsers">0</strong></div><div><span>Active accounts</span><strong id="activeUsers">0</strong></div><div><span>Administrators</span><strong id="adminUsers">0</strong></div></div><div class="admin-toolbar"><div><h3>User management</h3><p>Create users, assign access rights or reset credentials.</p></div><button class="primary" id="addUser">+ Add user</button></div><div class="user-table-wrap"><table><thead><tr><th>USER</th><th>DEPARTMENT</th><th>ROLE / RIGHTS</th><th>STATUS</th><th>ACTIONS</th></tr></thead><tbody id="userRows"></tbody></table></div></div></dialog>
+    <dialog id="userModal"><form method="dialog" id="userForm"><div class="modal-head"><div><p class="eyebrow" id="userMode">NEW USER</p><h2 id="userModalTitle">Create user account</h2></div><button class="close" value="cancel">×</button></div><div class="form-grid"><label>Full name<input required id="userName" placeholder="e.g. James Kariuki" /></label><label>Email address<input required id="userEmail" type="email" placeholder="name@institution.ac.ke" /></label><label>Department<select id="userDepartment"><option>Registry</option><option>Finance</option><option>Human Resources</option><option>Academic Affairs</option><option>Procurement</option></select></label><label>Role / rights<select id="userRole"><option value="Staff">Staff — view and update assigned documents</option><option value="Department Head">Department Head — route and manage department documents</option><option value="Administrator">Administrator — manage users and settings</option></select></label><label class="wide">Temporary password<input required id="userPassword" type="password" minlength="8" placeholder="Minimum 8 characters" /><small class="field-help">The user should change this password when signing in.</small></label></div><div class="modal-actions"><button value="cancel" class="secondary">Cancel</button><button class="primary" value="default" id="saveUser">Create user</button></div></form></dialog>
+    <script src="auth-guard.js"></script><script src="app.js"></script>
+  </body>
+</html>

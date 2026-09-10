@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>KSUCflow | Admin Control Centre</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" /><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="admin.css" />
+</head>
+<body>
+  <header><a class="brand" href="index.html"><span id="mark">K</span><b id="brandName">KSUCflow</b></a><div class="admin-name"><span>NM</span><div><strong>Newton Mwangi</strong><small>Super Administrator</small></div><button id="signOut" style="margin-left:13px;border:1px solid #627a9b;border-radius:5px;background:transparent;color:#fff;padding:6px 8px;font-size:10px;cursor:pointer">Sign out</button></div></header>
+  <main>
+    <div class="page-title"><div><p class="eyebrow">SYSTEM ADMINISTRATION</p><h1>Control centre</h1><p>Manage users, access rights and the KSUCflow portal.</p></div><a class="back" href="index.html">← Return to document portal</a></div>
+    <section class="metrics"><article><p>Total users</p><strong id="totalUsers">0</strong></article><article><p>Active accounts</p><strong id="activeUsers">0</strong></article><article><p>Administrators</p><strong id="adminUsers">0</strong></article><article><p>Documents registered</p><strong id="documentTotal">—</strong></article></section>
+    <section class="layout"><section class="card users"><div class="card-head"><div><h2>User management</h2><p>Manage accounts, roles and access to KSUCflow.</p></div><button class="primary" id="addUser">+ Add user</button></div><div class="table-wrap"><table><thead><tr><th>USER</th><th>DEPARTMENT</th><th>ACCESS RIGHTS</th><th>STATUS</th><th>ACTIONS</th></tr></thead><tbody id="userRows"></tbody></table></div></section>
+      <aside class="side"><section class="card"><div class="card-head"><div><h2>Administrator privileges</h2><p>Your current authority</p></div></div><ul class="privileges"><li>✓ Create, edit and deactivate user accounts</li><li>✓ Set temporary passwords and reset credentials</li><li>✓ Assign staff, department head and administrator roles</li><li>✓ Change portal branding and system settings</li><li>✓ Review document activity and departmental workload</li></ul></section><section class="card"><div class="card-head"><div><h2>Portal settings</h2><p>Identity and appearance</p></div></div><label>Application name<input id="appName" /></label><label>Institution name<input id="institution" /></label><label>Primary colour<input id="primaryColor" type="color" /></label><button class="primary full" id="saveSettings">Save portal settings</button><button class="text" id="resetSettings">Restore defaults</button></section></aside>
+    </section>
+  </main>
+  <dialog id="userDialog"><form method="dialog" id="userForm"><div class="dialog-head"><div><p class="eyebrow">NEW ACCOUNT</p><h2>Create user</h2></div><button value="cancel" class="close">×</button></div><div class="form-grid"><label>Full name<input required id="name" /></label><label>Email<input required type="email" id="email" /></label><label>Department<select id="department"><option>Registry</option><option>Finance</option><option>Human Resources</option><option>Academic Affairs</option><option>Procurement</option></select></label><label>Role<select id="role"><option>Staff</option><option>Department Head</option><option>Administrator</option></select></label><label class="wide">Temporary password<input required minlength="8" type="password" id="password" placeholder="At least 8 characters" /></label></div><div class="dialog-actions"><button value="cancel" class="secondary">Cancel</button><button class="primary" value="default">Create account</button></div></form></dialog>
+  <script src="auth-guard.js"></script><script src="admin.js"></script>
+</body>
+</html>
