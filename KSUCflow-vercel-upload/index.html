@@ -1,157 +1,121 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <title>KSUCflow | Document Tracker</title>
+  <title>KSUCflow - Document Management Portal</title>
 
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-
-  <link
-    href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap"
-    rel="stylesheet"
-  />
-
-  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="admin.css">
 </head>
 
 <body>
 
-<div class="app-shell">
-
-  <!-- =====================================================
+  <!-- =========================
        SIDEBAR
-       ===================================================== -->
-
+  ========================== -->
   <aside class="sidebar">
 
-    <a class="brand" href="#dashboard">
-      <span class="brand-mark" id="brandMark">K</span>
-      <span id="appTitle">KSUC<span>flow</span></span>
-    </a>
+    <div class="brand">
+      <div class="brand-mark">K</div>
 
-    <div class="institution" id="institutionName">
-      KOITALEEL SAMOEI UNIVERSITY<br />
-      <small id="portalLabel">Document management portal</small>
+      <div>
+        <div class="brand-name">KOITALEEL SAMOEI UNIVERSITY</div>
+        <div class="brand-subtitle">Document Management Portal</div>
+      </div>
     </div>
 
-    <nav>
+    <nav class="sidebar-nav">
 
-      <a class="nav-item active" data-view="overview" href="#dashboard">
-        <span>▦</span>
-        Overview
+      <a href="index.html" class="nav-item active">
+        <span>⌂</span>
+        <span>Dashboard</span>
       </a>
 
-      <a class="nav-item" data-view="documents" href="#documents">
+      <a href="documents.html" class="nav-item">
         <span>▤</span>
-        All documents
-        <b id="docCount">12</b>
+        <span>All Documents</span>
       </a>
 
-      <a class="nav-item" data-view="inbox" href="#inbox">
-        <span>◷</span>
-        My inbox
-        <b>4</b>
-      </a>
+      <button type="button" class="nav-item" id="openModal">
+        <span>＋</span>
+        <span>Register Document</span>
+      </button>
 
-      <a class="nav-item" data-view="departments" href="#departments">
-        <span>⌘</span>
-        Departments
-      </a>
+      <button type="button" class="nav-item" id="notificationsBtn">
+        <span>🔔</span>
+        <span>Notifications</span>
+        <span class="nav-badge" id="notificationCount">0</span>
+      </button>
 
-      <a class="nav-item" data-view="reports" href="#reports">
-        <span>↗</span>
-        Reports
-      </a>
+      <button type="button" class="nav-item" id="reportsBtn">
+        <span>▥</span>
+        <span>Reports</span>
+      </button>
 
-      <a class="nav-item" id="openAdminDashboard" href="admin.html">
-        <span>♙</span>
-        Admin dashboard
-      </a>
+      <button type="button" class="nav-item" id="settingsBtn">
+        <span>⚙</span>
+        <span>Settings</span>
+      </button>
 
     </nav>
 
     <div class="sidebar-bottom">
 
-      <button
-        class="nav-item settings-link"
-        id="openCustomizer"
-      >
-        <span>⚙</span>
-        Site settings
+      <button type="button" class="nav-item" id="adminBtn">
+        <span>♙</span>
+        <span>Administration</span>
       </button>
 
-      <div class="user-card">
-
-        <div class="avatar">NM</div>
-
-        <div>
-          <strong>Newton Mwangi</strong>
-          <small>System Administrator</small>
-        </div>
-
-        <button
-          id="signOut"
-          style="
-            margin-left:auto;
-            border:0;
-            background:transparent;
-            color:#b8c8df;
-            font-size:10px;
-            cursor:pointer;
-          "
-        >
-          Sign out
-        </button>
-
-      </div>
+      <button type="button" class="nav-item" id="signOutBtn">
+        <span>↪</span>
+        <span>Sign Out</span>
+      </button>
 
     </div>
 
   </aside>
 
 
-  <!-- =====================================================
-       MAIN
-       ===================================================== -->
+  <!-- =========================
+       MAIN CONTENT
+  ========================== -->
+  <main class="main">
 
-  <main>
-
-    <header>
+    <!-- TOP BAR -->
+    <header class="topbar">
 
       <div>
-
-        <p class="eyebrow">
-          TUESDAY, 9 SEPTEMBER
-        </p>
-
-        <h1>
-          Good morning, Newton.
-        </h1>
-
-        <p class="subhead" id="welcomeText">
-          Here is the movement across the institution today.
-        </p>
-
+        <h1 id="pageTitle">Dashboard</h1>
+        <p id="greeting">Welcome to KSUCflow.</p>
       </div>
 
-      <div class="header-actions">
+      <div class="topbar-actions">
 
         <button
+          type="button"
           class="icon-button"
+          id="topNotificationsBtn"
           title="Notifications"
         >
-          ♧
-          <i></i>
+          🔔
+          <span class="notification-dot" id="notificationDot"></span>
         </button>
 
         <button
-          class="primary"
-          id="openModal"
+          type="button"
+          class="user-menu"
+          id="userMenuBtn"
         >
-          + Register document
+          <span class="user-avatar" id="userAvatar">U</span>
+
+          <span class="user-details">
+            <strong id="currentUserName">User</strong>
+            <small id="currentUserRole">Staff</small>
+          </span>
+
+          <span>⌄</span>
         </button>
 
       </div>
@@ -159,1179 +123,666 @@
     </header>
 
 
-    <!-- =====================================================
-         STATISTICS
-         ===================================================== -->
+    <!-- =========================
+         DASHBOARD
+    ========================== -->
+    <section class="dashboard-content">
 
-    <section
-      class="stats"
-      aria-label="Document statistics"
-    >
+      <!-- STAT CARDS -->
+      <div class="stats-grid">
 
-      <article>
-
-        <div class="stat-icon blue">
-          ↗
-        </div>
-
-        <div>
-
-          <p>Documents received</p>
-
-          <strong>24</strong>
-
-          <span class="trend">
-            +12%
-            <em>vs. last week</em>
-          </span>
-
-        </div>
-
-      </article>
-
-
-      <article>
-
-        <div class="stat-icon amber">
-          ◷
-        </div>
-
-        <div>
-
-          <p>Awaiting action</p>
-
-          <strong>08</strong>
-
-          <span class="warning">
-            Requires attention
-          </span>
-
-        </div>
-
-      </article>
-
-
-      <article>
-
-        <div class="stat-icon violet">
-          →
-        </div>
-
-        <div>
-
-          <p>In transit</p>
-
-          <strong>15</strong>
-
-          <span class="muted">
-            Across 6 departments
-          </span>
-
-        </div>
-
-      </article>
-
-
-      <article>
-
-        <div class="stat-icon green">
-          ✓
-        </div>
-
-        <div>
-
-          <p>Completed this month</p>
-
-          <strong>126</strong>
-
-          <span class="trend">
-            +8%
-            <em>vs. August</em>
-          </span>
-
-        </div>
-
-      </article>
-
-    </section>
-
-
-    <!-- =====================================================
-         WORKSPACE
-         ===================================================== -->
-
-    <section class="workspace">
-
-      <div
-        class="document-panel"
-        id="documents"
-      >
-
-        <div class="panel-heading">
+        <div class="stat-card">
+          <div class="stat-icon">▤</div>
 
           <div>
-
-            <h2>
-              Document movement
-            </h2>
-
-            <p>
-              Recent records routed through the registry
-            </p>
-
+            <span class="stat-label">Total Documents</span>
+            <strong id="totalDocuments">0</strong>
           </div>
-
-          <button class="text-button">
-            View all
-            <span>→</span>
-          </button>
-
         </div>
 
+        <div class="stat-card">
+          <div class="stat-icon">⏳</div>
 
-        <div class="toolbar">
-
-          <label class="search">
-
-            <span>⌕</span>
-
-            <input
-              id="search"
-              placeholder="Search by reference, subject or sender"
-            />
-
-          </label>
-
-          <button class="filter">
-            ≡ Filter
-          </button>
-
+          <div>
+            <span class="stat-label">Awaiting Action</span>
+            <strong id="awaitingDocuments">0</strong>
+          </div>
         </div>
 
+        <div class="stat-card">
+          <div class="stat-icon">✓</div>
 
-        <div class="table-wrap">
+          <div>
+            <span class="stat-label">Approved</span>
+            <strong id="approvedDocuments">0</strong>
+          </div>
+        </div>
 
-          <table>
+        <div class="stat-card">
+          <div class="stat-icon">↗</div>
 
-            <thead>
-
-              <tr>
-
-                <th>
-                  REFERENCE / SUBJECT
-                </th>
-
-                <th>
-                  ORIGIN
-                </th>
-
-                <th>
-                  ROUTED TO
-                </th>
-
-                <th>
-                  INTENDED ACTION
-                </th>
-
-                <th>
-                  STATUS
-                </th>
-
-                <th>
-                  ACTION
-                </th>
-
-              </tr>
-
-            </thead>
-
-            <tbody id="documentRows"></tbody>
-
-          </table>
-
+          <div>
+            <span class="stat-label">In Transit</span>
+            <strong id="transitDocuments">0</strong>
+          </div>
         </div>
 
       </div>
 
 
-      <!-- ===================================================
-           RIGHT PANEL
-           =================================================== -->
+      <!-- QUICK ACTIONS -->
+      <div class="section-heading">
 
-      <aside class="right-panel">
+        <div>
+          <h2>Quick Actions</h2>
+          <p>Manage your documents and workflow.</p>
+        </div>
 
-        <section class="activity">
+      </div>
 
-          <div class="panel-heading">
+      <div class="quick-actions">
+
+        <button
+          type="button"
+          class="quick-action-card"
+          id="quickRegisterBtn"
+        >
+          <span class="quick-icon">＋</span>
+
+          <div>
+            <strong>Register Document</strong>
+            <small>Register and route a new document</small>
+          </div>
+        </button>
+
+        <a
+          href="documents.html"
+          class="quick-action-card"
+        >
+          <span class="quick-icon">▤</span>
+
+          <div>
+            <strong>All Documents</strong>
+            <small>View and manage all documents</small>
+          </div>
+        </a>
+
+        <button
+          type="button"
+          class="quick-action-card"
+          id="quickReportsBtn"
+        >
+          <span class="quick-icon">▥</span>
+
+          <div>
+            <strong>Reports</strong>
+            <small>View document workflow reports</small>
+          </div>
+        </button>
+
+      </div>
+
+
+      <!-- WORKSPACE -->
+      <div class="workspace-grid">
+
+        <!-- RECENT DOCUMENTS -->
+        <section class="panel">
+
+          <div class="panel-header">
 
             <div>
-
-              <h2>
-                Live activity
-              </h2>
-
-              <p>
-                Latest document updates
-              </p>
-
+              <h2>Recent Documents</h2>
+              <p>Latest documents registered in the system.</p>
             </div>
 
-            <button class="dots">
-              •••
-            </button>
+            <a href="documents.html" class="text-link">
+              View all
+            </a>
 
           </div>
 
-          <div id="activityList"></div>
+          <div class="search-box">
 
-          <button class="full-width">
-            View all activity
-          </button>
+            <span>⌕</span>
 
-        </section>
-
-
-        <section class="department-load">
-
-          <div class="panel-heading">
-
-            <div>
-
-              <h2>
-                Department load
-              </h2>
-
-              <p>
-                Documents awaiting action
-              </p>
-
-            </div>
+            <input
+              type="search"
+              id="documentSearch"
+              placeholder="Search documents..."
+            >
 
           </div>
 
-
-          <div class="load-item">
-
-            <span>
-              Finance
-            </span>
-
-            <div>
-              <i style="width:84%"></i>
-            </div>
-
-            <b>12</b>
-
-          </div>
-
-
-          <div class="load-item">
-
-            <span>
-              Human Resources
-            </span>
-
-            <div>
-              <i style="width:60%"></i>
-            </div>
-
-            <b>8</b>
-
-          </div>
-
-
-          <div class="load-item">
-
-            <span>
-              Academic Affairs
-            </span>
-
-            <div>
-              <i style="width:42%"></i>
-            </div>
-
-            <b>5</b>
-
-          </div>
-
-
-          <div class="load-item">
-
-            <span>
-              Procurement
-            </span>
-
-            <div>
-              <i style="width:30%"></i>
-            </div>
-
-            <b>3</b>
-
+          <div id="recentDocuments" class="document-list">
+            <!-- Documents generated by app.js -->
           </div>
 
         </section>
 
-      </aside>
+
+        <!-- RECENT ACTIVITY -->
+        <section class="panel">
+
+          <div class="panel-header">
+
+            <div>
+              <h2>Recent Activity</h2>
+              <p>Latest workflow activity.</p>
+            </div>
+
+          </div>
+
+          <div id="activityList" class="activity-list">
+            <!-- Activity generated by app.js -->
+          </div>
+
+        </section>
+
+      </div>
 
     </section>
 
   </main>
 
-</div>
 
+  <!-- =====================================================
+       REGISTER DOCUMENT MODAL
+  ====================================================== -->
+  <dialog id="documentModal" class="modal">
 
-<!-- =========================================================
-     REGISTER DOCUMENT MODAL
-     ========================================================= -->
+    <div class="modal-content">
 
-<dialog id="documentModal">
+      <div class="modal-header">
 
-  <form
-    method="dialog"
-    id="documentForm"
-  >
+        <div>
+          <h2>Register Document</h2>
+          <p>Register a new document and route it to the responsible department.</p>
+        </div>
 
-    <div class="modal-head">
-
-      <div>
-
-        <p class="eyebrow">
-          NEW RECORD
-        </p>
-
-        <h2>
-          Register a document
-        </h2>
+        <button
+          type="button"
+          class="modal-close"
+          id="closeDocumentModal"
+          aria-label="Close"
+        >
+          ×
+        </button>
 
       </div>
 
-      <button
-        class="close"
-        value="cancel"
-      >
-        ×
-      </button>
 
-    </div>
+      <form id="documentForm">
 
+        <div class="form-grid">
 
-    <p class="modal-copy">
-      Capture the origin, purpose and receiving department
-      to create a traceable handoff.
-    </p>
+          <!-- REFERENCE -->
+          <label>
+            <strong>Reference Number</strong>
 
-
-    <div class="form-grid">
-
-
-      <!-- REFERENCE -->
-
-      <label>
-
-        Reference number
-
-        <input
-          required
-          id="reference"
-          placeholder="e.g. KSU/REG/2026/041"
-        />
-
-      </label>
+            <input
+              id="reference"
+              name="reference"
+              type="text"
+              placeholder="e.g. KSU/ADM/2026/001"
+              required
+            >
+          </label>
 
 
-      <!-- ORIGIN -->
+          <!-- ORIGIN -->
+          <label>
+            <strong>Origin</strong>
 
-      <label>
-
-        Received from
-
-        <input
-          required
-          id="origin"
-          placeholder="Organisation or department"
-        />
-
-      </label>
-
-
-      <!-- SUBJECT -->
-
-      <label class="wide">
-
-        Subject
-
-        <input
-          required
-          id="subject"
-          placeholder="Brief document description"
-        />
-
-      </label>
+            <input
+              id="origin"
+              name="origin"
+              type="text"
+              placeholder="Department / Office / Institution"
+              required
+            >
+          </label>
 
 
-      <!-- DEPARTMENT -->
+          <!-- SUBJECT -->
+          <label class="wide">
+            <strong>Subject</strong>
 
-      <label>
-
-        Route to
-
-        <select id="department">
-
-          <option>
-            Finance
-          </option>
-
-          <option>
-            Human Resources
-          </option>
-
-          <option>
-            Academic Affairs
-          </option>
-
-          <option>
-            Procurement
-          </option>
-
-          <option>
-            Office of the Director
-          </option>
-
-        </select>
-
-      </label>
+            <input
+              id="subject"
+              name="subject"
+              type="text"
+              placeholder="Enter document subject"
+              required
+            >
+          </label>
 
 
-      <!-- ACTION -->
+          <!-- DEPARTMENT -->
+          <label>
+            <strong>Route To</strong>
 
-      <label>
+            <select
+              id="department"
+              name="department"
+              required
+            >
+              <option value="">Select department</option>
+              <option value="Vice Chancellor's Office">Vice Chancellor's Office</option>
+              <option value="Deputy Vice Chancellor - Academic">Deputy Vice Chancellor - Academic</option>
+              <option value="Deputy Vice Chancellor - Administration">Deputy Vice Chancellor - Administration</option>
+              <option value="Registrar - Academic">Registrar - Academic</option>
+              <option value="Registrar - Administration">Registrar - Administration</option>
+              <option value="Finance">Finance</option>
+              <option value="Human Resource">Human Resource</option>
+              <option value="ICT">ICT</option>
+              <option value="Procurement">Procurement</option>
+              <option value="Planning">Planning</option>
+              <option value="Admissions">Admissions</option>
+              <option value="Academics">Academics</option>
+              <option value="Library">Library</option>
+              <option value="Examinations">Examinations</option>
+              <option value="Legal Office">Legal Office</option>
+              <option value="General Administration">General Administration</option>
+            </select>
 
-        Intended action
-
-        <select id="action">
-
-          <option>
-            For approval
-          </option>
-
-          <option>
-            For review
-          </option>
-
-          <option>
-            For action
-          </option>
-
-          <option>
-            For information
-          </option>
-
-          <option>
-            For signature
-          </option>
-
-        </select>
-
-      </label>
+          </label>
 
 
-      <!-- NOTES -->
+          <!-- ACTION -->
+          <label>
+            <strong>Required Action</strong>
 
-      <label class="wide">
+            <select
+              id="action"
+              name="action"
+              required
+            >
+              <option value="">Select action</option>
+              <option value="For review">For review</option>
+              <option value="For approval">For approval</option>
+              <option value="For information">For information</option>
+              <option value="For action">For action</option>
+              <option value="For recommendation">For recommendation</option>
+              <option value="For implementation">For implementation</option>
+              <option value="For noting">For noting</option>
+            </select>
 
-        Notes
-
-        <textarea
-          id="notes"
-          placeholder="Optional handling notes"
-        ></textarea>
-
-      </label>
-
-
-      <!-- =================================================
-           PDF UPLOAD
-           ================================================= -->
-
-      <label class="wide">
-
-        <strong>
-          Attach PDF document
-        </strong>
-
-        <input
-          id="documentFile"
-          type="file"
-          accept="application/pdf,.pdf"
-          style="
-            display:block;
-            width:100%;
-            margin-top:8px;
-            padding:12px;
-            border:1px solid #dbe4ef;
-            border-radius:8px;
-            background:#fff;
-            cursor:pointer;
-          "
-        />
-
-        <small
-          class="field-help"
-          style="
-            display:block;
-            margin-top:7px;
-            color:#718096;
-          "
-        >
-          PDF files only. Maximum file size: 10 MB.
-        </small>
+          </label>
 
 
-        <!-- SELECTED FILE -->
+          <!-- NOTES -->
+          <label class="wide">
 
-        <div
-          id="selectedFile"
-          style="
-            display:none;
-            margin-top:12px;
-            padding:12px 14px;
-            border:1px solid #dbe4ef;
-            border-radius:8px;
-            background:#f7f9fc;
-            font-size:13px;
-          "
-        >
+            <strong>Notes</strong>
 
-          <span id="selectedFileName"></span>
+            <textarea
+              id="notes"
+              name="notes"
+              rows="4"
+              placeholder="Enter any notes, instructions or comments about this document..."
+            ></textarea>
+
+          </label>
+
+
+          <!-- PDF -->
+          <label class="wide">
+
+            <strong>Attach PDF Document</strong>
+
+            <input
+              id="documentFile"
+              name="documentFile"
+              type="file"
+              accept="application/pdf,.pdf"
+            >
+
+            <small class="field-help">
+              PDF files only. Maximum file size: 10 MB.
+            </small>
+
+            <div
+              id="selectedFile"
+              style="
+                display:none;
+                margin-top:10px;
+                padding:12px;
+                border:1px solid #dbe4ef;
+                border-radius:8px;
+                background:#f7fafc;
+              "
+            >
+
+              <span id="selectedFileName"></span>
+
+              <button
+                type="button"
+                id="removeSelectedFile"
+                class="btn secondary"
+                style="margin-left:10px;"
+              >
+                Remove
+              </button>
+
+            </div>
+
+          </label>
+
+        </div>
+
+
+        <!-- FORM ACTIONS -->
+        <div class="modal-actions">
+
+          <!-- IMPORTANT:
+               type="button" means this DOES NOT validate
+               the required fields.
+          -->
+          <button
+            class="btn secondary"
+            type="button"
+            id="cancelDocumentBtn"
+          >
+            Cancel
+          </button>
 
           <button
-            type="button"
-            id="removeSelectedFile"
-            style="
-              float:right;
-              border:0;
-              background:none;
-              color:#b42318;
-              cursor:pointer;
-              font-weight:600;
-            "
+            class="btn primary"
+            type="submit"
           >
-            Remove
+            Register & Route
           </button>
 
         </div>
 
-      </label>
-
-
-    </div>
-
-
-    <!-- MODAL ACTIONS -->
-
-    <div class="modal-actions">
-
-      <button
-        value="cancel"
-        class="secondary"
-      >
-        Cancel
-      </button>
-
-      <button
-        class="primary"
-        value="default"
-        type="submit"
-      >
-        Register & route
-      </button>
+      </form>
 
     </div>
 
-  </form>
+  </dialog>
 
-</dialog>
 
+  <!-- =====================================================
+       REVIEW MODAL
+  ====================================================== -->
+  <dialog id="reviewModal" class="modal">
 
-<!-- =========================================================
-     REVIEW MODAL
-     ========================================================= -->
+    <div class="modal-content">
 
-<dialog id="reviewModal">
+      <div class="modal-header">
 
-  <form
-    method="dialog"
-    id="reviewForm"
-  >
+        <div>
+          <h2 id="reviewTitle">Document</h2>
+          <p id="reviewReference"></p>
+        </div>
 
-    <div class="modal-head">
-
-      <div>
-
-        <p class="eyebrow">
-          DOCUMENT DECISION
-        </p>
-
-        <h2>
-          Take action
-        </h2>
-
-      </div>
-
-      <button
-        class="close"
-        value="cancel"
-      >
-        ×
-      </button>
-
-    </div>
-
-
-    <p
-      class="modal-copy"
-      id="reviewDocument"
-    ></p>
-
-
-    <div class="form-grid">
-
-      <label class="wide">
-
-        Decision
-
-        <select id="decision">
-
-          <option value="approved">
-            Approve document
-          </option>
-
-          <option value="not-approved">
-            Do not approve
-          </option>
-
-          <option value="revert">
-            Revert for changes
-          </option>
-
-        </select>
-
-      </label>
-
-
-      <label
-        id="returnDepartmentLabel"
-        class="wide"
-      >
-
-        Responsible department
-
-        <select id="returnDepartment">
-
-          <option>
-            Finance
-          </option>
-
-          <option>
-            Human Resources
-          </option>
-
-          <option>
-            Academic Affairs
-          </option>
-
-          <option>
-            Procurement
-          </option>
-
-          <option>
-            Registry
-          </option>
-
-          <option>
-            Office of the Director
-          </option>
-
-        </select>
-
-      </label>
-
-
-      <label class="wide">
-
-        Reason / instructions
-
-        <textarea
-          required
-          id="decisionReason"
-          placeholder="State the approval note, reason for non-approval, or requested changes"
-        ></textarea>
-
-      </label>
-
-    </div>
-
-
-    <div class="modal-actions">
-
-      <button
-        value="cancel"
-        class="secondary"
-      >
-        Cancel
-      </button>
-
-      <button
-        class="primary"
-        value="default"
-      >
-        Save decision & notify department
-      </button>
-
-    </div>
-
-  </form>
-
-</dialog>
-
-
-<!-- =========================================================
-     SETTINGS MODAL
-     ========================================================= -->
-
-<dialog id="customizerModal">
-
-  <form
-    method="dialog"
-    id="customizerForm"
-  >
-
-    <div class="modal-head">
-
-      <div>
-
-        <p class="eyebrow">
-          ADMINISTRATION
-        </p>
-
-        <h2>
-          Portal configuration
-        </h2>
-
-      </div>
-
-      <button
-        class="close"
-        value="cancel"
-      >
-        ×
-      </button>
-
-    </div>
-
-
-    <p class="modal-copy">
-      Only administrators can update the institution identity,
-      colours and portal messaging.
-    </p>
-
-
-    <div class="form-grid">
-
-      <label>
-
-        Application title
-
-        <input
-          id="settingTitle"
-          maxlength="28"
-        />
-
-      </label>
-
-
-      <label>
-
-        Institution name
-
-        <input
-          id="settingInstitution"
-          maxlength="40"
-        />
-
-      </label>
-
-
-      <label class="wide">
-
-        Portal label
-
-        <input
-          id="settingLabel"
-          maxlength="60"
-        />
-
-      </label>
-
-
-      <label class="wide">
-
-        Welcome message
-
-        <input
-          id="settingWelcome"
-          maxlength="100"
-        />
-
-      </label>
-
-
-      <label>
-
-        Primary brand colour
-
-        <input
-          id="settingPrimary"
-          type="color"
-        />
-
-      </label>
-
-
-      <label>
-
-        Sidebar colour
-
-        <input
-          id="settingSidebar"
-          type="color"
-        />
-
-      </label>
-
-    </div>
-
-
-    <div class="modal-actions">
-
-      <button
-        type="button"
-        class="secondary"
-        id="resetSettings"
-      >
-        Restore defaults
-      </button>
-
-      <button
-        class="primary"
-        value="default"
-      >
-        Save changes
-      </button>
-
-    </div>
-
-  </form>
-
-</dialog>
-
-
-<!-- =========================================================
-     ADMIN MODAL
-     ========================================================= -->
-
-<dialog id="adminModal">
-
-  <div class="admin-console">
-
-    <div class="modal-head">
-
-      <div>
-
-        <p class="eyebrow">
-          ADMINISTRATION
-        </p>
-
-        <h2>
-          Admin dashboard
-        </h2>
-
-      </div>
-
-      <button
-        class="close"
-        id="closeAdmin"
-      >
-        ×
-      </button>
-
-    </div>
-
-
-    <p class="modal-copy">
-      Manage system users, access roles and account security.
-    </p>
-
-
-    <div class="admin-stats">
-
-      <div>
-        <span>Total users</span>
-        <strong id="totalUsers">0</strong>
-      </div>
-
-      <div>
-        <span>Active accounts</span>
-        <strong id="activeUsers">0</strong>
-      </div>
-
-      <div>
-        <span>Administrators</span>
-        <strong id="adminUsers">0</strong>
-      </div>
-
-    </div>
-
-
-    <div class="admin-toolbar">
-
-      <div>
-
-        <h3>
-          User management
-        </h3>
-
-        <p>
-          Create users, assign access rights or reset credentials.
-        </p>
-
-      </div>
-
-      <button
-        class="primary"
-        id="addUser"
-      >
-        + Add user
-      </button>
-
-    </div>
-
-
-    <div class="user-table-wrap">
-
-      <table>
-
-        <thead>
-
-          <tr>
-
-            <th>
-              USER
-            </th>
-
-            <th>
-              DEPARTMENT
-            </th>
-
-            <th>
-              ROLE / RIGHTS
-            </th>
-
-            <th>
-              STATUS
-            </th>
-
-            <th>
-              ACTIONS
-            </th>
-
-          </tr>
-
-        </thead>
-
-        <tbody id="userRows"></tbody>
-
-      </table>
-
-    </div>
-
-  </div>
-
-</dialog>
-
-
-<!-- =========================================================
-     USER MODAL
-     ========================================================= -->
-
-<dialog id="userModal">
-
-  <form
-    method="dialog"
-    id="userForm"
-  >
-
-    <div class="modal-head">
-
-      <div>
-
-        <p
-          class="eyebrow"
-          id="userMode"
+        <button
+          type="button"
+          class="modal-close"
+          id="closeReviewModal"
         >
-          NEW USER
-        </p>
-
-        <h2 id="userModalTitle">
-          Create user account
-        </h2>
+          ×
+        </button>
 
       </div>
 
-      <button
-        class="close"
-        value="cancel"
-      >
-        ×
-      </button>
+      <div id="reviewContent"></div>
+
+      <div class="modal-actions">
+
+        <button
+          type="button"
+          class="btn secondary"
+          id="closeReviewBtn"
+        >
+          Close
+        </button>
+
+      </div>
 
     </div>
 
-
-    <div class="form-grid">
-
-      <label>
-
-        Full name
-
-        <input
-          required
-          id="userName"
-          placeholder="e.g. James Kariuki"
-        />
-
-      </label>
+  </dialog>
 
 
-      <label>
+  <!-- =====================================================
+       SETTINGS MODAL
+  ====================================================== -->
+  <dialog id="customizerModal" class="modal">
 
-        Email address
+    <div class="modal-content">
 
-        <input
-          required
-          id="userEmail"
-          type="email"
-          placeholder="name@ksuc.ac.ke"
-        />
+      <div class="modal-header">
 
-      </label>
+        <div>
+          <h2>Settings</h2>
+          <p>System preferences.</p>
+        </div>
 
+        <button
+          type="button"
+          class="modal-close"
+          id="closeCustomizerModal"
+        >
+          ×
+        </button>
 
-      <label>
+      </div>
 
-        Department
+      <div class="settings-content">
 
-        <select id="userDepartment">
+        <label>
+          <strong>System name</strong>
 
-          <option>
-            Registry
-          </option>
+          <input
+            id="systemNameSetting"
+            type="text"
+            value="KSUCflow"
+          >
+        </label>
 
-          <option>
-            Finance
-          </option>
+        <label>
+          <strong>Institution</strong>
 
-          <option>
-            Human Resources
-          </option>
+          <input
+            id="institutionSetting"
+            type="text"
+            value="Koitaleel Samoei University"
+          >
+        </label>
 
-          <option>
-            Academic Affairs
-          </option>
+      </div>
 
-          <option>
-            Procurement
-          </option>
+      <div class="modal-actions">
 
-        </select>
+        <button
+          type="button"
+          class="btn secondary"
+          id="cancelSettingsBtn"
+        >
+          Cancel
+        </button>
 
-      </label>
+        <button
+          type="button"
+          class="btn primary"
+          id="saveSettingsBtn"
+        >
+          Save Settings
+        </button>
 
-
-      <label>
-
-        Role / rights
-
-        <select id="userRole">
-
-          <option value="Staff">
-            Staff — view and update assigned documents
-          </option>
-
-          <option value="Department Head">
-            Department Head — route and manage department documents
-          </option>
-
-          <option value="Administrator">
-            Administrator — manage users and settings
-          </option>
-
-        </select>
-
-      </label>
-
-
-      <label class="wide">
-
-        Temporary password
-
-        <input
-          required
-          id="userPassword"
-          type="password"
-          minlength="8"
-          placeholder="Minimum 8 characters"
-        />
-
-        <small class="field-help">
-          The user should change this password when signing in.
-        </small>
-
-      </label>
+      </div>
 
     </div>
 
+  </dialog>
 
-    <div class="modal-actions">
 
-      <button
-        value="cancel"
-        class="secondary"
-      >
-        Cancel
-      </button>
+  <!-- =====================================================
+       ADMIN MODAL
+  ====================================================== -->
+  <dialog id="adminModal" class="modal">
 
-      <button
-        class="primary"
-        value="default"
-        id="saveUser"
-      >
-        Create user
-      </button>
+    <div class="modal-content">
+
+      <div class="modal-header">
+
+        <div>
+          <h2>Administration</h2>
+          <p>Manage system users and settings.</p>
+        </div>
+
+        <button
+          type="button"
+          class="modal-close"
+          id="closeAdminModal"
+        >
+          ×
+        </button>
+
+      </div>
+
+      <div id="adminContent">
+
+        <div class="empty-state">
+          <div class="empty-icon">♙</div>
+          <h3>Administration</h3>
+          <p>User management and system administration will appear here.</p>
+        </div>
+
+      </div>
 
     </div>
 
-  </form>
-
-</dialog>
+  </dialog>
 
 
-<!-- =========================================================
-     SCRIPTS
-     ========================================================= -->
+  <!-- =====================================================
+       USER MENU MODAL
+  ====================================================== -->
+  <dialog id="userModal" class="modal small-modal">
 
-<script src="auth-guard.js"></script>
-<script src="app.js"></script>
+    <div class="modal-content">
+
+      <div class="modal-header">
+
+        <div>
+          <h2 id="userModalName">User</h2>
+          <p id="userModalRole">Staff</p>
+        </div>
+
+        <button
+          type="button"
+          class="modal-close"
+          id="closeUserModal"
+        >
+          ×
+        </button>
+
+      </div>
+
+      <div class="user-menu-options">
+
+        <button
+          type="button"
+          class="menu-option"
+          id="userSettingsBtn"
+        >
+          ⚙ &nbsp; Account Settings
+        </button>
+
+        <button
+          type="button"
+          class="menu-option danger"
+          id="userSignOutBtn"
+        >
+          ↪ &nbsp; Sign Out
+        </button>
+
+      </div>
+
+    </div>
+
+  </dialog>
+
+
+  <!-- =====================================================
+       NOTIFICATION MODAL
+  ====================================================== -->
+  <dialog id="notificationModal" class="modal small-modal">
+
+    <div class="modal-content">
+
+      <div class="modal-header">
+
+        <div>
+          <h2>Notifications</h2>
+          <p>Your latest document notifications.</p>
+        </div>
+
+        <button
+          type="button"
+          class="modal-close"
+          id="closeNotificationModal"
+        >
+          ×
+        </button>
+
+      </div>
+
+      <div id="notificationList"></div>
+
+    </div>
+
+  </dialog>
+
+
+  <!-- =====================================================
+       REPORTS MODAL
+  ====================================================== -->
+  <dialog id="reportsModal" class="modal">
+
+    <div class="modal-content">
+
+      <div class="modal-header">
+
+        <div>
+          <h2>Reports</h2>
+          <p>Document workflow summary.</p>
+        </div>
+
+        <button
+          type="button"
+          class="modal-close"
+          id="closeReportsModal"
+        >
+          ×
+        </button>
+
+      </div>
+
+      <div id="reportsContent"></div>
+
+    </div>
+
+  </dialog>
+
+
+  <!-- =====================================================
+       TOAST
+  ====================================================== -->
+  <div
+    id="toast"
+    class="toast"
+    role="status"
+    aria-live="polite"
+  ></div>
+
+
+  <!-- SCRIPTS -->
+  <script src="auth-guard.js"></script>
+  <script src="app.js"></script>
 
 </body>
 </html>
