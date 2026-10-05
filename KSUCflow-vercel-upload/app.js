@@ -76,7 +76,137 @@ const activity = JSON.parse(
   ['AO', '#7c9f90', '<strong>Academic Affairs</strong> completed MI/ACA/2026/056', '1 hour ago'],
   ['SM', '#927bb7', '<strong>Sarah Mwangi</strong> registered a new document', '2 hours ago']
 ];
+/* =========================================================
+   PDF FILE STORAGE
+   ========================================================= */
 
+const PDF_DB_NAME = 'KSUCflowFiles';
+const PDF_DB_VERSION = 1;
+const PDF_STORE_NAME = 'documents';
+
+function openPdfDatabase() {
+  return new Promise((resolve, reject) => {
+
+    const request = indexedDB.open(
+      PDF_DB_NAME,
+      PDF_DB_VERSION
+    );
+
+    request.onupgradeneeded = event => {
+
+      const db = event.target.result;
+
+      if (!db.objectStoreNames.contains(PDF_STORE_NAME)) {
+        db.createObjectStore(
+          PDF_STORE_NAME,
+          { keyPath: 'ref' }
+        );
+      }
+    };
+
+    request.onsuccess = () => {
+      resolve(request.result);
+    };
+
+    request.onerror = () => {
+      reject(request.error);
+    };
+  });
+}
+
+async function savePdfFile(ref, file) {
+
+  const db = await openPdfDatabase();
+
+  return new Promise((resolve, reject) => {
+
+    const transaction =
+      db.transaction(
+        PDF_STORE_NAME,
+        'readwrite'
+      );
+
+    const store =
+      transaction.objectStore(PDF_STORE_NAME);
+
+    store.put({
+      ref,
+      name: file.name,
+      type: file.type,
+      size: file.size,
+      file
+    });
+
+    transaction.oncomplete = () => {
+      db.close();
+      resolve();
+    };
+
+    transaction.onerror = () => {
+      db.close();
+      reject(transaction.error);
+    };
+  });
+}
+
+async function getPdfFile(ref) {
+
+  const db = await openPdfDatabase();
+
+  return new Promise((resolve, reject) => {
+
+    const transaction =
+      db.transaction(
+        PDF_STORE_NAME,
+        'readonly'
+      );
+
+    const store =
+      transaction.objectStore(PDF_STORE_NAME);
+
+    const request =
+      store.get(ref);
+
+    request.onsuccess = () => {
+      db.close();
+      resolve(request.result || null);
+    };
+
+    request.onerror = () => {
+      db.close();
+      reject(request.error);
+    };
+  });
+}
+
+async function deletePdfFile(ref) {
+
+  const db = await openPdfDatabase();
+
+  return new Promise((resolve, reject) => {
+
+    const transaction =
+      db.transaction(
+        PDF_STORE_NAME,
+        'readwrite'
+      );
+
+    const store =
+      transaction.objectStore(PDF_STORE_NAME);
+
+    store.delete(ref);
+
+    transaction.oncomplete = () => {
+      db.close();
+      resolve();
+    };
+
+    transaction.onerror = () => {
+      db.close();
+      reject(transaction.error);
+    };
+  });
+}
 /* =========================================================
    HELPERS
    ========================================================= */
@@ -362,94 +492,500 @@ if (search) {
    REGISTER DOCUMENT
    ========================================================= */
 
-const modal = document.querySelector('#documentModal');
-const documentForm = document.querySelector('#documentForm');
+/* =========================================================
+   REGISTER DOCUMENT
+   ========================================================= */
 
-document.querySelector('#openModal')?.addEventListener(
+const modal =
+  document.querySelector('#documentModal');
+
+const documentForm =
+  document.querySelector('#documentForm');
+
+const documentFile =
+  document.querySelector('#documentFile');
+
+const selectedFile =
+  document.querySelector('#selectedFile');
+
+const selectedFileName =
+  document.querySelector('#selectedFileName');
+
+const removeSelectedFile =
+  document.querySelector('#removeSelectedFile');
+
+
+/* ---------------------------------------------------------
+   OPEN REGISTER DOCUMENT MODAL
+   --------------------------------------------------------- */
+
+document
+  .querySelector('#openModal')
+  ?.addEventListener('click', () => {
+
+    modal?.showModal();
+
+  });
+
+
+/* ---------------------------------------------------------
+   PDF FILE SELECTION
+   --------------------------------------------------------- */
+
+documentFile?.addEventListener(
+  'change',
+  () => {
+
+    const file =
+      documentFile.files[0];
+
+    if (!file) {
+
+      if (selectedFile) {
+        selectedFile.style.display = 'none';
+      }
+
+      return;
+    }
+
+
+    /* PDF ONLY */
+
+    const isPdf =
+      file.type === 'application/pdf' ||
+      file.name.toLowerCase().endsWith('.pdf');
+
+
+    if (!isPdf) {
+
+      showToast(
+        'Only PDF documents can be uploaded.',
+        'error'
+      );
+
+      documentFile.value = '';
+
+      if (selectedFile) {
+        selectedFile.style.display = 'none';
+      }
+
+      return;
+    }
+
+
+    /* 10 MB MAXIMUM */
+
+    const maxSize =
+      10 * 1024 * 1024;
+
+
+    if (file.size > maxSize) {
+
+      showToast(
+        'The PDF is too large. Maximum file size is 10 MB.',
+        'error'
+      );
+
+      documentFile.value = '';
+
+      if (selectedFile) {
+        selectedFile.style.display = 'none';
+      }
+
+      return;
+    }
+
+
+    /* DISPLAY SELECTED FILE */
+
+    if (selectedFileName) {
+
+      const sizeMb =
+        (file.size / (1024 * 1024))
+          .toFixed(2);
+
+      selectedFileName.textContent =
+        `${file.name} (${sizeMb} MB)`;
+    }
+
+    if (selectedFile) {
+      selectedFile.style.display = 'block';
+    }
+
+  });
+
+
+/* ---------------------------------------------------------
+   REMOVE SELECTED PDF
+   --------------------------------------------------------- */
+
+removeSelectedFile?.addEventListener(
   'click',
-  () => modal?.showModal()
-);
+  () => {
 
-documentForm?.addEventListener('submit', event => {
+    if (documentFile) {
+      documentFile.value = '';
+    }
 
-  event.preventDefault();
+    if (selectedFile) {
+      selectedFile.style.display = 'none';
+    }
 
-  const ref =
-    document.querySelector('#reference').value.trim();
+  });
 
-  const origin =
-    document.querySelector('#origin').value.trim();
 
-  const title =
-    document.querySelector('#subject').value.trim();
+/* ---------------------------------------------------------
+   REGISTER & ROUTE
+   --------------------------------------------------------- */
 
-  const destination =
-    document.querySelector('#department').value;
+documentForm?.addEventListener(
+  'submit',
+  async event => {
 
-  const action =
-    document.querySelector('#action').value;
+    event.preventDefault();
 
-  const notes =
-    document.querySelector('#notes').value.trim();
 
-  if (!ref || !origin || !title) {
-    showToast(
-      'Please complete all required document fields.',
-      'warning'
-    );
-    return;
-  }
+    const ref =
+      document
+        .querySelector('#reference')
+        .value
+        .trim();
 
-  /* Prevent duplicate reference numbers */
+    const origin =
+      document
+        .querySelector('#origin')
+        .value
+        .trim();
 
-  const duplicate = documents.some(
-    item => item.ref.toLowerCase() === ref.toLowerCase()
-  );
+    const title =
+      document
+        .querySelector('#subject')
+        .value
+        .trim();
 
-  if (duplicate) {
-    showToast(
-      'A document with this reference number already exists.',
-      'error'
-    );
-    return;
-  }
+    const destination =
+      document
+        .querySelector('#department')
+        .value;
 
-  const newDocument = {
-    ref,
-    title,
-    origin,
-    destination,
-    action,
-    notes,
-    kind: action === 'For information'
-      ? 'info'
-      : action === 'For review'
-        ? 'review'
-        : 'action',
-    status: 'Awaiting action',
-    state: ''
-  };
+    const action =
+      document
+        .querySelector('#action')
+        .value;
 
-  documents.unshift(newDocument);
+    const notes =
+      document
+        .querySelector('#notes')
+        .value
+        .trim();
 
-  saveDocuments();
 
-  addActivity(
-    'RG',
-    '#376fd5',
-    `<strong>Registry</strong> routed ${escapeHtml(ref)} to ${escapeHtml(destination)}`
-  );
+    /* -----------------------------------------------------
+       BASIC VALIDATION
+       ----------------------------------------------------- */
 
-  renderDocuments();
+    if (!ref || !origin || !title) {
 
-  documentForm.reset();
+      showToast(
+        'Please complete all required document fields.',
+        'warning'
+      );
 
-  modal.close();
+      return;
+    }
 
-  showToast(
-    `Document ${ref} has been registered and routed to ${destination}.`
-  );
-});
+
+    /* -----------------------------------------------------
+       PDF VALIDATION
+       ----------------------------------------------------- */
+
+    const file =
+      documentFile?.files?.[0] || null;
+
+
+    if (!file) {
+
+      showToast(
+        'Please select a PDF document to upload.',
+        'warning'
+      );
+
+      return;
+    }
+
+
+    const isPdf =
+      file.type === 'application/pdf' ||
+      file.name.toLowerCase().endsWith('.pdf');
+
+
+    if (!isPdf) {
+
+      showToast(
+        'Only PDF documents can be uploaded.',
+        'error'
+      );
+
+      return;
+    }
+
+
+    const maxSize =
+      10 * 1024 * 1024;
+
+
+    if (file.size > maxSize) {
+
+      showToast(
+        'The PDF is too large. Maximum file size is 10 MB.',
+        'error'
+      );
+
+      return;
+    }
+
+
+    /* -----------------------------------------------------
+       DUPLICATE REFERENCE CHECK
+       ----------------------------------------------------- */
+
+    const duplicate =
+      documents.some(
+        item =>
+          item.ref.toLowerCase() ===
+          ref.toLowerCase()
+      );
+
+
+    if (duplicate) {
+
+      showToast(
+        'A document with this reference number already exists.',
+        'error'
+      );
+
+      return;
+    }
+
+
+    /* -----------------------------------------------------
+       SHOW UPLOAD STATE
+       ----------------------------------------------------- */
+
+    const submitButton =
+      documentForm.querySelector(
+        'button[type="submit"]'
+      );
+
+    const originalButtonText =
+      submitButton?.textContent ||
+      'Register & route';
+
+
+    if (submitButton) {
+
+      submitButton.disabled = true;
+
+      submitButton.textContent =
+        'Saving document...';
+    }
+
+
+    try {
+
+      /* ---------------------------------------------------
+         SAVE PDF INTO INDEXEDDB
+         --------------------------------------------------- */
+
+      await savePdfFile(
+        ref,
+        file
+      );
+
+
+      /* ---------------------------------------------------
+         CREATE DOCUMENT RECORD
+         --------------------------------------------------- */
+
+      const newDocument = {
+
+        ref,
+
+        title,
+
+        origin,
+
+        destination,
+
+        action,
+
+        notes,
+
+        kind:
+          action === 'For information'
+            ? 'info'
+            : action === 'For review'
+              ? 'review'
+              : 'action',
+
+        status:
+          'Awaiting action',
+
+        state:
+          '',
+
+        hasAttachment:
+          true,
+
+        attachmentName:
+          file.name,
+
+        attachmentType:
+          'application/pdf',
+
+        attachmentSize:
+          file.size,
+
+        createdAt:
+          new Date().toISOString(),
+
+        registeredBy:
+          signedInUser?.name ||
+          'Registry',
+
+        history: [
+          {
+            action:
+              'Document registered',
+
+            by:
+              signedInUser?.name ||
+              'Registry',
+
+            department:
+              destination,
+
+            date:
+              new Date().toISOString(),
+
+            note:
+              notes ||
+              'Document registered and routed.'
+          }
+        ],
+
+        notesList:
+          notes
+            ? [
+                {
+                  note: notes,
+
+                  by:
+                    signedInUser?.name ||
+                    'Registry',
+
+                  date:
+                    new Date().toISOString()
+                }
+              ]
+            : []
+      };
+
+
+      /* ---------------------------------------------------
+         ADD DOCUMENT
+         --------------------------------------------------- */
+
+      documents.unshift(
+        newDocument
+      );
+
+
+      saveDocuments();
+
+
+      /* ---------------------------------------------------
+         ACTIVITY
+         --------------------------------------------------- */
+
+      addActivity(
+        'RG',
+        '#376fd5',
+        `<strong>Registry</strong> registered ${escapeHtml(ref)} and routed it to ${escapeHtml(destination)}`
+      );
+
+
+      /* ---------------------------------------------------
+         REFRESH DASHBOARD
+         --------------------------------------------------- */
+
+      renderDocuments();
+
+
+      /* ---------------------------------------------------
+         RESET FORM
+         --------------------------------------------------- */
+
+      documentForm.reset();
+
+      if (selectedFile) {
+        selectedFile.style.display =
+          'none';
+      }
+
+
+      modal.close();
+
+
+      /* ---------------------------------------------------
+         SUCCESS
+         --------------------------------------------------- */
+
+      showToast(
+        `Document ${ref} has been registered and routed to ${destination}.`
+      );
+
+
+    } catch (error) {
+
+      console.error(
+        'PDF upload error:',
+        error
+      );
+
+
+      /* Remove partially saved PDF */
+
+      try {
+        await deletePdfFile(ref);
+      } catch (cleanupError) {
+        console.error(
+          'PDF cleanup error:',
+          cleanupError
+        );
+      }
+
+
+      showToast(
+        'The document could not be saved. Please try again.',
+        'error'
+      );
+
+
+    } finally {
+
+      if (submitButton) {
+
+        submitButton.disabled =
+          false;
+
+        submitButton.textContent =
+          originalButtonText;
+      }
+
+    }
+
+  });
 
 /* =========================================================
    SETTINGS
