@@ -1,1 +1,2275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+<title>Document | KSUCflow</title>
+
+<style>
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #f5f7fa;
+    color: #26364e;
+}
+
+button,
+select,
+textarea {
+    font: inherit;
+}
+
+button {
+    cursor: pointer;
+}
+
+/* =========================
+   TOP BAR
+========================= */
+
+.topbar {
+    height: 70px;
+    background: #182b4d;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 32px;
+}
+
+.brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.brand-mark {
+    width: 38px;
+    height: 38px;
+    background: #376fd5;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+}
+
+.brand strong {
+    font-size: 17px;
+}
+
+.brand small {
+    display: block;
+    font-size: 11px;
+    color: #b9c6d8;
+    margin-top: 2px;
+}
+
+.back-button {
+    border: 1px solid rgba(255,255,255,.2);
+    background: rgba(255,255,255,.08);
+    color: white;
+    padding: 9px 14px;
+    border-radius: 7px;
+}
+
+/* =========================
+   CONTENT
+========================= */
+
+.content {
+    max-width: 1450px;
+    margin: auto;
+    padding: 30px;
+}
+
+.breadcrumb {
+    font-size: 12px;
+    color: #7d8a9c;
+    margin-bottom: 18px;
+}
+
+.breadcrumb a {
+    color: #376fd5;
+    cursor: pointer;
+}
+
+/* =========================
+   HEADER
+========================= */
+
+.document-header {
+    background: white;
+    border: 1px solid #e2e8ef;
+    border-radius: 11px;
+    padding: 24px;
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+    align-items: flex-start;
+    margin-bottom: 20px;
+}
+
+.document-heading h1 {
+    margin: 0;
+    color: #182b4d;
+    font-size: 25px;
+    line-height: 1.35;
+}
+
+.reference {
+    color: #7a8799;
+    font-size: 12px;
+    margin-top: 7px;
+}
+
+.header-actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.primary {
+    border: none;
+    background: #376fd5;
+    color: white;
+    padding: 10px 15px;
+    border-radius: 7px;
+    font-weight: 600;
+}
+
+.primary:hover {
+    background: #2d5fb9;
+}
+
+.secondary {
+    border: 1px solid #dce3eb;
+    background: white;
+    color: #526174;
+    padding: 10px 15px;
+    border-radius: 7px;
+}
+
+.secondary:hover {
+    background: #f6f8fa;
+}
+
+.danger {
+    border: 1px solid #efcaca;
+    background: white;
+    color: #c0392b;
+    padding: 10px 15px;
+    border-radius: 7px;
+}
+
+/* =========================
+   GRID
+========================= */
+
+.grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.7fr) minmax(300px, .8fr);
+    gap: 20px;
+}
+
+/* =========================
+   CARDS
+========================= */
+
+.card {
+    background: white;
+    border: 1px solid #e2e8ef;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    overflow: hidden;
+}
+
+.card-header {
+    padding: 16px 20px;
+    border-bottom: 1px solid #edf0f4;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.card-header h2 {
+    font-size: 15px;
+    margin: 0;
+    color: #293a52;
+}
+
+.card-body {
+    padding: 20px;
+}
+
+/* =========================
+   STATUS
+========================= */
+
+.status {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 10px;
+    border-radius: 20px;
+    background: #fff4df;
+    color: #a36c09;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.status-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: currentColor;
+}
+
+/* =========================
+   INFO GRID
+========================= */
+
+.info-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px 30px;
+}
+
+.info label {
+    display: block;
+    color: #8a96a7;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+    font-weight: 700;
+    margin-bottom: 6px;
+}
+
+.info strong,
+.info span {
+    display: block;
+    color: #33435a;
+    font-size: 13px;
+}
+
+/* =========================
+   WORKFLOW
+========================= */
+
+.timeline {
+    position: relative;
+}
+
+.timeline::before {
+    content: "";
+    position: absolute;
+    left: 16px;
+    top: 8px;
+    bottom: 8px;
+    width: 2px;
+    background: #e5eaf0;
+}
+
+.timeline-item {
+    position: relative;
+    display: flex;
+    gap: 16px;
+    padding-bottom: 25px;
+}
+
+.timeline-item:last-child {
+    padding-bottom: 0;
+}
+
+.timeline-icon {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: #eef3f8;
+    color: #607086;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    position: relative;
+    z-index: 1;
+    border: 3px solid white;
+    font-size: 12px;
+}
+
+.timeline-item.current .timeline-icon {
+    background: #376fd5;
+    color: white;
+}
+
+.timeline-item.completed .timeline-icon {
+    background: #23865b;
+    color: white;
+}
+
+.timeline-content {
+    padding-top: 2px;
+}
+
+.timeline-content strong {
+    font-size: 12px;
+    color: #34445b;
+}
+
+.timeline-content p {
+    margin: 4px 0;
+    color: #66758a;
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+.timeline-content small {
+    color: #98a3b1;
+    font-size: 10px;
+}
+
+/* =========================
+   ACTION PANEL
+========================= */
+
+.action-list {
+    display: grid;
+    gap: 8px;
+}
+
+.action-list button {
+    width: 100%;
+    text-align: left;
+    padding: 11px 12px;
+    border: 1px solid #e0e6ed;
+    background: white;
+    border-radius: 7px;
+    color: #425269;
+    font-size: 12px;
+}
+
+.action-list button:hover {
+    background: #f5f8fb;
+}
+
+.action-list .main-action {
+    background: #376fd5;
+    color: white;
+    border-color: #376fd5;
+}
+
+.action-list .main-action:hover {
+    background: #2d5fb9;
+}
+
+.action-list .danger-action {
+    color: #c0392b;
+}
+
+/* =========================
+   ATTACHMENTS
+========================= */
+
+.attachment {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 11px;
+    border: 1px solid #e7ebf0;
+    border-radius: 7px;
+    margin-bottom: 8px;
+}
+
+.file-icon {
+    width: 34px;
+    height: 34px;
+    background: #edf2f8;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.attachment-info {
+    flex: 1;
+}
+
+.attachment-info strong {
+    display: block;
+    font-size: 11px;
+}
+
+.attachment-info small {
+    color: #8b97a7;
+    font-size: 10px;
+}
+
+.attachment button {
+    border: none;
+    background: transparent;
+    color: #376fd5;
+    font-size: 11px;
+}
+
+/* =========================
+   NOTES
+========================= */
+
+.note {
+    background: #f8fafc;
+    border-left: 3px solid #376fd5;
+    padding: 12px;
+    margin-bottom: 10px;
+    border-radius: 4px;
+}
+
+.note strong {
+    font-size: 11px;
+}
+
+.note p {
+    margin: 5px 0;
+    font-size: 11px;
+    color: #637186;
+    line-height: 1.5;
+}
+
+.note small {
+    color: #9aa5b3;
+    font-size: 9px;
+}
+
+/* =========================
+   MODAL
+========================= */
+
+.modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(16,28,47,.48);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+.modal.show {
+    display: flex;
+}
+
+.modal-box {
+    background: white;
+    width: min(550px,100%);
+    border-radius: 11px;
+    box-shadow: 0 25px 70px rgba(0,0,0,.2);
+    overflow: hidden;
+}
+
+.modal-header {
+    padding: 18px 20px;
+    border-bottom: 1px solid #e8edf2;
+    display: flex;
+    justify-content: space-between;
+}
+
+.modal-header h2 {
+    margin: 0;
+    font-size: 16px;
+}
+
+.close {
+    border: none;
+    background: transparent;
+    font-size: 22px;
+    color: #8b97a6;
+}
+
+.modal-body {
+    padding: 20px;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 6px;
+    font-size: 11px;
+    font-weight: 600;
+    color: #526174;
+}
+
+.form-group select,
+.form-group textarea {
+    width: 100%;
+    border: 1px solid #dce3eb;
+    border-radius: 7px;
+    padding: 10px;
+    outline: none;
+}
+
+.form-group textarea {
+    min-height: 100px;
+    resize: vertical;
+}
+
+.modal-footer {
+    padding: 14px 20px;
+    background: #fafbfd;
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+}
+
+/* =========================
+   TOAST
+========================= */
+
+#toast {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: white;
+    border: 1px solid #dfe5eb;
+    box-shadow: 0 12px 35px rgba(20,40,70,.16);
+    padding: 13px 17px;
+    border-radius: 8px;
+    z-index: 3000;
+    display: none;
+    font-size: 12px;
+}
+
+#toast.show {
+    display: block;
+}
+
+/* =========================
+   MOBILE
+========================= */
+
+@media(max-width:900px) {
+
+    .grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media(max-width:650px) {
+
+    .topbar {
+        padding: 0 15px;
+    }
+
+    .content {
+        padding: 18px 12px;
+    }
+
+    .document-header {
+        display: block;
+    }
+
+    .header-actions {
+        margin-top: 18px;
+    }
+
+    .info-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .header-actions button {
+        flex: 1;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<!-- =========================
+     TOP BAR
+========================= -->
+
+<header class="topbar">
+
+    <div class="brand">
+
+        <div class="brand-mark">K</div>
+
+        <div>
+            <strong>KSUCflow</strong>
+            <small>Document Management Portal</small>
+        </div>
+
+    </div>
+
+    <button
+        class="back-button"
+        onclick="goBack()"
+    >
+        ← Back to Documents
+    </button>
+
+</header>
+
+
+<main class="content">
+
+    <!-- BREADCRUMB -->
+
+    <div class="breadcrumb">
+
+        <a onclick="goBack()">
+            All Documents
+        </a>
+
+        &nbsp; / &nbsp;
+
+        Document Details
+
+    </div>
+
+
+    <!-- DOCUMENT HEADER -->
+
+    <section class="document-header">
+
+        <div class="document-heading">
+
+            <h1 id="documentTitle">
+                Loading document...
+            </h1>
+
+            <div
+                id="documentReference"
+                class="reference"
+            >
+                —
+            </div>
+
+        </div>
+
+
+        <div class="header-actions">
+
+            <button
+                class="secondary"
+                onclick="printDocument()"
+            >
+                🖨 Print
+            </button>
+
+            <button
+                class="secondary"
+                onclick="routeDocument()"
+            >
+                ➡ Forward
+            </button>
+
+            <button
+                class="primary"
+                onclick="takeAction()"
+            >
+                ✓ Take Action
+            </button>
+
+        </div>
+
+    </section>
+
+
+    <!-- MAIN GRID -->
+
+    <div class="grid">
+
+        <!-- =====================
+             LEFT
+        ====================== -->
+
+        <div>
+
+
+            <!-- DOCUMENT INFORMATION -->
+
+            <section class="card">
+
+                <div class="card-header">
+
+                    <h2>Document Information</h2>
+
+                    <span
+                        id="statusBadge"
+                        class="status"
+                    >
+                        <span class="status-dot"></span>
+                        Loading
+                    </span>
+
+                </div>
+
+
+                <div class="card-body">
+
+                    <div class="info-grid">
+
+                        <div class="info">
+
+                            <label>
+                                Reference Number
+                            </label>
+
+                            <strong id="infoReference">
+                                —
+                            </strong>
+
+                        </div>
+
+
+                        <div class="info">
+
+                            <label>
+                                Subject
+                            </label>
+
+                            <strong id="infoSubject">
+                                —
+                            </strong>
+
+                        </div>
+
+
+                        <div class="info">
+
+                            <label>
+                                Origin
+                            </label>
+
+                            <span id="infoOrigin">
+                                —
+                            </span>
+
+                        </div>
+
+
+                        <div class="info">
+
+                            <label>
+                                Current Department
+                            </label>
+
+                            <span id="infoDepartment">
+                                —
+                            </span>
+
+                        </div>
+
+
+                        <div class="info">
+
+                            <label>
+                                Intended Action
+                            </label>
+
+                            <span id="infoAction">
+                                —
+                            </span>
+
+                        </div>
+
+
+                        <div class="info">
+
+                            <label>
+                                Registered By
+                            </label>
+
+                            <span id="infoRegisteredBy">
+                                Registry
+                            </span>
+
+                        </div>
+
+
+                        <div class="info">
+
+                            <label>
+                                Date Registered
+                            </label>
+
+                            <span id="infoDate">
+                                —
+                            </span>
+
+                        </div>
+
+
+                        <div class="info">
+
+                            <label>
+                                Priority
+                            </label>
+
+                            <span>
+                                Normal
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- WORKFLOW HISTORY -->
+
+            <section class="card">
+
+                <div class="card-header">
+
+                    <h2>Workflow History</h2>
+
+                </div>
+
+                <div
+                    id="timeline"
+                    class="card-body timeline"
+                >
+
+                </div>
+
+            </section>
+
+
+            <!-- ATTACHMENTS -->
+
+            <section class="card">
+
+                <div class="card-header">
+
+                    <h2>Attachments</h2>
+
+                    <button
+                        class="secondary"
+                        onclick="addAttachment()"
+                    >
+                        + Add Attachment
+                    </button>
+
+                </div>
+
+                <div
+                    id="attachments"
+                    class="card-body"
+                >
+
+                </div>
+
+            </section>
+
+
+            <!-- NOTES -->
+
+            <section class="card">
+
+                <div class="card-header">
+
+                    <h2>Internal Notes</h2>
+
+                    <button
+                        class="secondary"
+                        onclick="addNote()"
+                    >
+                        + Add Note
+                    </button>
+
+                </div>
+
+                <div
+                    id="notes"
+                    class="card-body"
+                >
+
+                </div>
+
+            </section>
+
+        </div>
+
+
+        <!-- =====================
+             RIGHT
+        ====================== -->
+
+        <aside>
+
+
+            <!-- CURRENT STATUS -->
+
+            <section class="card">
+
+                <div class="card-header">
+
+                    <h2>Current Status</h2>
+
+                </div>
+
+                <div class="card-body">
+
+                    <div class="info">
+
+                        <label>
+                            Currently With
+                        </label>
+
+                        <strong id="currentHolder">
+                            —
+                        </strong>
+
+                    </div>
+
+                    <br>
+
+                    <div class="info">
+
+                        <label>
+                            Next Action
+                        </label>
+
+                        <span id="nextAction">
+                            —
+                        </span>
+
+                    </div>
+
+                    <br>
+
+                    <div class="info">
+
+                        <label>
+                            Time in Current Department
+                        </label>
+
+                        <span>
+                            —
+                        </span>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- ACTIONS -->
+
+            <section class="card">
+
+                <div class="card-header">
+
+                    <h2>Document Actions</h2>
+
+                </div>
+
+                <div class="card-body">
+
+                    <div class="action-list">
+
+                        <button
+                            class="main-action"
+                            onclick="takeAction()"
+                        >
+                            ✓ Take Action
+                        </button>
+
+                        <button
+                            onclick="routeDocument()"
+                        >
+                            ➡ Forward / Route
+                        </button>
+
+                        <button
+                            onclick="returnDocument()"
+                        >
+                            ↩ Return for Changes
+                        </button>
+
+                        <button
+                            onclick="approveDocument()"
+                        >
+                            ✓ Approve
+                        </button>
+
+                        <button
+                            onclick="addNote()"
+                        >
+                            📝 Add Internal Note
+                        </button>
+
+                        <button
+                            onclick="printDocument()"
+                        >
+                            🖨 Print Record
+                        </button>
+
+                        <button
+                            class="danger-action"
+                            onclick="deleteDocument()"
+                        >
+                            🗑 Delete Document
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- QUICK INFORMATION -->
+
+            <section class="card">
+
+                <div class="card-header">
+
+                    <h2>Tracking</h2>
+
+                </div>
+
+                <div class="card-body">
+
+                    <div class="info">
+
+                        <label>
+                            Document Reference
+                        </label>
+
+                        <strong id="trackingReference">
+                            —
+                        </strong>
+
+                    </div>
+
+                    <br>
+
+                    <div class="info">
+
+                        <label>
+                            Total Movements
+                        </label>
+
+                        <span id="movementCount">
+                            0
+                        </span>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+        </aside>
+
+    </div>
+
+</main>
+
+
+<!-- =========================
+     ACTION MODAL
+========================= -->
+
+<div
+    id="actionModal"
+    class="modal"
+>
+
+    <div class="modal-box">
+
+        <div class="modal-header">
+
+            <h2>Take Action</h2>
+
+            <button
+                class="close"
+                onclick="closeModal('actionModal')"
+            >
+                ×
+            </button>
+
+        </div>
+
+        <div class="modal-body">
+
+            <div class="form-group">
+
+                <label>
+                    Decision
+                </label>
+
+                <select id="decision">
+
+                    <option value="approved">
+                        Approve
+                    </option>
+
+                    <option value="forward">
+                        Forward
+                    </option>
+
+                    <option value="return">
+                        Return for changes
+                    </option>
+
+                    <option value="reject">
+                        Reject
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label>
+                    Instruction / Comment
+                </label>
+
+                <textarea
+                    id="actionComment"
+                    placeholder="Enter your decision, instruction or comment..."
+                ></textarea>
+
+            </div>
+
+        </div>
+
+        <div class="modal-footer">
+
+            <button
+                class="secondary"
+                onclick="closeModal('actionModal')"
+            >
+                Cancel
+            </button>
+
+            <button
+                class="primary"
+                onclick="saveAction()"
+            >
+                Submit Action
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- =========================
+     ROUTE MODAL
+========================= -->
+
+<div
+    id="routeModal"
+    class="modal"
+>
+
+    <div class="modal-box">
+
+        <div class="modal-header">
+
+            <h2>Forward Document</h2>
+
+            <button
+                class="close"
+                onclick="closeModal('routeModal')"
+            >
+                ×
+            </button>
+
+        </div>
+
+        <div class="modal-body">
+
+            <div class="form-group">
+
+                <label>
+                    Destination Department
+                </label>
+
+                <select id="routeDepartment">
+
+                    <option>
+                        Registry
+                    </option>
+
+                    <option>
+                        Finance
+                    </option>
+
+                    <option>
+                        Human Resources
+                    </option>
+
+                    <option>
+                        Academic Affairs
+                    </option>
+
+                    <option>
+                        Procurement
+                    </option>
+
+                    <option>
+                        Administration
+                    </option>
+
+                    <option>
+                        Planning
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label>
+                    Routing Instruction
+                </label>
+
+                <textarea
+                    id="routeComment"
+                    placeholder="Add an instruction for the receiving department..."
+                ></textarea>
+
+            </div>
+
+        </div>
+
+        <div class="modal-footer">
+
+            <button
+                class="secondary"
+                onclick="closeModal('routeModal')"
+            >
+                Cancel
+            </button>
+
+            <button
+                class="primary"
+                onclick="saveRoute()"
+            >
+                Forward Document
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<div id="toast"></div>
+
+
+<script>
+
+/* =====================================================
+   LOAD DOCUMENT
+===================================================== */
+
+let documentData =
+    JSON.parse(
+        localStorage.getItem(
+            'ksucSelectedDocument'
+        ) || 'null'
+    );
+
+
+let allDocuments =
+    JSON.parse(
+        localStorage.getItem(
+            'ksucDocuments'
+        ) || '[]'
+    );
+
+
+/* =====================================================
+   FALLBACK
+===================================================== */
+
+if (!documentData) {
+
+    documentData = {
+        ref: 'No document selected',
+        title: 'Document unavailable',
+        origin: '—',
+        destination: '—',
+        action: '—',
+        status: 'Unknown'
+    };
+
+}
+
+
+/* =====================================================
+   SAVE
+===================================================== */
+
+function saveDocuments() {
+
+    localStorage.setItem(
+        'ksucDocuments',
+        JSON.stringify(allDocuments)
+    );
+
+}
+
+
+/* =====================================================
+   FIND ORIGINAL
+===================================================== */
+
+function findDocumentIndex() {
+
+    return allDocuments.findIndex(
+        doc =>
+            doc.ref === documentData.ref
+    );
+
+}
+
+
+/* =====================================================
+   DATE
+===================================================== */
+
+function formatDate(date) {
+
+    if (!date) {
+        return '05 Oct 2026';
+    }
+
+    return new Date(date)
+        .toLocaleDateString(
+            'en-GB',
+            {
+                day:'2-digit',
+                month:'short',
+                year:'numeric'
+            }
+        );
+
+}
+
+
+/* =====================================================
+   RENDER
+===================================================== */
+
+function renderDocument() {
+
+    document.getElementById(
+        'documentTitle'
+    ).textContent =
+        documentData.title || 'Untitled document';
+
+
+    document.getElementById(
+        'documentReference'
+    ).textContent =
+        documentData.ref || 'No reference';
+
+
+    document.getElementById(
+        'infoReference'
+    ).textContent =
+        documentData.ref || '—';
+
+
+    document.getElementById(
+        'infoSubject'
+    ).textContent =
+        documentData.title || '—';
+
+
+    document.getElementById(
+        'infoOrigin'
+    ).textContent =
+        documentData.origin || '—';
+
+
+    document.getElementById(
+        'infoDepartment'
+    ).textContent =
+        documentData.destination || '—';
+
+
+    document.getElementById(
+        'infoAction'
+    ).textContent =
+        documentData.action || '—';
+
+
+    document.getElementById(
+        'infoDate'
+    ).textContent =
+        formatDate(
+            documentData.createdAt
+        );
+
+
+    document.getElementById(
+        'currentHolder'
+    ).textContent =
+        documentData.destination || '—';
+
+
+    document.getElementById(
+        'nextAction'
+    ).textContent =
+        documentData.action || 'Awaiting action';
+
+
+    document.getElementById(
+        'trackingReference'
+    ).textContent =
+        documentData.ref || '—';
+
+
+    const badge =
+        document.getElementById(
+            'statusBadge'
+        );
+
+    badge.innerHTML = `
+        <span class="status-dot"></span>
+        ${documentData.status || 'Registered'}
+    `;
+
+
+    renderTimeline();
+    renderAttachments();
+    renderNotes();
+
+}
+
+
+/* =====================================================
+   TIMELINE
+===================================================== */
+
+function renderTimeline() {
+
+    const timeline =
+        document.getElementById(
+            'timeline'
+        );
+
+
+    const history =
+        documentData.history || [];
+
+
+    if (!history.length) {
+
+        timeline.innerHTML = `
+
+            <div class="timeline-item current">
+
+                <div class="timeline-icon">
+                    ✓
+                </div>
+
+                <div class="timeline-content">
+
+                    <strong>
+                        Document Registered
+                    </strong>
+
+                    <p>
+                        ${escapeHtml(
+                            documentData.origin ||
+                            'Registry'
+                        )}
+                        registered this document.
+                    </p>
+
+                    <small>
+                        ${formatDate(
+                            documentData.createdAt
+                        )}
+                    </small>
+
+                </div>
+
+            </div>
+
+
+            <div class="timeline-item current">
+
+                <div class="timeline-icon">
+                    →
+                </div>
+
+                <div class="timeline-content">
+
+                    <strong>
+                        Current Location
+                    </strong>
+
+                    <p>
+                        Document is currently with
+                        <strong>
+                            ${escapeHtml(
+                                documentData.destination ||
+                                'the receiving department'
+                            )}
+                        </strong>.
+                    </p>
+
+                    <small>
+                        Awaiting action
+                    </small>
+
+                </div>
+
+            </div>
+
+        `;
+
+        document.getElementById(
+            'movementCount'
+        ).textContent = 2;
+
+        return;
+
+    }
+
+
+    timeline.innerHTML =
+        history.map(
+            (item,index) => `
+
+                <div class="
+                    timeline-item
+                    ${
+                        index === history.length - 1
+                        ? 'current'
+                        : 'completed'
+                    }
+                ">
+
+                    <div class="timeline-icon">
+                        ${
+                            index === history.length - 1
+                            ? '→'
+                            : '✓'
+                        }
+                    </div>
+
+                    <div class="timeline-content">
+
+                        <strong>
+                            ${escapeHtml(
+                                item.action ||
+                                'Document movement'
+                            )}
+                        </strong>
+
+                        <p>
+                            ${escapeHtml(
+                                item.comment ||
+                                ''
+                            )}
+                        </p>
+
+                        <small>
+                            ${escapeHtml(
+                                item.user ||
+                                'System'
+                            )}
+                            ·
+                            ${escapeHtml(
+                                item.date ||
+                                ''
+                            )}
+                        </small>
+
+                    </div>
+
+                </div>
+
+            `
+        )
+        .join('');
+
+
+    document.getElementById(
+        'movementCount'
+    ).textContent =
+        history.length;
+
+}
+
+
+/* =====================================================
+   ATTACHMENTS
+===================================================== */
+
+function renderAttachments() {
+
+    const container =
+        document.getElementById(
+            'attachments'
+        );
+
+
+    const attachments =
+        documentData.attachments || [];
+
+
+    if (!attachments.length) {
+
+        container.innerHTML = `
+
+            <div style="
+                text-align:center;
+                padding:20px;
+                color:#8b97a7;
+                font-size:12px;
+            ">
+
+                No attachments have been added.
+
+            </div>
+
+        `;
+
+        return;
+
+    }
+
+
+    container.innerHTML =
+        attachments.map(
+            file => `
+
+                <div class="attachment">
+
+                    <div class="file-icon">
+                        📄
+                    </div>
+
+                    <div class="attachment-info">
+
+                        <strong>
+                            ${escapeHtml(file.name)}
+                        </strong>
+
+                        <small>
+                            ${escapeHtml(file.type || 'File')}
+                        </small>
+
+                    </div>
+
+                    <button>
+                        View
+                    </button>
+
+                </div>
+
+            `
+        )
+        .join('');
+
+}
+
+
+/* =====================================================
+   NOTES
+===================================================== */
+
+function renderNotes() {
+
+    const container =
+        document.getElementById(
+            'notes'
+        );
+
+
+    const notes =
+        documentData.notesList || [];
+
+
+    if (!notes.length) {
+
+        container.innerHTML = `
+
+            <div style="
+                text-align:center;
+                padding:20px;
+                color:#8b97a7;
+                font-size:12px;
+            ">
+
+                No internal notes.
+
+            </div>
+
+        `;
+
+        return;
+
+    }
+
+
+    container.innerHTML =
+        notes.map(
+            note => `
+
+                <div class="note">
+
+                    <strong>
+                        ${escapeHtml(
+                            note.user || 'Staff'
+                        )}
+                    </strong>
+
+                    <p>
+                        ${escapeHtml(
+                            note.text
+                        )}
+                    </p>
+
+                    <small>
+                        ${escapeHtml(
+                            note.date || ''
+                        )}
+                    </small>
+
+                </div>
+
+            `
+        )
+        .join('');
+
+}
+
+
+/* =====================================================
+   ESCAPE
+===================================================== */
+
+function escapeHtml(value) {
+
+    return String(value ?? '')
+        .replace(
+            /[&<>"']/g,
+            char => ({
+                '&':'&amp;',
+                '<':'&lt;',
+                '>':'&gt;',
+                '"':'&quot;',
+                "'":'&#039;'
+            }[char])
+        );
+
+}
+
+
+/* =====================================================
+   ACTION
+===================================================== */
+
+function takeAction() {
+
+    document
+        .getElementById('actionModal')
+        .classList.add('show');
+
+}
+
+
+/* =====================================================
+   SAVE ACTION
+===================================================== */
+
+function saveAction() {
+
+    const decision =
+        document.getElementById(
+            'decision'
+        ).value;
+
+
+    const comment =
+        document.getElementById(
+            'actionComment'
+        ).value.trim();
+
+
+    if (!comment) {
+
+        showToast(
+            'Please enter an instruction or comment.'
+        );
+
+        return;
+
+    }
+
+
+    const index =
+        findDocumentIndex();
+
+
+    if (index === -1) {
+
+        showToast(
+            'Document could not be found.'
+        );
+
+        return;
+
+    }
+
+
+    const doc =
+        allDocuments[index];
+
+
+    if (!doc.history) {
+        doc.history = [];
+    }
+
+
+    let status =
+        'Approved';
+
+
+    if (decision === 'forward') {
+
+        status = 'In transit';
+
+    }
+
+
+    if (decision === 'return') {
+
+        status = 'Returned for changes';
+
+    }
+
+
+    if (decision === 'reject') {
+
+        status = 'Not approved';
+
+    }
+
+
+    doc.status = status;
+
+
+    doc.history.push({
+
+        action:
+            decision === 'approved'
+            ? 'Document Approved'
+            : decision === 'forward'
+            ? 'Document Forwarded'
+            : decision === 'return'
+            ? 'Document Returned'
+            : 'Document Rejected',
+
+        comment,
+
+        user:
+            'Current User',
+
+        date:
+            new Date().toLocaleString(
+                'en-GB'
+            )
+
+    });
+
+
+    documentData = doc;
+
+    saveDocuments();
+
+    localStorage.setItem(
+        'ksucSelectedDocument',
+        JSON.stringify(doc)
+    );
+
+
+    closeModal(
+        'actionModal'
+    );
+
+
+    renderDocument();
+
+
+    showToast(
+        `Document ${doc.ref} updated successfully.`
+    );
+
+}
+
+
+/* =====================================================
+   ROUTING
+===================================================== */
+
+function routeDocument() {
+
+    document
+        .getElementById('routeModal')
+        .classList.add('show');
+
+}
+
+
+function saveRoute() {
+
+    const department =
+        document.getElementById(
+            'routeDepartment'
+        ).value;
+
+
+    const comment =
+        document.getElementById(
+            'routeComment'
+        ).value.trim();
+
+
+    const index =
+        findDocumentIndex();
+
+
+    if (index === -1) {
+
+        showToast(
+            'Document could not be found.'
+        );
+
+        return;
+
+    }
+
+
+    const doc =
+        allDocuments[index];
+
+
+    doc.destination =
+        department;
+
+
+    doc.status =
+        'In transit';
+
+
+    if (!doc.history) {
+        doc.history = [];
+    }
+
+
+    doc.history.push({
+
+        action:
+            `Forwarded to ${department}`,
+
+        comment:
+            comment ||
+            `Document routed to ${department}.`,
+
+        user:
+            'Current User',
+
+        date:
+            new Date().toLocaleString(
+                'en-GB'
+            )
+
+    });
+
+
+    documentData = doc;
+
+    saveDocuments();
+
+
+    localStorage.setItem(
+        'ksucSelectedDocument',
+        JSON.stringify(doc)
+    );
+
+
+    closeModal(
+        'routeModal'
+    );
+
+
+    renderDocument();
+
+
+    showToast(
+        `Document forwarded to ${department}.`
+    );
+
+}
+
+
+/* =====================================================
+   RETURN
+===================================================== */
+
+function returnDocument() {
+
+    document
+        .getElementById('decision')
+        .value =
+        'return';
+
+    takeAction();
+
+}
+
+
+/* =====================================================
+   APPROVE
+===================================================== */
+
+function approveDocument() {
+
+    document
+        .getElementById('decision')
+        .value =
+        'approved';
+
+    takeAction();
+
+}
+
+
+/* =====================================================
+   NOTE
+===================================================== */
+
+function addNote() {
+
+    const text =
+        prompt(
+            'Enter the internal note:'
+        );
+
+
+    if (!text || !text.trim()) {
+        return;
+    }
+
+
+    const index =
+        findDocumentIndex();
+
+
+    if (index === -1) return;
+
+
+    const doc =
+        allDocuments[index];
+
+
+    if (!doc.notesList) {
+        doc.notesList = [];
+    }
+
+
+    doc.notesList.push({
+
+        text: text.trim(),
+
+        user:
+            'Current User',
+
+        date:
+            new Date().toLocaleString(
+                'en-GB'
+            )
+
+    });
+
+
+    documentData = doc;
+
+    saveDocuments();
+
+
+    localStorage.setItem(
+        'ksucSelectedDocument',
+        JSON.stringify(doc)
+    );
+
+
+    renderNotes();
+
+
+    showToast(
+        'Internal note added.'
+    );
+
+}
+
+
+/* =====================================================
+   ATTACHMENT
+===================================================== */
+
+function addAttachment() {
+
+    showToast(
+        'File attachment will be connected to the document storage system in the next phase.'
+    );
+
+}
+
+
+/* =====================================================
+   DELETE
+===================================================== */
+
+function deleteDocument() {
+
+    const confirmed =
+        confirm(
+            `Delete ${documentData.ref}?\n\nThis action cannot be undone.`
+        );
+
+
+    if (!confirmed) {
+        return;
+    }
+
+
+    const index =
+        findDocumentIndex();
+
+
+    if (index !== -1) {
+
+        allDocuments.splice(
+            index,
+            1
+        );
+
+        saveDocuments();
+
+    }
+
+
+    localStorage.removeItem(
+        'ksucSelectedDocument'
+    );
+
+
+    window.location.href =
+        'documents.html';
+
+}
+
+
+/* =====================================================
+   PRINT
+===================================================== */
+
+function printDocument() {
+
+    window.print();
+
+}
+
+
+/* =====================================================
+   MODAL
+===================================================== */
+
+function closeModal(id) {
+
+    document
+        .getElementById(id)
+        .classList.remove('show');
+
+}
+
+
+/* =====================================================
+   BACK
+===================================================== */
+
+function goBack() {
+
+    window.location.href =
+        'documents.html';
+
+}
+
+
+/* =====================================================
+   TOAST
+===================================================== */
+
+function showToast(message) {
+
+    const toast =
+        document.getElementById(
+            'toast'
+        );
+
+
+    toast.textContent =
+        message;
+
+
+    toast.classList.add(
+        'show'
+    );
+
+
+    setTimeout(
+        () =>
+            toast.classList.remove(
+                'show'
+            ),
+        3000
+    );
+
+}
+
+
+/* =====================================================
+   INITIALIZE
+===================================================== */
+
+renderDocument();
+
+</script>
+
+</body>
+</html>
