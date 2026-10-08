@@ -10,6 +10,8 @@ const DOCUMENTS_KEY = 'ksucDocuments';
 const ACTIVITY_KEY = 'ksucActivity';
 const SETTINGS_KEY = 'ksucSettings';
 const SESSION_KEY = 'ksucSession';
+const NOTIFICATIONS_KEY = 'ksucNotifications';
+const NOTIFICATION_SYNC_KEY = 'ksucNotificationSync';
 
 const PDF_DB_NAME = 'KSUCflowFiles';
 const PDF_DB_VERSION = 1;
@@ -64,6 +66,43 @@ function formatDate(value) {
     dateStyle: 'medium',
     timeStyle: 'short'
   });
+}
+
+function formatRelativeTime(value) {
+  if (!value) return '';
+
+  const date = new Date(value);
+
+  if (Number.isNaN(date.getTime())) {
+    return '';
+  }
+
+  const diff = Date.now() - date.getTime();
+
+  const minute = 60 * 1000;
+  const hour = 60 * minute;
+  const day = 24 * hour;
+
+  if (diff < minute) {
+    return 'Just now';
+  }
+
+  if (diff < hour) {
+    const minutes = Math.floor(diff / minute);
+    return `${minutes} minute${minutes === 1 ? '' : 's'} ago`;
+  }
+
+  if (diff < day) {
+    const hours = Math.floor(diff / hour);
+    return `${hours} hour${hours === 1 ? '' : 's'} ago`;
+  }
+
+  if (diff < 7 * day) {
+    const days = Math.floor(diff / day);
+    return `${days} day${days === 1 ? '' : 's'} ago`;
+  }
+
+  return formatDate(value);
 }
 
 function formatFileSize(bytes) {
@@ -163,7 +202,13 @@ function loadDocuments() {
       title: 'Maintenance Contract',
       origin: 'Administration',
       destination: 'Procurement',
-      currentOffice: 'Procurement',
+
+      /* Correct interpretation:
+         document is still travelling from
+         Administration to Procurement.
+      */
+      currentOffice: 'Administration',
+
       action: 'For action',
       notes: 'Maintenance contract for review.',
       kind: 'Internal',
@@ -397,7 +442,10 @@ function addActivity(action, detail, type = 'document') {
 ========================================================= */
 
 function latestHistory(document) {
-  if (!Array.isArray(document.history) || !document.history.length) {
+  if (
+    !Array.isArray(document.history) ||
+    !document.history.length
+  ) {
     return null;
   }
 
@@ -411,7 +459,12 @@ function getCurrentOffice(document) {
 
   const last = latestHistory(document);
 
-  return last?.to || document.destination || document.origin || '';
+  return (
+    last?.to ||
+    document.destination ||
+    document.origin ||
+    ''
+  );
 }
 
 function isInTransit(document) {
@@ -438,7 +491,8 @@ function isCompleted(document) {
 }
 
 function isDocumentForCurrentOffice(document) {
-  const department = currentUserDepartment();
+  const department =
+    currentUserDepartment();
 
   if (!department) return false;
 
@@ -450,7 +504,8 @@ function isDocumentForCurrentOffice(document) {
 }
 
 function isDocumentAwaitingReceipt(document) {
-  const department = currentUserDepartment();
+  const department =
+    currentUserDepartment();
 
   if (!department) return false;
 
@@ -491,77 +546,571 @@ function addHistory(document, {
 }
 
 /* =========================================================
+   NOTIFICATION STORAGE
+========================================================= */
+
+function loadStoredNotifications() {
+  try {
+    const saved = JSON.parse(
+      localStorage.getItem(NOTIFICATIONS_KEY) || 'null'
+    );
+
+    if (Array.isArray(saved)) {
+      return saved;
+    }
+  } catch (error) {
+    console.warn(
+      'Unable to load notifications.'
+    );
+  }
+
+  return [];
+}
+
+function saveStoredNotifications(
+  notifications
+) {
+  localStorage.setItem(
+    NOTIFICATIONS_KEY,
+    JSON.stringify(
+      notifications.slice(0, 100)
+    )
+  );
+}
+
+function notificationBelongsToCurrentUser(
+  notification
+) {
+  const department =
+    currentUserDepartment();
+
+  if (!department) return false;
+
+  if (
+    notification.targetDepartment &&
+    notification.targetDepartment === department
+  ) {
+    return true;
+  }
+
+  if (
+    notification.targetUser &&
+    notification.targetUser === currentUserName()
+  ) {
+    return true;
+  }
+
+  return false;
+}
+
+function addNotification({
+  document,
+  title,
+  message,
+  type = 'workflow',
+  targetDepartment = '',
+  targetUser = ''
+}) {
+
+  const notifications =
+    loadStoredNotifications();
+
+  const notification = {
+    id:
+      `N-${Date.now()}-${Math.random()
+        .toString(36)
+        .slice(2, 8)}`,
+
+    documentRef:
+      document?.ref || '',
+
+    title,
+    message,
+    type,
+
+    targetDepartment,
+    targetUser,
+
+    createdAt:
+      new Date().toISOString(),
+
+    read: false
+  };
+
+  notifications.unshift(
+    notification
+  );
+
+  saveStoredNotifications(
+    notifications
+  );
+
+  renderNotifications();
+}
+
+function markNotificationRead(id) {
+
+  const notifications =
+    loadStoredNotifications();
+
+  const notification =
+    notifications.find(
+      item => item.id === id
+    );
+
+  if (notification) {
+    notification.read = true;
+    notification.readAt =
+      new Date().toISOString();
+  }
+
+  saveStoredNotifications(
+    notifications
+  );
+
+  renderNotifications();
+}
+
+function markAllNotificationsRead() {
+
+  const notifications =
+    loadStoredNotifications();
+
+  notifications.forEach(
+    notification => {
+      if (
+        notificationBelongsToCurrentUser(
+          notification
+        )
+      ) {
+        notification.read = true;
+        notification.readAt =
+          new Date().toISOString();
+      }
+    }
+  );
+
+  saveStoredNotifications(
+    notifications
+  );
+
+  renderNotifications();
+
+  showToast(
+    'All notifications marked as read.'
+  );
+}
+
+function getCurrentUserNotifications() {
+
+  const notifications =
+    loadStoredNotifications();
+
+  return notifications.filter(
+    notification =>
+      notificationBelongsToCurrentUser(
+        notification
+      )
+  );
+}
+
+function getUnreadNotificationCount() {
+
+  return getCurrentUserNotifications()
+    .filter(
+      notification =>
+        !notification.read
+    )
+    .length;
+}
+
+/* =========================================================
+   WORKFLOW → NOTIFICATION SYNCHRONIZATION
+========================================================= */
+
+function notificationAlreadyExists(
+  ref,
+  historyItem
+) {
+
+  const notifications =
+    loadStoredNotifications();
+
+  return notifications.some(
+    notification =>
+      notification.documentRef === ref &&
+      notification.historyDate ===
+        historyItem.date
+  );
+}
+
+function syncWorkflowNotifications() {
+
+  const documents =
+    loadDocuments();
+
+  const notifications =
+    loadStoredNotifications();
+
+  let changed = false;
+
+  documents.forEach(document => {
+
+    if (
+      !Array.isArray(document.history)
+    ) {
+      return;
+    }
+
+    document.history.forEach(
+      historyItem => {
+
+        if (
+          !historyItem ||
+          !historyItem.date
+        ) {
+          return;
+        }
+
+        if (
+          notificationAlreadyExists(
+            document.ref,
+            historyItem
+          )
+        ) {
+          return;
+        }
+
+        let title = '';
+        let message = '';
+        let targetDepartment = '';
+
+        const action =
+          String(
+            historyItem.action || ''
+          ).toLowerCase();
+
+        /* -----------------------------------------
+           FORWARDED
+        ----------------------------------------- */
+
+        if (
+          action.includes(
+            'forward'
+          )
+        ) {
+
+          title =
+            'Document forwarded';
+
+          message =
+            `${document.ref} has been forwarded to ${historyItem.to}.`;
+
+          targetDepartment =
+            historyItem.to;
+
+        }
+
+        /* -----------------------------------------
+           RECEIVED
+        ----------------------------------------- */
+
+        else if (
+          action.includes(
+            'receive'
+          )
+        ) {
+
+          title =
+            'Document received';
+
+          message =
+            `${document.ref} has been received by ${historyItem.to || historyItem.user}.`;
+
+          /*
+           * Notify the office/person that
+           * sent the document.
+           */
+          targetDepartment =
+            historyItem.from;
+
+        }
+
+        /* -----------------------------------------
+           APPROVED
+        ----------------------------------------- */
+
+        else if (
+          action.includes(
+            'approv'
+          )
+        ) {
+
+          title =
+            'Document approved';
+
+          message =
+            `${document.ref} has been approved.`;
+
+          targetDepartment =
+            historyItem.from ||
+            document.origin;
+
+        }
+
+        /* -----------------------------------------
+           COMPLETED
+        ----------------------------------------- */
+
+        else if (
+          action.includes(
+            'complet'
+          )
+        ) {
+
+          title =
+            'Document completed';
+
+          message =
+            `${document.ref} has been marked as completed.`;
+
+          targetDepartment =
+            historyItem.from ||
+            document.origin;
+
+        }
+
+        /* -----------------------------------------
+           RETURNED
+        ----------------------------------------- */
+
+        else if (
+          action.includes(
+            'return'
+          )
+        ) {
+
+          title =
+            'Document returned';
+
+          message =
+            `${document.ref} has been returned for changes.`;
+
+          targetDepartment =
+            historyItem.to ||
+            document.origin;
+
+        }
+
+        /* -----------------------------------------
+           REJECTED
+        ----------------------------------------- */
+
+        else if (
+          action.includes(
+            'reject'
+          ) ||
+          action.includes(
+            'not approved'
+          )
+        ) {
+
+          title =
+            'Document not approved';
+
+          message =
+            `${document.ref} was not approved.`;
+
+          targetDepartment =
+            historyItem.from ||
+            document.origin;
+
+        }
+
+        /* -----------------------------------------
+           OTHER ACTIONS
+        ----------------------------------------- */
+
+        else if (
+          historyItem.action &&
+          historyItem.action !==
+            'Document registered'
+        ) {
+
+          title =
+            'Document updated';
+
+          message =
+            `${document.ref} has been updated.`;
+
+          targetDepartment =
+            historyItem.to ||
+            historyItem.from ||
+            document.origin;
+
+        }
+
+        /*
+         * Registration itself should not create
+         * a workflow notification.
+         */
+        if (
+          !title ||
+          historyItem.action ===
+            'Document registered'
+        ) {
+          return;
+        }
+
+        const notification = {
+
+          id:
+            `WF-${Date.now()}-${Math.random()
+              .toString(36)
+              .slice(2, 8)}`,
+
+          documentRef:
+            document.ref,
+
+          title,
+
+          message,
+
+          type:
+            'workflow',
+
+          targetDepartment,
+
+          targetUser:
+            '',
+
+          historyDate:
+            historyItem.date,
+
+          createdAt:
+            new Date().toISOString(),
+
+          read:
+            false
+
+        };
+
+        notifications.unshift(
+          notification
+        );
+
+        changed = true;
+
+      }
+    );
+
+  });
+
+  if (changed) {
+    saveStoredNotifications(
+      notifications
+    );
+  }
+}
+
+/* =========================================================
    DASHBOARD
 ========================================================= */
 
 function renderDashboard() {
-  const documents = loadDocuments();
-  const department = currentUserDepartment();
 
-  const total = documents.length;
+  const documents =
+    loadDocuments();
 
-  const awaitingReceipt = documents.filter(
-    isDocumentAwaitingReceipt
-  ).length;
+  const department =
+    currentUserDepartment();
 
-  const inbox = documents.filter(
-    isDocumentForCurrentOffice
-  ).length;
+  const total =
+    documents.length;
 
-  const awaitingAction = documents.filter(
-    isDocumentAwaitingMyAction
-  ).length;
+  const awaitingReceipt =
+    documents.filter(
+      isDocumentAwaitingReceipt
+    ).length;
 
-  const transit = documents.filter(
-    document => document.status === 'In transit'
-  ).length;
+  const inbox =
+    documents.filter(
+      isDocumentForCurrentOffice
+    ).length;
 
-  const completed = documents.filter(
-    isCompleted
-  ).length;
+  const awaitingAction =
+    documents.filter(
+      isDocumentAwaitingMyAction
+    ).length;
+
+  const transit =
+    documents.filter(
+      document =>
+        document.status ===
+        'In transit'
+    ).length;
+
+  const completed =
+    documents.filter(
+      isCompleted
+    ).length;
 
   if (byId('totalDocuments')) {
-    byId('totalDocuments').textContent = total;
+    byId('totalDocuments')
+      .textContent = total;
   }
 
   if (byId('awaitingDocuments')) {
-    byId('awaitingDocuments').textContent =
+    byId('awaitingDocuments')
+      .textContent =
       awaitingAction;
   }
 
   if (byId('approvedDocuments')) {
-    byId('approvedDocuments').textContent =
+    byId('approvedDocuments')
+      .textContent =
       documents.filter(
-        document => document.status === 'Approved'
+        document =>
+          document.status ===
+          'Approved'
       ).length;
   }
 
   if (byId('transitDocuments')) {
-    byId('transitDocuments').textContent = transit;
+    byId('transitDocuments')
+      .textContent =
+      transit;
   }
 
   if (byId('myInbox')) {
-    byId('myInbox').textContent = inbox;
+    byId('myInbox')
+      .textContent =
+      inbox;
   }
 
   if (byId('awaitingReceipt')) {
-    byId('awaitingReceipt').textContent =
+    byId('awaitingReceipt')
+      .textContent =
       awaitingReceipt;
   }
 
   if (byId('myActions')) {
-    byId('myActions').textContent =
+    byId('myActions')
+      .textContent =
       awaitingAction;
   }
 
   if (byId('completedDocuments')) {
-    byId('completedDocuments').textContent =
+    byId('completedDocuments')
+      .textContent =
       completed;
   }
 
   if (byId('currentOffice')) {
-    byId('currentOffice').textContent =
-      department || 'Not assigned';
+    byId('currentOffice')
+      .textContent =
+      department ||
+      'Not assigned';
   }
 
   renderNotifications();
@@ -574,40 +1123,56 @@ function renderDashboard() {
 ========================================================= */
 
 function statusClass(status) {
-  const value = String(status || '')
-    .toLowerCase()
-    .replace(/\s+/g, '-');
+
+  const value =
+    String(status || '')
+      .toLowerCase()
+      .replace(/\s+/g, '-');
 
   return `status-${value}`;
 }
 
-function renderDocuments(searchTerm = '') {
-  const container = byId('recentDocuments');
+function renderDocuments(
+  searchTerm = ''
+) {
 
-  if (!container) return;
+  const container =
+    byId('recentDocuments');
 
-  const documents = loadDocuments();
+  if (!container) {
+    return;
+  }
 
-  const search = String(searchTerm)
-    .trim()
-    .toLowerCase();
+  const documents =
+    loadDocuments();
 
-  let filtered = documents;
+  const search =
+    String(searchTerm)
+      .trim()
+      .toLowerCase();
+
+  let filtered =
+    documents;
 
   if (search) {
-    filtered = documents.filter(document =>
-      [
-        document.ref,
-        document.title,
-        document.origin,
-        document.destination,
-        document.currentOffice,
-        document.status
-      ]
-        .join(' ')
-        .toLowerCase()
-        .includes(search)
-    );
+
+    filtered =
+      documents.filter(
+        document =>
+          [
+            document.ref,
+            document.title,
+            document.subject,
+            document.origin,
+            document.destination,
+            document.currentOffice,
+            document.status
+          ]
+            .join(' ')
+            .toLowerCase()
+            .includes(search)
+      );
+
   }
 
   filtered.sort(
@@ -616,65 +1181,131 @@ function renderDocuments(searchTerm = '') {
       new Date(a.createdAt)
   );
 
-  filtered = filtered.slice(0, 8);
+  filtered =
+    filtered.slice(0, 8);
 
   if (!filtered.length) {
+
     container.innerHTML = `
       <div class="empty-state">
         <strong>No documents found</strong>
-        <span>There are no documents matching your search.</span>
+        <span>
+          There are no documents matching your search.
+        </span>
       </div>
     `;
 
     return;
   }
 
-  container.innerHTML = filtered.map(document => `
-    <div class="document-row">
+  container.innerHTML =
+    filtered.map(document => {
 
-      <div class="document-main">
+      const currentOffice =
+        getCurrentOffice(document);
 
-        <div class="document-title">
-          ${escapeHtml(document.title)}
+      const inTransit =
+        isInTransit(document);
+
+      const destination =
+        document.destination ||
+        '';
+
+      const movement =
+        inTransit
+          ? `
+            <span class="recent-route">
+              ${escapeHtml(currentOffice)}
+              <span class="route-arrow">→</span>
+              ${escapeHtml(destination)}
+            </span>
+          `
+          : `
+            <span class="recent-office">
+              ${escapeHtml(currentOffice)}
+            </span>
+          `;
+
+      return `
+        <div
+          class="document-row ksuc-recent-document"
+          data-ref="${escapeHtml(document.ref)}"
+        >
+
+          <div class="document-main">
+
+            <div class="document-reference">
+              ${escapeHtml(document.ref)}
+            </div>
+
+            <div
+              class="document-title"
+              title="${escapeHtml(document.title)}"
+            >
+              ${escapeHtml(document.title)}
+            </div>
+
+            <div class="document-meta">
+
+              ${movement}
+
+              ${
+                document.hasAttachment
+                  ? `
+                    <span class="recent-pdf">
+                      PDF
+                    </span>
+                  `
+                  : ''
+              }
+
+            </div>
+
+          </div>
+
+          <div class="document-status">
+
+            <span
+              class="status ${statusClass(
+                document.status
+              )}"
+            >
+              ${escapeHtml(
+                document.status
+              )}
+            </span>
+
+          </div>
+
+          <div class="document-date">
+
+            <span class="recent-date-label">
+              ${formatRelativeTime(
+                document.createdAt
+              )}
+            </span>
+
+            <small>
+              ${formatDate(
+                document.createdAt
+              )}
+            </small>
+
+          </div>
+
+          <a
+            class="document-view-link"
+            href="document-view.html?ref=${encodeURIComponent(
+              document.ref
+            )}"
+          >
+            View
+          </a>
+
         </div>
+      `;
 
-        <div class="document-meta">
-          <span>${escapeHtml(document.ref)}</span>
-          <span>•</span>
-          <span>
-            ${escapeHtml(
-              getCurrentOffice(document)
-            )}
-          </span>
-        </div>
-
-      </div>
-
-      <div class="document-status">
-        <span class="status ${statusClass(document.status)}">
-          ${escapeHtml(document.status)}
-        </span>
-
-        ${
-          document.hasAttachment
-            ? '<span class="attachment-indicator">PDF</span>'
-            : ''
-        }
-      </div>
-
-      <div class="document-date">
-        ${formatDate(document.createdAt)}
-      </div>
-
-      <a
-        class="document-view-link"
-        href="document-view.html?ref=${encodeURIComponent(document.ref)}"
-      >
-        View
-      </a>
-
-    </div>
-  `).join('');
+    }).join('');
 }
 
 /* =========================================================
@@ -682,15 +1313,22 @@ function renderDocuments(searchTerm = '') {
 ========================================================= */
 
 function renderActivity() {
-  const container = byId('activityList');
 
-  if (!container) return;
+  const container =
+    byId('activityList');
 
-  const activity = loadActivity();
+  if (!container) {
+    return;
+  }
 
-  const items = activity.slice(0, 8);
+  const activity =
+    loadActivity();
+
+  const items =
+    activity.slice(0, 8);
 
   if (!items.length) {
+
     container.innerHTML = `
       <div class="empty-state">
         <strong>No recent activity</strong>
@@ -700,130 +1338,453 @@ function renderActivity() {
     return;
   }
 
-  container.innerHTML = items.map(item => `
-    <div class="activity-item">
+  container.innerHTML =
+    items.map(item => `
 
-      <div class="activity-dot"></div>
+      <div class="activity-item">
 
-      <div class="activity-content">
+        <div class="activity-dot"></div>
 
-        <strong>
-          ${escapeHtml(item.action)}
-        </strong>
+        <div class="activity-content">
 
-        <span>
-          ${escapeHtml(item.detail)}
-        </span>
+          <strong>
+            ${escapeHtml(
+              item.action
+            )}
+          </strong>
 
-        <small>
-          ${formatDate(item.date)}
-          ${
-            item.user
-              ? ` • ${escapeHtml(item.user)}`
-              : ''
-          }
-        </small>
+          <span>
+            ${escapeHtml(
+              item.detail
+            )}
+          </span>
+
+          <small>
+            ${formatDate(
+              item.date
+            )}
+
+            ${
+              item.user
+                ? ` • ${escapeHtml(
+                    item.user
+                  )}`
+                : ''
+            }
+
+          </small>
+
+        </div>
 
       </div>
 
-    </div>
-  `).join('');
+    `).join('');
 }
 
 /* =========================================================
-   NOTIFICATIONS
+   NOTIFICATIONS UI
 ========================================================= */
 
-function getNotifications() {
-  const documents = loadDocuments();
+function notificationIcon(
+  type
+) {
 
-  const notifications = [];
+  const icons = {
 
-  documents.forEach(document => {
+    workflow:
+      '↗',
 
-    if (isDocumentAwaitingReceipt(document)) {
-      notifications.push({
-        type: 'receipt',
-        title: 'Document awaiting receipt',
-        detail: `${document.ref} is on its way to ${currentUserDepartment()}.`,
-        ref: document.ref
-      });
+    receipt:
+      '✓',
+
+    action:
+      '⚡',
+
+    returned:
+      '↩',
+
+    approved:
+      '✓',
+
+    completed:
+      '✓'
+
+  };
+
+  return icons[type] || '•';
+}
+
+function renderNotifications() {
+
+  const allNotifications =
+    getCurrentUserNotifications();
+
+  const unread =
+    allNotifications.filter(
+      notification =>
+        !notification.read
+    );
+
+  const count =
+    unread.length;
+
+  /* -----------------------------------------
+     COUNTERS
+  ----------------------------------------- */
+
+  [
+    'notificationCount',
+    'notificationBadge'
+  ].forEach(id => {
+
+    const element =
+      byId(id);
+
+    if (!element) {
+      return;
     }
 
-    if (isDocumentAwaitingMyAction(document)) {
-      notifications.push({
-        type: 'action',
-        title: 'Action required',
-        detail: `${document.ref} requires action.`,
-        ref: document.ref
-      });
-    }
+    if (count > 0) {
 
-    if (document.status === 'Returned for changes') {
-      if (
-        getCurrentOffice(document) ===
-        currentUserDepartment()
-      ) {
-        notifications.push({
-          type: 'returned',
-          title: 'Document returned',
-          detail: `${document.ref} was returned for changes.`,
-          ref: document.ref
-        });
-      }
+      element.textContent =
+        count > 99
+          ? '99+'
+          : count;
+
+      element.style.display =
+        '';
+
+    } else {
+
+      element.textContent =
+        '0';
+
+      /*
+       * If CSS handles visibility
+       * through empty/zero states,
+       * this keeps the value available.
+       */
+      element.style.display =
+        '';
+
     }
 
   });
 
-  return notifications;
-}
+  const container =
+    byId('notificationList');
 
-function renderNotifications() {
-  const notifications = getNotifications();
-
-  const count = notifications.length;
-
-  if (byId('notificationCount')) {
-    byId('notificationCount').textContent =
-      count > 99 ? '99+' : count;
+  if (!container) {
+    return;
   }
 
-  if (byId('notificationBadge')) {
-    byId('notificationBadge').textContent =
-      count > 99 ? '99+' : count;
-  }
+  if (!allNotifications.length) {
 
-  const container = byId('notificationList');
-
-  if (!container) return;
-
-  if (!notifications.length) {
     container.innerHTML = `
-      <div class="empty-state">
-        <strong>No new notifications</strong>
-        <span>You're all caught up.</span>
+      <div class="empty-state notification-empty">
+
+        <div class="notification-empty-icon">
+          ✓
+        </div>
+
+        <strong>
+          You're all caught up
+        </strong>
+
+        <span>
+          New document activity will appear here.
+        </span>
+
       </div>
     `;
 
     return;
   }
 
-  container.innerHTML = notifications.map(notification => `
-    <a
-      class="notification-item"
-      href="document-view.html?ref=${encodeURIComponent(notification.ref)}"
-    >
+  const sorted =
+    [...allNotifications]
+      .sort(
+        (a, b) =>
+          new Date(b.createdAt) -
+          new Date(a.createdAt)
+      )
+      .slice(0, 30);
 
-      <strong>
-        ${escapeHtml(notification.title)}
-      </strong>
+  container.innerHTML =
+    sorted.map(notification => `
 
-      <span>
-        ${escapeHtml(notification.detail)}
-      </span>
+      <div
+        class="
+          notification-item
+          ${notification.read
+            ? 'notification-read'
+            : 'notification-unread'}
+        "
+        data-notification-id="${escapeHtml(
+          notification.id
+        )}"
+      >
 
-    </a>
-  `).join('');
+        <div class="notification-icon">
+
+          ${escapeHtml(
+            notificationIcon(
+              notification.type
+            )
+          )}
+
+        </div>
+
+        <div class="notification-body">
+
+          <strong>
+            ${escapeHtml(
+              notification.title
+            )}
+          </strong>
+
+          <span>
+            ${escapeHtml(
+              notification.message
+            )}
+          </span>
+
+          <small>
+            ${formatRelativeTime(
+              notification.createdAt
+            )}
+          </small>
+
+        </div>
+
+        ${
+          !notification.read
+            ? `
+              <span
+                class="notification-unread-dot"
+                title="Unread"
+              ></span>
+            `
+            : ''
+        }
+
+      </div>
+
+    `).join('');
+
+  /*
+   * Make notification items interactive.
+   */
+  container
+    .querySelectorAll(
+      '.notification-item'
+    )
+    .forEach(item => {
+
+      item.addEventListener(
+        'click',
+        function () {
+
+          const id =
+            item.dataset
+              .notificationId;
+
+          const notification =
+            allNotifications.find(
+              entry =>
+                entry.id === id
+            );
+
+          if (!notification) {
+            return;
+          }
+
+          markNotificationRead(
+            id
+          );
+
+          if (
+            notification.documentRef
+          ) {
+
+            window.location.href =
+              `document-view.html?ref=${encodeURIComponent(
+                notification.documentRef
+              )}`;
+
+          }
+
+        }
+      );
+
+    });
+
+}
+
+/* =========================================================
+   NOTIFICATION MODAL LAYERING
+========================================================= */
+
+function prepareModalLayering() {
+
+  const style =
+    document.createElement('style');
+
+  style.id =
+    'ksuc-modal-layering';
+
+  style.textContent = `
+
+    /*
+     * KSUCflow modal stacking
+     */
+
+    dialog {
+      z-index: 10000;
+    }
+
+    dialog::backdrop {
+      z-index: 9999;
+      background:
+        rgba(15, 23, 42, 0.58);
+    }
+
+    #notificationModal {
+      z-index: 20000;
+    }
+
+    #notificationModal::backdrop {
+      z-index: 19999;
+      background:
+        rgba(15, 23, 42, 0.68);
+    }
+
+    #toast {
+      z-index: 50000 !important;
+    }
+
+    .notification-item {
+      cursor: pointer;
+    }
+
+    .notification-unread {
+      position: relative;
+    }
+
+    .notification-unread-dot {
+      width: 9px;
+      height: 9px;
+      min-width: 9px;
+      border-radius: 50%;
+      background: #7D0000;
+      display: block;
+      margin-top: 7px;
+    }
+
+    .notification-read {
+      opacity: 0.72;
+    }
+
+    .notification-body {
+      min-width: 0;
+    }
+
+    .notification-body strong,
+    .notification-body span {
+      display: block;
+    }
+
+    .notification-body span {
+      word-break: break-word;
+    }
+
+    /*
+     * Recent documents
+     */
+
+    .ksuc-recent-document {
+      min-width: 0;
+    }
+
+    .ksuc-recent-document
+    .document-main {
+      min-width: 0;
+    }
+
+    .document-reference {
+      font-size: 0.76rem;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      color: #7D0000;
+      margin-bottom: 4px;
+      overflow-wrap: anywhere;
+    }
+
+    .document-title {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .document-meta {
+      min-width: 0;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      flex-wrap: wrap;
+    }
+
+    .recent-route,
+    .recent-office {
+      overflow-wrap: anywhere;
+    }
+
+    .route-arrow {
+      font-weight: 700;
+      margin: 0 3px;
+    }
+
+    .recent-pdf {
+      font-size: 0.68rem;
+      font-weight: 700;
+      padding: 3px 6px;
+      border-radius: 5px;
+      background: #f1f5f9;
+    }
+
+    .document-date {
+      white-space: nowrap;
+    }
+
+    .document-date small {
+      display: block;
+      font-size: 0.68rem;
+      opacity: 0.62;
+      margin-top: 2px;
+    }
+
+    @media (max-width: 850px) {
+
+      .ksuc-recent-document {
+        grid-template-columns:
+          minmax(0, 1fr)
+          auto;
+        gap: 10px;
+      }
+
+      .ksuc-recent-document
+      .document-date {
+        display: none;
+      }
+
+    }
+
+  `;
+
+  document.head.appendChild(
+    style
+  );
+
 }
 
 /* =========================================================
@@ -831,127 +1792,209 @@ function renderNotifications() {
 ========================================================= */
 
 function openPdfDatabase() {
-  return new Promise((resolve, reject) => {
 
-    const request = indexedDB.open(
-      PDF_DB_NAME,
-      PDF_DB_VERSION
-    );
+  return new Promise(
+    (resolve, reject) => {
 
-    request.onupgradeneeded = function () {
-
-      const database = request.result;
-
-      if (!database.objectStoreNames.contains(PDF_STORE)) {
-        database.createObjectStore(
-          PDF_STORE,
-          { keyPath: 'ref' }
+      const request =
+        indexedDB.open(
+          PDF_DB_NAME,
+          PDF_DB_VERSION
         );
-      }
 
-    };
+      request.onupgradeneeded =
+        function () {
 
-    request.onsuccess = function () {
-      resolve(request.result);
-    };
+          const database =
+            request.result;
 
-    request.onerror = function () {
-      reject(request.error);
-    };
+          if (
+            !database.objectStoreNames
+              .contains(PDF_STORE)
+          ) {
 
-  });
+            database.createObjectStore(
+              PDF_STORE,
+              {
+                keyPath: 'ref'
+              }
+            );
+
+          }
+
+        };
+
+      request.onsuccess =
+        function () {
+          resolve(
+            request.result
+          );
+        };
+
+      request.onerror =
+        function () {
+          reject(
+            request.error
+          );
+        };
+
+    }
+  );
+
 }
 
-async function savePdfFile(ref, file) {
-  const database = await openPdfDatabase();
+async function savePdfFile(
+  ref,
+  file
+) {
 
-  return new Promise((resolve, reject) => {
+  const database =
+    await openPdfDatabase();
 
-    const transaction =
-      database.transaction(
-        PDF_STORE,
-        'readwrite'
-      );
+  return new Promise(
+    (resolve, reject) => {
 
-    const store =
-      transaction.objectStore(PDF_STORE);
+      const transaction =
+        database.transaction(
+          PDF_STORE,
+          'readwrite'
+        );
 
-    store.put({
-      ref,
-      file,
-      savedAt: new Date().toISOString()
-    });
+      const store =
+        transaction.objectStore(
+          PDF_STORE
+        );
 
-    transaction.oncomplete = () => {
-      database.close();
-      resolve();
-    };
+      store.put({
+        ref,
+        file,
+        savedAt:
+          new Date().toISOString()
+      });
 
-    transaction.onerror = () => {
-      database.close();
-      reject(transaction.error);
-    };
+      transaction.oncomplete =
+        () => {
 
-  });
+          database.close();
+
+          resolve();
+
+        };
+
+      transaction.onerror =
+        () => {
+
+          database.close();
+
+          reject(
+            transaction.error
+          );
+
+        };
+
+    }
+  );
+
 }
 
-async function getPdfFile(ref) {
-  const database = await openPdfDatabase();
+async function getPdfFile(
+  ref
+) {
 
-  return new Promise((resolve, reject) => {
+  const database =
+    await openPdfDatabase();
 
-    const transaction =
-      database.transaction(
-        PDF_STORE,
-        'readonly'
-      );
+  return new Promise(
+    (resolve, reject) => {
 
-    const store =
-      transaction.objectStore(PDF_STORE);
+      const transaction =
+        database.transaction(
+          PDF_STORE,
+          'readonly'
+        );
 
-    const request =
-      store.get(ref);
+      const store =
+        transaction.objectStore(
+          PDF_STORE
+        );
 
-    request.onsuccess = () => {
-      database.close();
-      resolve(request.result || null);
-    };
+      const request =
+        store.get(ref);
 
-    request.onerror = () => {
-      database.close();
-      reject(request.error);
-    };
+      request.onsuccess =
+        () => {
 
-  });
+          database.close();
+
+          resolve(
+            request.result ||
+            null
+          );
+
+        };
+
+      request.onerror =
+        () => {
+
+          database.close();
+
+          reject(
+            request.error
+          );
+
+        };
+
+    }
+  );
+
 }
 
-async function deletePdfFile(ref) {
-  const database = await openPdfDatabase();
+async function deletePdfFile(
+  ref
+) {
 
-  return new Promise((resolve, reject) => {
+  const database =
+    await openPdfDatabase();
 
-    const transaction =
-      database.transaction(
-        PDF_STORE,
-        'readwrite'
-      );
+  return new Promise(
+    (resolve, reject) => {
 
-    const store =
-      transaction.objectStore(PDF_STORE);
+      const transaction =
+        database.transaction(
+          PDF_STORE,
+          'readwrite'
+        );
 
-    store.delete(ref);
+      const store =
+        transaction.objectStore(
+          PDF_STORE
+        );
 
-    transaction.oncomplete = () => {
-      database.close();
-      resolve();
-    };
+      store.delete(ref);
 
-    transaction.onerror = () => {
-      database.close();
-      reject(transaction.error);
-    };
+      transaction.oncomplete =
+        () => {
 
-  });
+          database.close();
+
+          resolve();
+
+        };
+
+      transaction.onerror =
+        () => {
+
+          database.close();
+
+          reject(
+            transaction.error
+          );
+
+        };
+
+    }
+  );
+
 }
 
 /* =========================================================
@@ -959,19 +2002,30 @@ async function deletePdfFile(ref) {
 ========================================================= */
 
 function setupPdfUpload() {
-  const input = byId('documentFile');
 
-  if (!input) return;
+  const input =
+    byId('documentFile');
+
+  if (!input) {
+    return;
+  }
 
   input.addEventListener(
     'change',
     function () {
 
-      const file = input.files?.[0];
+      const file =
+        input.files?.[0];
 
-      if (!file) return;
+      if (!file) {
+        return;
+      }
 
-      if (file.type !== 'application/pdf') {
+      if (
+        file.type !==
+        'application/pdf'
+      ) {
+
         input.value = '';
 
         showToast(
@@ -982,9 +2036,14 @@ function setupPdfUpload() {
         return;
       }
 
-      const maxSize = 10 * 1024 * 1024;
+      const maxSize =
+        10 * 1024 * 1024;
 
-      if (file.size > maxSize) {
+      if (
+        file.size >
+        maxSize
+      ) {
+
         input.value = '';
 
         showToast(
@@ -995,16 +2054,26 @@ function setupPdfUpload() {
         return;
       }
 
-      const selectedFile = byId('selectedFile');
-      const selectedFileName = byId('selectedFileName');
+      const selectedFile =
+        byId('selectedFile');
+
+      const selectedFileName =
+        byId('selectedFileName');
 
       if (selectedFileName) {
+
         selectedFileName.textContent =
-          `${file.name} (${formatFileSize(file.size)})`;
+          `${file.name} (${formatFileSize(
+            file.size
+          )})`;
+
       }
 
       if (selectedFile) {
-        selectedFile.style.display = 'block';
+
+        selectedFile.style.display =
+          'block';
+
       }
 
     }
@@ -1028,17 +2097,24 @@ function setupPdfUpload() {
           byId('selectedFileName');
 
         if (selectedFile) {
-          selectedFile.style.display = 'none';
+
+          selectedFile.style.display =
+            'none';
+
         }
 
         if (selectedFileName) {
-          selectedFileName.textContent = '';
+
+          selectedFileName.textContent =
+            '';
+
         }
 
       }
     );
 
   }
+
 }
 
 /* =========================================================
@@ -1066,6 +2142,7 @@ function setupDocumentRegistration() {
     byId('cancelDocumentBtn');
 
   if (!form || !modal) {
+
     console.warn(
       'KSUCflow: document registration form or modal not found.'
     );
@@ -1073,80 +2150,86 @@ function setupDocumentRegistration() {
     return;
   }
 
-  /* -------------------------------------------------------
-     OPEN MODAL
-  ------------------------------------------------------- */
-
   function openRegistrationModal() {
 
     if (
-      typeof modal.showModal === 'function'
+      typeof modal.showModal ===
+      'function'
     ) {
+
       modal.showModal();
+
     } else {
-      modal.setAttribute('open', '');
+
+      modal.setAttribute(
+        'open',
+        ''
+      );
+
     }
 
   }
 
-  /* -------------------------------------------------------
-     CLOSE MODAL
-  ------------------------------------------------------- */
-
   function closeRegistrationModal() {
 
     if (
-      typeof modal.close === 'function'
+      typeof modal.close ===
+      'function'
     ) {
+
       modal.close();
+
     } else {
-      modal.removeAttribute('open');
+
+      modal.removeAttribute(
+        'open'
+      );
+
     }
 
   }
 
   if (openButton) {
+
     openButton.addEventListener(
       'click',
       openRegistrationModal
     );
+
   }
 
   if (quickRegisterButton) {
+
     quickRegisterButton.addEventListener(
       'click',
       openRegistrationModal
     );
+
   }
 
   if (closeButton) {
+
     closeButton.addEventListener(
       'click',
       closeRegistrationModal
     );
+
   }
 
   if (cancelButton) {
+
     cancelButton.addEventListener(
       'click',
       closeRegistrationModal
     );
-  }
 
-  /* -------------------------------------------------------
-     FORM SUBMISSION
-  ------------------------------------------------------- */
+  }
 
   form.addEventListener(
     'submit',
     async function (event) {
 
       event.preventDefault();
-
-      /*
-       * IMPORTANT:
-       * These IDs match the actual index.html.
-       */
 
       const ref =
         byId('reference')?.value.trim();
@@ -1164,17 +2247,15 @@ function setupDocumentRegistration() {
         byId('action')?.value;
 
       const notes =
-        byId('notes')?.value.trim() || '';
+        byId('notes')?.value.trim() ||
+        '';
 
       const fileInput =
         byId('documentFile');
 
       const file =
-        fileInput?.files?.[0] || null;
-
-      /* ---------------------------------------------------
-         VALIDATION
-      --------------------------------------------------- */
+        fileInput?.files?.[0] ||
+        null;
 
       if (
         !ref ||
@@ -1192,18 +2273,15 @@ function setupDocumentRegistration() {
         return;
       }
 
-      /* ---------------------------------------------------
-         CHECK DUPLICATE REFERENCE
-      --------------------------------------------------- */
-
       const documents =
         loadDocuments();
 
       const duplicate =
         documents.some(
           document =>
-            String(document.ref || '')
-              .toLowerCase() ===
+            String(
+              document.ref || ''
+            ).toLowerCase() ===
             ref.toLowerCase()
         );
 
@@ -1217,14 +2295,11 @@ function setupDocumentRegistration() {
         return;
       }
 
-      /* ---------------------------------------------------
-         CHECK PDF
-      --------------------------------------------------- */
-
       if (file) {
 
         if (
-          file.type !== 'application/pdf'
+          file.type !==
+          'application/pdf'
         ) {
 
           showToast(
@@ -1250,10 +2325,6 @@ function setupDocumentRegistration() {
 
       }
 
-      /* ---------------------------------------------------
-         CREATE DOCUMENT
-      --------------------------------------------------- */
-
       const now =
         new Date().toISOString();
 
@@ -1263,31 +2334,34 @@ function setupDocumentRegistration() {
 
         title,
 
-        subject: title,
+        subject:
+          title,
 
         origin,
 
-        originatingOffice: origin,
+        originatingOffice:
+          origin,
 
         destination,
 
-        /*
-         * The registering office is the
-         * current holder initially.
-         */
-        currentOffice: origin,
+        currentOffice:
+          origin,
 
         action,
 
-        requiredAction: action,
+        requiredAction:
+          action,
 
         notes,
 
-        kind: 'Internal',
+        kind:
+          'Internal',
 
-        status: 'Received',
+        status:
+          'Received',
 
-        state: 'active',
+        state:
+          'active',
 
         hasAttachment:
           Boolean(file),
@@ -1301,12 +2375,14 @@ function setupDocumentRegistration() {
         attachmentSize:
           file?.size || 0,
 
-        createdAt: now,
+        createdAt:
+          now,
 
         registeredBy:
           currentUserName(),
 
-        registeredAt: now,
+        registeredAt:
+          now,
 
         history: [
 
@@ -1345,20 +2421,22 @@ function setupDocumentRegistration() {
           notes
             ? [
                 {
-                  note: notes,
-                  text: notes,
+                  note:
+                    notes,
+
+                  text:
+                    notes,
+
                   user:
                     currentUserName(),
-                  date: now
+
+                  date:
+                    now
                 }
               ]
             : []
 
       };
-
-      /* ---------------------------------------------------
-         SAVE PDF
-      --------------------------------------------------- */
 
       if (file) {
 
@@ -1382,13 +2460,10 @@ function setupDocumentRegistration() {
           );
 
           return;
+
         }
 
       }
-
-      /* ---------------------------------------------------
-         SAVE DOCUMENT
-      --------------------------------------------------- */
 
       documents.unshift(
         documentRecord
@@ -1398,19 +2473,11 @@ function setupDocumentRegistration() {
         documents
       );
 
-      /* ---------------------------------------------------
-         ACTIVITY
-      --------------------------------------------------- */
-
       addActivity(
         'Document registered',
         `${ref} — ${title}`,
         'document'
       );
-
-      /* ---------------------------------------------------
-         RESET FORM
-      --------------------------------------------------- */
 
       form.reset();
 
@@ -1421,40 +2488,26 @@ function setupDocumentRegistration() {
         byId('selectedFileName');
 
       if (selectedFile) {
+
         selectedFile.style.display =
           'none';
+
       }
 
       if (selectedFileName) {
+
         selectedFileName.textContent =
           '';
-      }
 
-      /* ---------------------------------------------------
-         REFRESH DASHBOARD
-      --------------------------------------------------- */
+      }
 
       renderDashboard();
 
-      /* ---------------------------------------------------
-         CLOSE
-      --------------------------------------------------- */
-
       closeRegistrationModal();
-
-      /* ---------------------------------------------------
-         SUCCESS
-      --------------------------------------------------- */
 
       showToast(
         'Document registered successfully.'
       );
-
-      /*
-       * Stay on dashboard.
-       * The user can click View on the document
-       * when it appears in Recent Documents.
-       */
 
     }
   );
@@ -1470,7 +2523,9 @@ function setupSearch() {
   const input =
     byId('documentSearch');
 
-  if (!input) return;
+  if (!input) {
+    return;
+  }
 
   input.addEventListener(
     'input',
@@ -1486,17 +2541,20 @@ function setupSearch() {
 }
 
 /* =========================================================
-   REVIEW / QUICK VIEW
+   REVIEW
 ========================================================= */
 
-function openDocumentReview(ref) {
+function openDocumentReview(
+  ref
+) {
 
   const documents =
     loadDocuments();
 
   const document =
     documents.find(
-      item => item.ref === ref
+      item =>
+        item.ref === ref
     );
 
   if (!document) {
@@ -1510,14 +2568,16 @@ function openDocumentReview(ref) {
   }
 
   window.location.href =
-    `document-view.html?ref=${encodeURIComponent(ref)}`;
+    `document-view.html?ref=${encodeURIComponent(
+      ref
+    )}`;
 
 }
 
 function setupReviewModal() {
   /*
-    Compatibility hook.
-  */
+   * Compatibility hook.
+   */
 }
 
 /* =========================================================
@@ -1535,37 +2595,43 @@ function showReports() {
   const transit =
     documents.filter(
       document =>
-        document.status === 'In transit'
+        document.status ===
+        'In transit'
     ).length;
 
   const awaiting =
     documents.filter(
       document =>
-        document.status === 'Awaiting action'
+        document.status ===
+        'Awaiting action'
     ).length;
 
   const received =
     documents.filter(
       document =>
-        document.status === 'Received'
+        document.status ===
+        'Received'
     ).length;
 
   const approved =
     documents.filter(
       document =>
-        document.status === 'Approved'
+        document.status ===
+        'Approved'
     ).length;
 
   const completed =
     documents.filter(
       document =>
-        document.status === 'Completed'
+        document.status ===
+        'Completed'
     ).length;
 
   const rejected =
     documents.filter(
       document =>
-        document.status === 'Not approved'
+        document.status ===
+        'Not approved'
     ).length;
 
   const report = `
@@ -1670,11 +2736,15 @@ function loadSettings() {
 
 }
 
-function saveSettings(settings) {
+function saveSettings(
+  settings
+) {
 
   localStorage.setItem(
     SETTINGS_KEY,
-    JSON.stringify(settings)
+    JSON.stringify(
+      settings
+    )
   );
 
 }
@@ -1692,10 +2762,12 @@ function updateUserInterface() {
     loadSettings();
 
   const userName =
-    user?.name || 'User';
+    user?.name ||
+    'User';
 
   const userRole =
-    user?.role || 'Staff';
+    user?.role ||
+    'Staff';
 
   const avatar =
     userName
@@ -1703,62 +2775,84 @@ function updateUserInterface() {
       .charAt(0)
       .toUpperCase();
 
-  /*
-   * Current index.html IDs
-   */
-
   if (byId('currentUserName')) {
-    byId('currentUserName').textContent =
+
+    byId('currentUserName')
+      .textContent =
       userName;
+
   }
 
   if (byId('currentUserRole')) {
-    byId('currentUserRole').textContent =
+
+    byId('currentUserRole')
+      .textContent =
       userRole;
+
   }
 
   if (byId('userAvatar')) {
-    byId('userAvatar').textContent =
+
+    byId('userAvatar')
+      .textContent =
       avatar;
+
   }
 
-  /*
-   * Compatibility IDs
-   */
-
   if (byId('userName')) {
-    byId('userName').textContent =
+
+    byId('userName')
+      .textContent =
       userName;
+
   }
 
   if (byId('userRole')) {
-    byId('userRole').textContent =
+
+    byId('userRole')
+      .textContent =
       userRole;
+
   }
 
   if (byId('avatar')) {
-    byId('avatar').textContent =
+
+    byId('avatar')
+      .textContent =
       avatar;
+
   }
 
   if (byId('greetingName')) {
-    byId('greetingName').textContent =
+
+    byId('greetingName')
+      .textContent =
       userName;
+
   }
 
   if (byId('institutionName')) {
-    byId('institutionName').textContent =
+
+    byId('institutionName')
+      .textContent =
       settings.institution;
+
   }
 
   if (byId('appName')) {
-    byId('appName').textContent =
+
+    byId('appName')
+      .textContent =
       settings.systemName;
+
   }
 
   if (byId('greeting')) {
-    byId('greeting').textContent =
+
+    byId('greeting')
+      .textContent =
       `Welcome back, ${userName}.`;
+
   }
 
 }
@@ -1774,36 +2868,49 @@ function setupNavigation() {
   ------------------------------------------------------- */
 
   const notificationButtons = [
+
     byId('notificationsBtn'),
+
     byId('topNotificationsBtn'),
+
     byId('notificationButton')
+
   ].filter(Boolean);
 
-  notificationButtons.forEach(button => {
+  notificationButtons.forEach(
+    button => {
 
-    button.addEventListener(
-      'click',
-      function () {
+      button.addEventListener(
+        'click',
+        function () {
 
-        const modal =
-          byId('notificationModal');
+          const modal =
+            byId(
+              'notificationModal'
+            );
 
-        renderNotifications();
+          renderNotifications();
 
-        if (
-          modal &&
-          typeof modal.showModal === 'function'
-        ) {
-          modal.showModal();
+          if (
+            modal &&
+            typeof modal.showModal ===
+            'function'
+          ) {
+
+            modal.showModal();
+
+          }
+
         }
+      );
 
-      }
-    );
-
-  });
+    }
+  );
 
   const closeNotification =
-    byId('closeNotificationModal');
+    byId(
+      'closeNotificationModal'
+    );
 
   if (closeNotification) {
 
@@ -1812,7 +2919,9 @@ function setupNavigation() {
       function () {
 
         const modal =
-          byId('notificationModal');
+          byId(
+            'notificationModal'
+          );
 
         if (modal) {
           modal.close();
@@ -1823,41 +2932,109 @@ function setupNavigation() {
 
   }
 
+  /*
+   * Mark all notifications read.
+   *
+   * This works even if the HTML does not
+   * currently contain a dedicated button.
+   */
+  const notificationModal =
+    byId(
+      'notificationModal'
+    );
+
+  if (notificationModal) {
+
+    const header =
+      notificationModal.querySelector(
+        'header, .modal-header, .dialog-header'
+      );
+
+    if (
+      header &&
+      !byId(
+        'markAllNotificationsBtn'
+      )
+    ) {
+
+      const button =
+        document.createElement(
+          'button'
+        );
+
+      button.id =
+        'markAllNotificationsBtn';
+
+      button.type =
+        'button';
+
+      button.textContent =
+        'Mark all read';
+
+      button.className =
+        'notification-mark-all';
+
+      button.addEventListener(
+        'click',
+        markAllNotificationsRead
+      );
+
+      header.appendChild(
+        button
+      );
+
+    }
+
+  }
+
   /* -------------------------------------------------------
      REPORTS
   ------------------------------------------------------- */
 
   const reportsButtons = [
+
     byId('reportsBtn'),
+
     byId('quickReportsBtn'),
+
     byId('reportsButton')
+
   ].filter(Boolean);
 
-  reportsButtons.forEach(button => {
+  reportsButtons.forEach(
+    button => {
 
-    button.addEventListener(
-      'click',
-      function () {
+      button.addEventListener(
+        'click',
+        function () {
 
-        showReports();
+          showReports();
 
-        const modal =
-          byId('reportsModal');
+          const modal =
+            byId(
+              'reportsModal'
+            );
 
-        if (
-          modal &&
-          typeof modal.showModal === 'function'
-        ) {
-          modal.showModal();
+          if (
+            modal &&
+            typeof modal.showModal ===
+            'function'
+          ) {
+
+            modal.showModal();
+
+          }
+
         }
+      );
 
-      }
-    );
-
-  });
+    }
+  );
 
   const closeReports =
-    byId('closeReportsModal');
+    byId(
+      'closeReportsModal'
+    );
 
   if (closeReports) {
 
@@ -1866,7 +3043,9 @@ function setupNavigation() {
       function () {
 
         const modal =
-          byId('reportsModal');
+          byId(
+            'reportsModal'
+          );
 
         if (modal) {
           modal.close();
@@ -1882,56 +3061,74 @@ function setupNavigation() {
   ------------------------------------------------------- */
 
   const settingsButtons = [
+
     byId('settingsBtn'),
+
     byId('settingsButton')
+
   ].filter(Boolean);
 
-  settingsButtons.forEach(button => {
+  settingsButtons.forEach(
+    button => {
 
-    button.addEventListener(
-      'click',
-      function () {
+      button.addEventListener(
+        'click',
+        function () {
 
-        const settings =
-          loadSettings();
+          const settings =
+            loadSettings();
 
-        if (byId('systemNameSetting')) {
-          byId('systemNameSetting').value =
-            settings.systemName;
+          if (
+            byId(
+              'systemNameSetting'
+            )
+          ) {
+
+            byId(
+              'systemNameSetting'
+            ).value =
+              settings.systemName;
+
+          }
+
+          if (
+            byId(
+              'institutionSetting'
+            )
+          ) {
+
+            byId(
+              'institutionSetting'
+            ).value =
+              settings.institution;
+
+          }
+
+          const modal =
+            byId(
+              'customizerModal'
+            );
+
+          if (
+            modal &&
+            typeof modal.showModal ===
+            'function'
+          ) {
+
+            modal.showModal();
+
+          }
+
         }
+      );
 
-        if (byId('institutionSetting')) {
-          byId('institutionSetting').value =
-            settings.institution;
-        }
-
-        if (byId('systemNameInput')) {
-          byId('systemNameInput').value =
-            settings.systemName;
-        }
-
-        if (byId('institutionInput')) {
-          byId('institutionInput').value =
-            settings.institution;
-        }
-
-        const modal =
-          byId('customizerModal');
-
-        if (
-          modal &&
-          typeof modal.showModal === 'function'
-        ) {
-          modal.showModal();
-        }
-
-      }
-    );
-
-  });
+    }
+  );
 
   const closeSettings =
-    byId('closeCustomizerModal');
+    byId(
+      'closeCustomizerModal'
+    );
 
   if (closeSettings) {
 
@@ -1940,7 +3137,9 @@ function setupNavigation() {
       function () {
 
         const modal =
-          byId('customizerModal');
+          byId(
+            'customizerModal'
+          );
 
         if (modal) {
           modal.close();
@@ -1952,7 +3151,9 @@ function setupNavigation() {
   }
 
   const cancelSettings =
-    byId('cancelSettingsBtn');
+    byId(
+      'cancelSettingsBtn'
+    );
 
   if (cancelSettings) {
 
@@ -1961,7 +3162,9 @@ function setupNavigation() {
       function () {
 
         const modal =
-          byId('customizerModal');
+          byId(
+            'customizerModal'
+          );
 
         if (modal) {
           modal.close();
@@ -1985,13 +3188,15 @@ function setupNavigation() {
         const settings = {
 
           systemName:
-            byId('systemNameSetting')?.value.trim() ||
-            byId('systemNameInput')?.value.trim() ||
+            byId(
+              'systemNameSetting'
+            )?.value.trim() ||
             'KSUCflow',
 
           institution:
-            byId('institutionSetting')?.value.trim() ||
-            byId('institutionInput')?.value.trim() ||
+            byId(
+              'institutionSetting'
+            )?.value.trim() ||
             'Koitaleel Samoei University College'
 
         };
@@ -2003,7 +3208,9 @@ function setupNavigation() {
         updateUserInterface();
 
         const modal =
-          byId('customizerModal');
+          byId(
+            'customizerModal'
+          );
 
         if (modal) {
           modal.close();
@@ -2036,12 +3243,17 @@ function setupNavigation() {
 
         if (
           modal &&
-          typeof modal.showModal === 'function'
+          typeof modal.showModal ===
+          'function'
         ) {
+
           modal.showModal();
+
         } else {
+
           window.location.href =
             'admin.html';
+
         }
 
       }
@@ -2050,7 +3262,9 @@ function setupNavigation() {
   }
 
   const closeAdmin =
-    byId('closeAdminModal');
+    byId(
+      'closeAdminModal'
+    );
 
   if (closeAdmin) {
 
@@ -2086,24 +3300,47 @@ function setupNavigation() {
         const user =
           getCurrentUser();
 
-        if (byId('userModalName')) {
-          byId('userModalName').textContent =
-            user?.name || 'User';
+        if (
+          byId(
+            'userModalName'
+          )
+        ) {
+
+          byId(
+            'userModalName'
+          ).textContent =
+            user?.name ||
+            'User';
+
         }
 
-        if (byId('userModalRole')) {
-          byId('userModalRole').textContent =
-            user?.role || 'Staff';
+        if (
+          byId(
+            'userModalRole'
+          )
+        ) {
+
+          byId(
+            'userModalRole'
+          ).textContent =
+            user?.role ||
+            'Staff';
+
         }
 
         const modal =
-          byId('userModal');
+          byId(
+            'userModal'
+          );
 
         if (
           modal &&
-          typeof modal.showModal === 'function'
+          typeof modal.showModal ===
+          'function'
         ) {
+
           modal.showModal();
+
         }
 
       }
@@ -2112,7 +3349,9 @@ function setupNavigation() {
   }
 
   const closeUser =
-    byId('closeUserModal');
+    byId(
+      'closeUserModal'
+    );
 
   if (closeUser) {
 
@@ -2121,10 +3360,50 @@ function setupNavigation() {
       function () {
 
         const modal =
-          byId('userModal');
+          byId(
+            'userModal'
+          );
 
         if (modal) {
           modal.close();
+        }
+
+      }
+    );
+
+  }
+
+  /* -------------------------------------------------------
+     USER SETTINGS
+  ------------------------------------------------------- */
+
+  const userSettingsButton =
+    byId(
+      'userSettingsBtn'
+    );
+
+  if (userSettingsButton) {
+
+    userSettingsButton.addEventListener(
+      'click',
+      function () {
+
+        const userModal =
+          byId(
+            'userModal'
+          );
+
+        if (userModal) {
+          userModal.close();
+        }
+
+        const settingsButton =
+          byId(
+            'settingsBtn'
+          );
+
+        if (settingsButton) {
+          settingsButton.click();
         }
 
       }
@@ -2137,28 +3416,34 @@ function setupNavigation() {
   ------------------------------------------------------- */
 
   const signOutButtons = [
+
     byId('signOutBtn'),
+
     byId('signOut'),
+
     byId('userSignOutBtn')
+
   ].filter(Boolean);
 
-  signOutButtons.forEach(button => {
+  signOutButtons.forEach(
+    button => {
 
-    button.addEventListener(
-      'click',
-      function () {
+      button.addEventListener(
+        'click',
+        function () {
 
-        localStorage.removeItem(
-          SESSION_KEY
-        );
+          localStorage.removeItem(
+            SESSION_KEY
+          );
 
-        window.location.href =
-          'login.html';
+          window.location.href =
+            'login.html';
 
-      }
-    );
+        }
+      );
 
-  });
+    }
+  );
 
 }
 
@@ -2169,7 +3454,9 @@ function setupNavigation() {
 function setupWorkflowShortcuts() {
 
   const inboxButton =
-    byId('myInboxButton');
+    byId(
+      'myInboxButton'
+    );
 
   if (inboxButton) {
 
@@ -2183,8 +3470,10 @@ function setupWorkflowShortcuts() {
         localStorage.setItem(
           'ksucDocumentFilter',
           JSON.stringify({
-            type: 'office',
-            value: department
+            type:
+              'office',
+            value:
+              department
           })
         );
 
@@ -2197,7 +3486,9 @@ function setupWorkflowShortcuts() {
   }
 
   const receiptButton =
-    byId('awaitingReceiptButton');
+    byId(
+      'awaitingReceiptButton'
+    );
 
   if (receiptButton) {
 
@@ -2208,8 +3499,10 @@ function setupWorkflowShortcuts() {
         localStorage.setItem(
           'ksucDocumentFilter',
           JSON.stringify({
-            type: 'status',
-            value: 'In transit'
+            type:
+              'status',
+            value:
+              'In transit'
           })
         );
 
@@ -2222,7 +3515,9 @@ function setupWorkflowShortcuts() {
   }
 
   const actionButton =
-    byId('myActionsButton');
+    byId(
+      'myActionsButton'
+    );
 
   if (actionButton) {
 
@@ -2233,8 +3528,10 @@ function setupWorkflowShortcuts() {
         localStorage.setItem(
           'ksucDocumentFilter',
           JSON.stringify({
-            type: 'status',
-            value: 'Awaiting action'
+            type:
+              'status',
+            value:
+              'Awaiting action'
           })
         );
 
@@ -2257,53 +3554,146 @@ function migrateDocuments() {
   const documents =
     loadDocuments();
 
-  let changed = false;
+  let changed =
+    false;
 
-  documents.forEach(document => {
+  documents.forEach(
+    document => {
 
-    if (!Array.isArray(document.history)) {
-      document.history = [];
-      changed = true;
+      if (
+        !Array.isArray(
+          document.history
+        )
+      ) {
+
+        document.history =
+          [];
+
+        changed =
+          true;
+
+      }
+
+      if (
+        !Array.isArray(
+          document.notesList
+        )
+      ) {
+
+        document.notesList =
+          [];
+
+        changed =
+          true;
+
+      }
+
+      /*
+       * Correct old In Transit records.
+       *
+       * The destination is NOT the current
+       * office until the receiving office
+       * actually receives the document.
+       */
+      if (
+        document.status ===
+          'In transit' &&
+        Array.isArray(
+          document.history
+        ) &&
+        document.history.length
+      ) {
+
+        const last =
+          latestHistory(
+            document
+          );
+
+        if (
+          last?.action ===
+            'Document forwarded' &&
+          last.from
+        ) {
+
+          if (
+            document.currentOffice !==
+            last.from
+          ) {
+
+            document.currentOffice =
+              last.from;
+
+            changed =
+              true;
+
+          }
+
+          if (
+            document.destination !==
+            last.to &&
+            last.to
+          ) {
+
+            document.destination =
+              last.to;
+
+            changed =
+              true;
+
+          }
+
+        }
+
+      }
+
+      if (
+        !document.currentOffice
+      ) {
+
+        const last =
+          latestHistory(
+            document
+          );
+
+        document.currentOffice =
+          last?.to ||
+          document.destination ||
+          document.origin ||
+          '';
+
+        changed =
+          true;
+
+      }
+
+      if (
+        document.status ===
+          'For approval' ||
+        document.status ===
+          'For action' ||
+        document.status ===
+          'For review' ||
+        document.status ===
+          'For information'
+      ) {
+
+        document.status =
+          'Awaiting action';
+
+        changed =
+          true;
+
+      }
+
     }
-
-    if (!Array.isArray(document.notesList)) {
-      document.notesList = [];
-      changed = true;
-    }
-
-    if (!document.currentOffice) {
-
-      const last =
-        latestHistory(document);
-
-      document.currentOffice =
-        last?.to ||
-        document.destination ||
-        document.origin ||
-        '';
-
-      changed = true;
-    }
-
-    if (
-      document.status === 'For approval' ||
-      document.status === 'For action' ||
-      document.status === 'For review' ||
-      document.status === 'For information'
-    ) {
-
-      document.status =
-        'Awaiting action';
-
-      changed = true;
-    }
-
-  });
+  );
 
   if (changed) {
+
     saveDocuments(
       documents
     );
+
   }
 
 }
@@ -2319,6 +3709,14 @@ function initializeApp() {
   loadActivity();
 
   migrateDocuments();
+
+  /*
+   * Scan workflow history and create
+   * persistent notifications.
+   */
+  syncWorkflowNotifications();
+
+  prepareModalLayering();
 
   updateUserInterface();
 
@@ -2336,6 +3734,9 @@ function initializeApp() {
 
   setupWorkflowShortcuts();
 
+  /*
+   * Refresh when returning to the page.
+   */
   document.addEventListener(
     'visibilitychange',
     function () {
@@ -2344,6 +3745,32 @@ function initializeApp() {
         document.visibilityState ===
         'visible'
       ) {
+
+        syncWorkflowNotifications();
+
+        renderDashboard();
+
+      }
+
+    }
+  );
+
+  /*
+   * Listen for localStorage changes from
+   * another KSUCflow tab.
+   */
+  window.addEventListener(
+    'storage',
+    function (event) {
+
+      if (
+        event.key ===
+          DOCUMENTS_KEY ||
+        event.key ===
+          NOTIFICATIONS_KEY
+      ) {
+
+        syncWorkflowNotifications();
 
         renderDashboard();
 
