@@ -1,0 +1,331 @@
+:root {
+  --maroon: #7D0000;
+  --maroon-dark: #5d0000;
+  --maroon-light: #f8eeee;
+
+  --ink: #182435;
+  --muted: #758294;
+  --line: #e5e9ee;
+  --canvas: #f6f8fa;
+  --white: #ffffff;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background:
+    linear-gradient(
+      135deg,
+      #f8fafc 0%,
+      #f5f7f9 50%,
+      #f9eeee 100%
+    );
+
+  color: var(--ink);
+
+  font-family:
+    "DM Sans",
+    Arial,
+    sans-serif;
+}
+
+.admin-login {
+  min-height: 100vh;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 30px 18px;
+}
+
+.login-card {
+  width: min(440px, 100%);
+
+  background: var(--white);
+
+  border: 1px solid var(--line);
+  border-radius: 18px;
+
+  padding: 38px;
+
+  box-shadow:
+    0 20px 60px rgba(24, 36, 53, 0.10);
+}
+
+/* BRAND */
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  margin-bottom: 42px;
+}
+
+.brand-mark {
+  width: 43px;
+  height: 43px;
+
+  display: grid;
+  place-items: center;
+
+  background: var(--maroon);
+  color: #fff;
+
+  border-radius: 11px;
+
+  font-family: Georgia, serif;
+  font-size: 23px;
+  font-weight: bold;
+}
+
+.brand strong {
+  display: block;
+
+  color: var(--ink);
+
+  font-size: 20px;
+  line-height: 1;
+}
+
+.brand strong span {
+  color: var(--maroon);
+}
+
+.brand small {
+  display: block;
+
+  margin-top: 5px;
+
+  color: var(--muted);
+
+  font-size: 8px;
+  font-weight: 700;
+
+  letter-spacing: 1.4px;
+}
+
+/* INTRO */
+
+.eyebrow {
+  margin: 0 0 9px;
+
+  color: var(--maroon);
+
+  font-size: 9px;
+  font-weight: 700;
+
+  letter-spacing: 1.5px;
+}
+
+.intro h1 {
+  margin: 0 0 9px;
+
+  color: var(--ink);
+
+  font-family:
+    "Playfair Display",
+    Georgia,
+    serif;
+
+  font-size: 32px;
+  line-height: 1.1;
+}
+
+.intro > p:last-child {
+  margin: 0 0 30px;
+
+  color: var(--muted);
+
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+/* FORM */
+
+label {
+  display: block;
+
+  margin-bottom: 17px;
+
+  color: #526174;
+
+  font-size: 11px;
+  font-weight: 700;
+}
+
+input {
+  display: block;
+
+  width: 100%;
+
+  margin-top: 7px;
+
+  padding: 12px 13px;
+
+  border: 1px solid #dce3ea;
+  border-radius: 8px;
+
+  background: #fff;
+
+  color: var(--ink);
+
+  font-family: "DM Sans", Arial, sans-serif;
+  font-size: 13px;
+
+  outline: none;
+
+  transition:
+    border-color .2s ease,
+    box-shadow .2s ease;
+}
+
+input:focus {
+  border-color: var(--maroon);
+
+  box-shadow:
+    0 0 0 3px rgba(125, 0, 0, 0.08);
+}
+
+.password-field {
+  position: relative;
+}
+
+.password-field input {
+  padding-right: 62px;
+}
+
+.password-field button {
+  position: absolute;
+
+  right: 8px;
+  bottom: 7px;
+
+  border: 0;
+  background: transparent;
+
+  color: var(--maroon);
+
+  font-family: "DM Sans", Arial, sans-serif;
+  font-size: 10px;
+  font-weight: 700;
+
+  cursor: pointer;
+}
+
+/* ERROR */
+
+.error {
+  min-height: 18px;
+
+  margin: 2px 0 7px;
+
+  color: #b42318;
+
+  font-size: 11px;
+}
+
+/* LOGIN BUTTON */
+
+.login-button {
+  width: 100%;
+
+  padding: 13px 16px;
+
+  border: 0;
+  border-radius: 8px;
+
+  background: var(--maroon);
+  color: #fff;
+
+  font-family: "DM Sans", Arial, sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+
+  cursor: pointer;
+
+  transition:
+    background .2s ease,
+    transform .1s ease;
+}
+
+.login-button:hover {
+  background: var(--maroon-dark);
+}
+
+.login-button:active {
+  transform: translateY(1px);
+}
+
+/* SECURITY NOTE */
+
+.security-note {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+
+  margin-top: 25px;
+  padding: 12px;
+
+  background: var(--maroon-light);
+
+  border-radius: 8px;
+}
+
+.security-note span {
+  font-size: 14px;
+}
+
+.security-note p {
+  margin: 0;
+
+  color: #715353;
+
+  font-size: 10px;
+  line-height: 1.5;
+}
+
+/* BACK */
+
+.back-link {
+  display: block;
+
+  margin-top: 22px;
+
+  color: #69788a;
+
+  text-align: center;
+
+  font-size: 11px;
+  font-weight: 600;
+
+  text-decoration: none;
+}
+
+.back-link:hover {
+  color: var(--maroon);
+}
+
+/* MOBILE */
+
+@media (max-width: 520px) {
+
+  .login-card {
+    padding: 28px 22px;
+
+    border-radius: 14px;
+  }
+
+  .brand {
+    margin-bottom: 32px;
+  }
+
+  .intro h1 {
+    font-size: 28px;
+  }
+}
