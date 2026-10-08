@@ -1,713 +1,843 @@
-/* =========================================================
-   KSUCflow - Main Application
-   ========================================================= */
-
 'use strict';
 
-
 /* =========================================================
-   STORAGE KEYS
-   ========================================================= */
+   KSUCflow
+   Document Tracking & Workflow System
+   Koitaleel Samoei University College
+========================================================= */
 
 const DOCUMENTS_KEY = 'ksucDocuments';
 const ACTIVITY_KEY = 'ksucActivity';
 const SETTINGS_KEY = 'ksucSettings';
 const SESSION_KEY = 'ksucSession';
 
-
-/* =========================================================
-   PDF DATABASE
-   Browser IndexedDB storage for uploaded PDF files.
-   ========================================================= */
-
 const PDF_DB_NAME = 'KSUCflowFiles';
 const PDF_DB_VERSION = 1;
-const PDF_STORE_NAME = 'documents';
-
+const PDF_STORE = 'documents';
 
 /* =========================================================
-   DEFAULT DOCUMENTS
-   ========================================================= */
+   BASIC HELPERS
+========================================================= */
 
-const starterDocuments = [
-  {
-    ref: 'KSU/FIN/2026/084',
-    title: 'Budget Reallocation Request',
-    origin: 'Finance Department',
-    destination: 'Vice Chancellor\'s Office',
-    action: 'For approval',
-    notes: 'Request for approval of budget reallocation.',
-    kind: 'Internal',
-    status: 'Awaiting action',
-    state: '',
-    hasAttachment: false,
-    attachmentName: '',
-    attachmentType: '',
-    attachmentSize: 0,
-    createdAt: '2026-09-10T09:20:00',
-    registeredBy: 'System',
-    history: [
-      {
-        action: 'Document registered',
-        by: 'System',
-        department: 'Finance Department',
-        date: '2026-09-10T09:20:00',
-        note: 'Document registered and routed.'
-      }
-    ],
-    notesList: []
-  },
+const byId = id => document.getElementById(id);
 
-  {
-    ref: 'KSU/ADM/2026/127',
-    title: 'Maintenance Contract',
-    origin: 'Administration',
-    destination: 'Procurement',
-    action: 'For action',
-    notes: 'Maintenance contract submitted for processing.',
-    kind: 'Internal',
-    status: 'In transit',
-    state: '',
-    hasAttachment: false,
-    attachmentName: '',
-    attachmentType: '',
-    attachmentSize: 0,
-    createdAt: '2026-09-09T11:15:00',
-    registeredBy: 'System',
-    history: [
-      {
-        action: 'Document registered',
-        by: 'System',
-        department: 'Administration',
-        date: '2026-09-09T11:15:00',
-        note: 'Document registered.'
-      },
-      {
-        action: 'Forwarded',
-        by: 'System',
-        department: 'Procurement',
-        date: '2026-09-09T12:30:00',
-        note: 'Forwarded to Procurement.'
-      }
-    ],
-    notesList: []
-  },
-
-  {
-    ref: 'KSU/HR/2026/211',
-    title: 'Recruitment of Laboratory Assistant',
-    origin: 'Human Resource',
-    destination: 'Vice Chancellor\'s Office',
-    action: 'For approval',
-    notes: '',
-    kind: 'Internal',
-    status: 'Awaiting action',
-    state: '',
-    hasAttachment: false,
-    attachmentName: '',
-    attachmentType: '',
-    attachmentSize: 0,
-    createdAt: '2026-09-08T10:00:00',
-    registeredBy: 'System',
-    history: [
-      {
-        action: 'Document registered',
-        by: 'System',
-        department: 'Human Resource',
-        date: '2026-09-08T10:00:00',
-        note: 'Document registered.'
-      }
-    ],
-    notesList: []
-  },
-
-  {
-    ref: 'KSU/ACA/2026/056',
-    title: 'Curriculum Review',
-    origin: 'Academics',
-    destination: 'Academic Affairs',
-    action: 'For review',
-    notes: 'Curriculum review documents submitted.',
-    kind: 'Academic',
-    status: 'Approved',
-    state: '',
-    hasAttachment: false,
-    attachmentName: '',
-    attachmentType: '',
-    attachmentSize: 0,
-    createdAt: '2026-09-07T14:00:00',
-    registeredBy: 'System',
-    history: [
-      {
-        action: 'Document registered',
-        by: 'System',
-        department: 'Academics',
-        date: '2026-09-07T14:00:00',
-        note: 'Document registered.'
-      },
-      {
-        action: 'Approved',
-        by: 'System',
-        department: 'Academic Affairs',
-        date: '2026-09-08T09:30:00',
-        note: 'Curriculum review approved.'
-      }
-    ],
-    notesList: []
-  },
-
-  {
-    ref: 'KSU/EXT/2026/092',
-    title: 'Invitation to External Engagement',
-    origin: 'External Relations',
-    destination: 'Vice Chancellor\'s Office',
-    action: 'For information',
-    notes: '',
-    kind: 'External',
-    status: 'Awaiting action',
-    state: '',
-    hasAttachment: false,
-    attachmentName: '',
-    attachmentType: '',
-    attachmentSize: 0,
-    createdAt: '2026-09-06T08:30:00',
-    registeredBy: 'System',
-    history: [
-      {
-        action: 'Document registered',
-        by: 'System',
-        department: 'External Relations',
-        date: '2026-09-06T08:30:00',
-        note: 'External document registered.'
-      }
-    ],
-    notesList: []
+function getCurrentUser() {
+  try {
+    return JSON.parse(
+      localStorage.getItem(SESSION_KEY) || 'null'
+    );
+  } catch (error) {
+    return null;
   }
-];
+}
 
+function currentUserName() {
+  const user = getCurrentUser();
+  return user?.name || 'System User';
+}
+
+function currentUserDepartment() {
+  const user = getCurrentUser();
+  return user?.department || '';
+}
+
+function escapeHtml(value) {
+  return String(value ?? '').replace(/[&<>"']/g, char => ({
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#39;'
+  }[char]));
+}
+
+function formatDate(value) {
+  if (!value) return '—';
+
+  const date = new Date(value);
+
+  if (Number.isNaN(date.getTime())) {
+    return '—';
+  }
+
+  return date.toLocaleString('en-KE', {
+    dateStyle: 'medium',
+    timeStyle: 'short'
+  });
+}
+
+function formatFileSize(bytes) {
+  if (!bytes) return '';
+
+  if (bytes < 1024) {
+    return `${bytes} B`;
+  }
+
+  if (bytes < 1024 * 1024) {
+    return `${(bytes / 1024).toFixed(1)} KB`;
+  }
+
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+}
+
+function showToast(message, type = 'success') {
+  let toast = byId('toast');
+
+  if (!toast) {
+    toast = document.createElement('div');
+    toast.id = 'toast';
+    toast.className = 'toast';
+    document.body.appendChild(toast);
+  }
+
+  toast.textContent = message;
+  toast.className = `toast show ${type}`;
+
+  clearTimeout(window.ksucToastTimer);
+
+  window.ksucToastTimer = setTimeout(() => {
+    toast.className = 'toast';
+  }, 3200);
+}
 
 /* =========================================================
-   LOAD DOCUMENTS
-   ========================================================= */
-
-let documents = loadDocuments();
-
+   STORAGE
+========================================================= */
 
 function loadDocuments() {
-
   try {
+    const saved = JSON.parse(
+      localStorage.getItem(DOCUMENTS_KEY) || 'null'
+    );
 
-    const saved = localStorage.getItem(DOCUMENTS_KEY);
-
-    if (!saved) {
-
-      localStorage.setItem(
-        DOCUMENTS_KEY,
-        JSON.stringify(starterDocuments)
-      );
-
-      return [...starterDocuments];
+    if (Array.isArray(saved)) {
+      return saved;
     }
-
-    const parsed = JSON.parse(saved);
-
-    if (!Array.isArray(parsed)) {
-      return [...starterDocuments];
-    }
-
-    return parsed;
-
   } catch (error) {
-
-    console.error('Unable to load documents:', error);
-
-    return [...starterDocuments];
-  }
-}
-
-
-/* =========================================================
-   ACTIVITY
-   ========================================================= */
-
-let activity = loadActivity();
-
-
-function loadActivity() {
-
-  try {
-
-    const saved = localStorage.getItem(ACTIVITY_KEY);
-
-    if (saved) {
-
-      const parsed = JSON.parse(saved);
-
-      if (Array.isArray(parsed)) {
-        return parsed;
-      }
-    }
-
-  } catch (error) {
-
-    console.error('Unable to load activity:', error);
+    console.warn('Unable to load documents.');
   }
 
-  return [
+  const starterDocuments = [
     {
-      action: 'System started',
-      detail: 'KSUCflow document management portal is ready.',
-      date: new Date().toISOString(),
-      type: 'system'
+      ref: 'KSU/FIN/2026/084',
+      title: 'Budget Reallocation Request',
+      origin: 'Finance Department',
+      destination: "Vice Chancellor's Office",
+      currentOffice: "Vice Chancellor's Office",
+      action: 'For approval',
+      notes: 'Budget reallocation request awaiting approval.',
+      kind: 'Internal',
+      status: 'Awaiting action',
+      state: 'active',
+      hasAttachment: false,
+      attachmentName: '',
+      attachmentType: '',
+      attachmentSize: 0,
+      createdAt: '2026-10-01T08:30:00',
+      registeredBy: 'Registry',
+      history: [
+        {
+          action: 'Document registered',
+          from: 'Registry',
+          to: 'Finance Department',
+          user: 'Registry',
+          status: 'Registered',
+          remarks: '',
+          date: '2026-10-01T08:30:00'
+        },
+        {
+          action: 'Document received',
+          from: 'Registry',
+          to: 'Finance Department',
+          user: 'Finance Department',
+          status: 'Received',
+          remarks: '',
+          date: '2026-10-01T09:00:00'
+        }
+      ],
+      notesList: []
+    },
+
+    {
+      ref: 'KSU/ADM/2026/127',
+      title: 'Maintenance Contract',
+      origin: 'Administration',
+      destination: 'Procurement',
+      currentOffice: 'Procurement',
+      action: 'For action',
+      notes: 'Maintenance contract for review.',
+      kind: 'Internal',
+      status: 'In transit',
+      state: 'active',
+      hasAttachment: false,
+      attachmentName: '',
+      attachmentType: '',
+      attachmentSize: 0,
+      createdAt: '2026-10-02T10:00:00',
+      registeredBy: 'Administration',
+      history: [
+        {
+          action: 'Document registered',
+          from: 'Administration',
+          to: 'Administration',
+          user: 'Administration',
+          status: 'Registered',
+          remarks: '',
+          date: '2026-10-02T10:00:00'
+        },
+        {
+          action: 'Document forwarded',
+          from: 'Administration',
+          to: 'Procurement',
+          user: 'Administration',
+          status: 'In transit',
+          remarks: 'Forwarded to Procurement.',
+          date: '2026-10-02T11:00:00'
+        }
+      ],
+      notesList: []
+    },
+
+    {
+      ref: 'KSU/HR/2026/211',
+      title: 'Recruitment of Laboratory Assistant',
+      origin: 'Human Resource',
+      destination: "Vice Chancellor's Office",
+      currentOffice: "Vice Chancellor's Office",
+      action: 'For approval',
+      notes: 'Recruitment request.',
+      kind: 'Internal',
+      status: 'Awaiting action',
+      state: 'active',
+      hasAttachment: false,
+      attachmentName: '',
+      attachmentType: '',
+      attachmentSize: 0,
+      createdAt: '2026-10-03T09:30:00',
+      registeredBy: 'Human Resource',
+      history: [
+        {
+          action: 'Document registered',
+          from: 'Human Resource',
+          to: "Vice Chancellor's Office",
+          user: 'Human Resource',
+          status: 'Registered',
+          remarks: '',
+          date: '2026-10-03T09:30:00'
+        },
+        {
+          action: 'Document received',
+          from: 'Human Resource',
+          to: "Vice Chancellor's Office",
+          user: "Vice Chancellor's Office",
+          status: 'Received',
+          remarks: '',
+          date: '2026-10-03T10:00:00'
+        }
+      ],
+      notesList: []
+    },
+
+    {
+      ref: 'KSU/ACA/2026/056',
+      title: 'Curriculum Review',
+      origin: 'Academics',
+      destination: 'Academic Affairs',
+      currentOffice: 'Academic Affairs',
+      action: 'For review',
+      notes: 'Curriculum review document.',
+      kind: 'Internal',
+      status: 'Approved',
+      state: 'completed',
+      hasAttachment: false,
+      attachmentName: '',
+      attachmentType: '',
+      attachmentSize: 0,
+      createdAt: '2026-09-20T09:00:00',
+      registeredBy: 'Academics',
+      history: [
+        {
+          action: 'Document registered',
+          from: 'Academics',
+          to: 'Academic Affairs',
+          user: 'Academics',
+          status: 'Registered',
+          remarks: '',
+          date: '2026-09-20T09:00:00'
+        },
+        {
+          action: 'Document received',
+          from: 'Academics',
+          to: 'Academic Affairs',
+          user: 'Academic Affairs',
+          status: 'Received',
+          remarks: '',
+          date: '2026-09-20T09:30:00'
+        },
+        {
+          action: 'Document approved',
+          from: 'Academic Affairs',
+          to: 'Academic Affairs',
+          user: 'Academic Affairs',
+          status: 'Approved',
+          remarks: 'Approved.',
+          date: '2026-09-22T14:00:00'
+        }
+      ],
+      notesList: []
+    },
+
+    {
+      ref: 'KSU/EXT/2026/092',
+      title: 'Invitation to External Engagement',
+      origin: 'External Relations',
+      destination: "Vice Chancellor's Office",
+      currentOffice: "Vice Chancellor's Office",
+      action: 'For information',
+      notes: 'External engagement invitation.',
+      kind: 'External',
+      status: 'Awaiting action',
+      state: 'active',
+      hasAttachment: false,
+      attachmentName: '',
+      attachmentType: '',
+      attachmentSize: 0,
+      createdAt: '2026-10-04T11:00:00',
+      registeredBy: 'External Relations',
+      history: [
+        {
+          action: 'Document registered',
+          from: 'External Relations',
+          to: "Vice Chancellor's Office",
+          user: 'External Relations',
+          status: 'Registered',
+          remarks: '',
+          date: '2026-10-04T11:00:00'
+        }
+      ],
+      notesList: []
     }
   ];
+
+  localStorage.setItem(
+    DOCUMENTS_KEY,
+    JSON.stringify(starterDocuments)
+  );
+
+  return starterDocuments;
 }
 
+function loadActivity() {
+  try {
+    const saved = JSON.parse(
+      localStorage.getItem(ACTIVITY_KEY) || 'null'
+    );
 
-/* =========================================================
-   SAVE HELPERS
-   ========================================================= */
+    if (Array.isArray(saved)) {
+      return saved;
+    }
+  } catch (error) {
+    console.warn('Unable to load activity.');
+  }
 
-function saveDocuments() {
+  const activity = [
+    {
+      action: 'System started',
+      detail: 'KSUCflow document tracking system initialized.',
+      type: 'system',
+      date: new Date().toISOString()
+    }
+  ];
 
+  localStorage.setItem(
+    ACTIVITY_KEY,
+    JSON.stringify(activity)
+  );
+
+  return activity;
+}
+
+function saveDocuments(documents) {
   localStorage.setItem(
     DOCUMENTS_KEY,
     JSON.stringify(documents)
   );
 }
 
-
-function saveActivity() {
-
+function saveActivity(activity) {
   localStorage.setItem(
     ACTIVITY_KEY,
     JSON.stringify(activity)
   );
 }
 
-
 /* =========================================================
-   CURRENT USER
-   ========================================================= */
-
-function getCurrentUser() {
-
-  try {
-
-    const session = localStorage.getItem(SESSION_KEY);
-
-    if (session) {
-
-      const parsed = JSON.parse(session);
-
-      return {
-        name: parsed.name || parsed.username || 'Current User',
-        role: parsed.role || 'Staff',
-        department: parsed.department || 'ICT'
-      };
-    }
-
-  } catch (error) {
-
-    console.warn('Session could not be read.');
-  }
-
-  return {
-    name: 'Current User',
-    role: 'Staff',
-    department: 'ICT'
-  };
-}
-
-
-/* =========================================================
-   ESCAPE HTML
-   ========================================================= */
-
-function escapeHtml(value) {
-
-  if (value === null || value === undefined) {
-    return '';
-  }
-
-  return String(value)
-    .replaceAll('&', '&amp;')
-    .replaceAll('<', '&lt;')
-    .replaceAll('>', '&gt;')
-    .replaceAll('"', '&quot;')
-    .replaceAll("'", '&#039;');
-}
-
-
-/* =========================================================
-   DATE FORMAT
-   ========================================================= */
-
-function formatDate(value) {
-
-  if (!value) {
-    return '-';
-  }
-
-  const date = new Date(value);
-
-  if (Number.isNaN(date.getTime())) {
-    return value;
-  }
-
-  return date.toLocaleString('en-KE', {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit'
-  });
-}
-
-
-/* =========================================================
-   FILE SIZE
-   ========================================================= */
-
-function formatFileSize(bytes) {
-
-  if (!bytes) {
-    return '0 KB';
-  }
-
-  if (bytes < 1024 * 1024) {
-    return `${Math.round(bytes / 1024)} KB`;
-  }
-
-  return `${(bytes / (1024 * 1024)).toFixed(2)} MB`;
-}
-
-
-/* =========================================================
-   TOAST
-   ========================================================= */
-
-let toastTimer = null;
-
-
-function showToast(message, type = 'success') {
-
-  const toast = document.querySelector('#toast');
-
-  if (!toast) {
-    return;
-  }
-
-  toast.textContent = message;
-
-  toast.className = `toast ${type}`;
-
-  toast.classList.add('show');
-
-  clearTimeout(toastTimer);
-
-  toastTimer = setTimeout(() => {
-
-    toast.classList.remove('show');
-
-  }, 3500);
-}
-
-
-/* =========================================================
-   ADD ACTIVITY
-   ========================================================= */
+   ACTIVITY
+========================================================= */
 
 function addActivity(action, detail, type = 'document') {
+  const activity = loadActivity();
 
   activity.unshift({
     action,
     detail,
     type,
-    date: new Date().toISOString()
+    date: new Date().toISOString(),
+    user: currentUserName(),
+    department: currentUserDepartment()
   });
 
-  activity = activity.slice(0, 50);
-
-  saveActivity();
+  saveActivity(activity.slice(0, 50));
 
   renderActivity();
 }
 
+/* =========================================================
+   WORKFLOW HELPERS
+========================================================= */
+
+function latestHistory(document) {
+  if (!Array.isArray(document.history) || !document.history.length) {
+    return null;
+  }
+
+  return document.history[document.history.length - 1];
+}
+
+function getCurrentOffice(document) {
+  if (document.currentOffice) {
+    return document.currentOffice;
+  }
+
+  const last = latestHistory(document);
+
+  return last?.to || document.destination || document.origin || '';
+}
+
+function isInTransit(document) {
+  return document.status === 'In transit';
+}
+
+function isReceived(document) {
+  return document.status === 'Received';
+}
+
+function isAwaitingAction(document) {
+  return (
+    document.status === 'Awaiting action' ||
+    document.status === 'Returned for changes'
+  );
+}
+
+function isCompleted(document) {
+  return (
+    document.status === 'Completed' ||
+    document.status === 'Approved' ||
+    document.status === 'Not approved'
+  );
+}
+
+function isDocumentForCurrentOffice(document) {
+  const department = currentUserDepartment();
+
+  if (!department) return false;
+
+  return (
+    getCurrentOffice(document) === department &&
+    !isCompleted(document) &&
+    !isInTransit(document)
+  );
+}
+
+function isDocumentAwaitingReceipt(document) {
+  const department = currentUserDepartment();
+
+  if (!department) return false;
+
+  return (
+    document.status === 'In transit' &&
+    document.destination === department
+  );
+}
+
+function isDocumentAwaitingMyAction(document) {
+  return (
+    isDocumentForCurrentOffice(document) &&
+    isAwaitingAction(document)
+  );
+}
+
+function addHistory(document, {
+  action,
+  from = '',
+  to = '',
+  status,
+  remarks = ''
+}) {
+  if (!Array.isArray(document.history)) {
+    document.history = [];
+  }
+
+  document.history.push({
+    action,
+    from,
+    to,
+    user: currentUserName(),
+    department: currentUserDepartment(),
+    status,
+    remarks,
+    date: new Date().toISOString()
+  });
+}
 
 /* =========================================================
-   RENDER DASHBOARD
-   ========================================================= */
+   DASHBOARD
+========================================================= */
 
 function renderDashboard() {
+  const documents = loadDocuments();
+  const department = currentUserDepartment();
 
   const total = documents.length;
 
-  const awaiting = documents.filter(
-    doc => doc.status === 'Awaiting action'
+  const awaitingReceipt = documents.filter(
+    isDocumentAwaitingReceipt
   ).length;
 
-  const approved = documents.filter(
-    doc => doc.status === 'Approved'
+  const inbox = documents.filter(
+    isDocumentForCurrentOffice
+  ).length;
+
+  const awaitingAction = documents.filter(
+    isDocumentAwaitingMyAction
   ).length;
 
   const transit = documents.filter(
-    doc => doc.status === 'In transit'
+    document => document.status === 'In transit'
   ).length;
 
+  const completed = documents.filter(
+    isCompleted
+  ).length;
 
-  const totalEl = document.querySelector('#totalDocuments');
-  const awaitingEl = document.querySelector('#awaitingDocuments');
-  const approvedEl = document.querySelector('#approvedDocuments');
-  const transitEl = document.querySelector('#transitDocuments');
-
-
-  if (totalEl) {
-    totalEl.textContent = total;
+  if (byId('totalDocuments')) {
+    byId('totalDocuments').textContent = total;
   }
 
-  if (awaitingEl) {
-    awaitingEl.textContent = awaiting;
+  if (byId('awaitingDocuments')) {
+    byId('awaitingDocuments').textContent =
+      awaitingAction;
   }
 
-  if (approvedEl) {
-    approvedEl.textContent = approved;
+  if (byId('approvedDocuments')) {
+    byId('approvedDocuments').textContent =
+      documents.filter(
+        document => document.status === 'Approved'
+      ).length;
   }
 
-  if (transitEl) {
-    transitEl.textContent = transit;
+  if (byId('transitDocuments')) {
+    byId('transitDocuments').textContent = transit;
   }
 
+  /*
+    Optional newer dashboard counters.
+    These only update if the corresponding elements
+    exist, so the current dashboard will continue
+    working without modification.
+  */
 
-  updateNotificationCount();
+  if (byId('myInbox')) {
+    byId('myInbox').textContent = inbox;
+  }
 
+  if (byId('awaitingReceipt')) {
+    byId('awaitingReceipt').textContent =
+      awaitingReceipt;
+  }
+
+  if (byId('myActions')) {
+    byId('myActions').textContent =
+      awaitingAction;
+  }
+
+  if (byId('completedDocuments')) {
+    byId('completedDocuments').textContent =
+      completed;
+  }
+
+  if (byId('currentOffice')) {
+    byId('currentOffice').textContent =
+      department || 'Not assigned';
+  }
+
+  renderNotifications();
   renderDocuments();
   renderActivity();
 }
 
-
 /* =========================================================
-   STATUS CLASS
-   ========================================================= */
+   DOCUMENT LIST
+========================================================= */
 
 function statusClass(status) {
+  const value = String(status || '')
+    .toLowerCase()
+    .replace(/\s+/g, '-');
 
-  switch (status) {
-
-    case 'Approved':
-      return 'approved';
-
-    case 'Rejected':
-    case 'Not approved':
-      return 'rejected';
-
-    case 'Returned for changes':
-      return 'returned';
-
-    case 'In transit':
-      return 'transit';
-
-    case 'Awaiting action':
-      return 'pending';
-
-    default:
-      return '';
-  }
+  return `status-${value}`;
 }
 
-
-/* =========================================================
-   RENDER DOCUMENTS
-   ========================================================= */
-
 function renderDocuments(searchTerm = '') {
+  const container = byId('recentDocuments');
 
-  const container = document.querySelector('#recentDocuments');
+  if (!container) return;
 
-  if (!container) {
-    return;
-  }
+  const documents = loadDocuments();
 
-  const query = searchTerm.trim().toLowerCase();
+  const search = String(searchTerm)
+    .trim()
+    .toLowerCase();
 
+  let filtered = documents;
 
-  let filtered = [...documents];
-
-  if (query) {
-
-    filtered = filtered.filter(doc => {
-
-      return [
-        doc.ref,
-        doc.title,
-        doc.origin,
-        doc.destination,
-        doc.action,
-        doc.status
+  if (search) {
+    filtered = documents.filter(document =>
+      [
+        document.ref,
+        document.title,
+        document.origin,
+        document.destination,
+        document.currentOffice,
+        document.status
       ]
         .join(' ')
         .toLowerCase()
-        .includes(query);
-
-    });
+        .includes(search)
+    );
   }
-
 
   filtered.sort(
     (a, b) =>
-      new Date(b.createdAt || 0) -
-      new Date(a.createdAt || 0)
+      new Date(b.createdAt) -
+      new Date(a.createdAt)
   );
-
 
   filtered = filtered.slice(0, 8);
 
-
   if (!filtered.length) {
-
     container.innerHTML = `
       <div class="empty-state">
-        <div class="empty-icon">▤</div>
-        <h3>No documents found</h3>
-        <p>There are no documents matching your search.</p>
+        <strong>No documents found</strong>
+        <span>There are no documents matching your search.</span>
       </div>
     `;
 
     return;
   }
 
+  container.innerHTML = filtered.map(document => `
+    <div class="document-row">
 
-  container.innerHTML = filtered.map(doc => {
+      <div class="document-main">
 
-    const attachment = doc.hasAttachment
-      ? `<span class="attachment-indicator">PDF</span>`
-      : '';
-
-
-    return `
-      <div class="document-row">
-
-        <div class="document-main">
-
-          <div class="document-icon">
-            ${doc.hasAttachment ? '📄' : '▤'}
-          </div>
-
-          <div class="document-info">
-
-            <strong>
-              ${escapeHtml(doc.title || 'Untitled Document')}
-            </strong>
-
-            <span>
-              ${escapeHtml(doc.ref || '')}
-            </span>
-
-            <small>
-              ${escapeHtml(doc.origin || '')}
-              → 
-              ${escapeHtml(doc.destination || '')}
-            </small>
-
-          </div>
-
+        <div class="document-title">
+          ${escapeHtml(document.title)}
         </div>
-
 
         <div class="document-meta">
-
-          ${attachment}
-
-          <span class="status-badge ${statusClass(doc.status)}">
-            ${escapeHtml(doc.status || 'Unknown')}
+          <span>${escapeHtml(document.ref)}</span>
+          <span>•</span>
+          <span>
+            ${escapeHtml(
+              getCurrentOffice(document)
+            )}
           </span>
-
-          <small>
-            ${formatDate(doc.createdAt)}
-          </small>
-
-          <a
-            href="document-view.html?ref=${encodeURIComponent(doc.ref)}"
-            class="row-action"
-          >
-            View
-          </a>
-
         </div>
 
       </div>
-    `;
 
-  }).join('');
+      <div class="document-status">
+        <span class="status ${statusClass(document.status)}">
+          ${escapeHtml(document.status)}
+        </span>
+
+        ${
+          document.hasAttachment
+            ? '<span class="attachment-indicator">PDF</span>'
+            : ''
+        }
+      </div>
+
+      <div class="document-date">
+        ${formatDate(document.createdAt)}
+      </div>
+
+      <a
+        class="document-view-link"
+        href="document-view.html?ref=${encodeURIComponent(document.ref)}"
+      >
+        View
+      </a>
+
+    </div>
+  `).join('');
 }
 
-
 /* =========================================================
-   RENDER ACTIVITY
-   ========================================================= */
+   ACTIVITY
+========================================================= */
 
 function renderActivity() {
+  const container = byId('activityList');
 
-  const container = document.querySelector('#activityList');
+  if (!container) return;
 
-  if (!container) {
-    return;
-  }
-
+  const activity = loadActivity();
 
   const items = activity.slice(0, 8);
 
-
   if (!items.length) {
-
     container.innerHTML = `
       <div class="empty-state">
-        <div class="empty-icon">◷</div>
-        <h3>No recent activity</h3>
-        <p>Activity will appear here.</p>
+        <strong>No recent activity</strong>
       </div>
     `;
 
     return;
   }
 
+  container.innerHTML = items.map(item => `
+    <div class="activity-item">
 
-  container.innerHTML = items.map(item => {
+      <div class="activity-dot"></div>
 
-    return `
-      <div class="activity-item">
+      <div class="activity-content">
 
-        <div class="activity-dot"></div>
+        <strong>
+          ${escapeHtml(item.action)}
+        </strong>
 
-        <div class="activity-content">
+        <span>
+          ${escapeHtml(item.detail)}
+        </span>
 
-          <strong>
-            ${escapeHtml(item.action)}
-          </strong>
+        <small>
+          ${formatDate(item.date)}
+          ${
+            item.user
+              ? ` • ${escapeHtml(item.user)}`
+              : ''
+          }
+        </small>
 
-          <p>
-            ${escapeHtml(item.detail)}
-          </p>
+      </div>
 
-          <small>
-            ${formatDate(item.date)}
-          </small>
+    </div>
+  `).join('');
+}
 
-        </div>
+/* =========================================================
+   NOTIFICATIONS
+========================================================= */
 
+function getNotifications() {
+  const documents = loadDocuments();
+
+  const notifications = [];
+
+  documents.forEach(document => {
+
+    if (isDocumentAwaitingReceipt(document)) {
+      notifications.push({
+        type: 'receipt',
+        title: 'Document awaiting receipt',
+        detail: `${document.ref} is on its way to ${currentUserDepartment()}.`,
+        ref: document.ref
+      });
+    }
+
+    if (isDocumentAwaitingMyAction(document)) {
+      notifications.push({
+        type: 'action',
+        title: 'Action required',
+        detail: `${document.ref} requires action.`,
+        ref: document.ref
+      });
+    }
+
+    if (document.status === 'Returned for changes') {
+      if (
+        getCurrentOffice(document) ===
+        currentUserDepartment()
+      ) {
+        notifications.push({
+          type: 'returned',
+          title: 'Document returned',
+          detail: `${document.ref} was returned for changes.`,
+          ref: document.ref
+        });
+      }
+    }
+
+  });
+
+  return notifications;
+}
+
+function renderNotifications() {
+  const notifications = getNotifications();
+
+  const count = notifications.length;
+
+  if (byId('notificationCount')) {
+    byId('notificationCount').textContent =
+      count > 99 ? '99+' : count;
+  }
+
+  if (byId('notificationBadge')) {
+    byId('notificationBadge').textContent =
+      count > 99 ? '99+' : count;
+  }
+
+  const container = byId('notificationList');
+
+  if (!container) return;
+
+  if (!notifications.length) {
+    container.innerHTML = `
+      <div class="empty-state">
+        <strong>No new notifications</strong>
+        <span>You're all caught up.</span>
       </div>
     `;
 
-  }).join('');
+    return;
+  }
+
+  container.innerHTML = notifications.map(notification => `
+    <a
+      class="notification-item"
+      href="document-view.html?ref=${encodeURIComponent(notification.ref)}"
+    >
+
+      <strong>
+        ${escapeHtml(notification.title)}
+      </strong>
+
+      <span>
+        ${escapeHtml(notification.detail)}
+      </span>
+
+    </a>
+  `).join('');
 }
 
-
 /* =========================================================
-   INDEXEDDB
-   ========================================================= */
+   PDF DATABASE
+========================================================= */
 
 function openPdfDatabase() {
-
   return new Promise((resolve, reject) => {
 
     const request = indexedDB.open(
@@ -715,254 +845,154 @@ function openPdfDatabase() {
       PDF_DB_VERSION
     );
 
+    request.onupgradeneeded = function () {
 
-    request.onupgradeneeded = event => {
+      const database = request.result;
 
-      const db = event.target.result;
-
-      if (!db.objectStoreNames.contains(PDF_STORE_NAME)) {
-
-        db.createObjectStore(
-          PDF_STORE_NAME,
-          {
-            keyPath: 'ref'
-          }
+      if (!database.objectStoreNames.contains(PDF_STORE)) {
+        database.createObjectStore(
+          PDF_STORE,
+          { keyPath: 'ref' }
         );
       }
+
     };
 
-
-    request.onsuccess = () => {
-
+    request.onsuccess = function () {
       resolve(request.result);
     };
 
-
-    request.onerror = () => {
-
+    request.onerror = function () {
       reject(request.error);
     };
 
   });
 }
 
-
-/* =========================================================
-   SAVE PDF
-   ========================================================= */
-
 async function savePdfFile(ref, file) {
-
-  const db = await openPdfDatabase();
+  const database = await openPdfDatabase();
 
   return new Promise((resolve, reject) => {
 
-    const transaction = db.transaction(
-      PDF_STORE_NAME,
-      'readwrite'
-    );
+    const transaction =
+      database.transaction(
+        PDF_STORE,
+        'readwrite'
+      );
 
-    const store = transaction.objectStore(
-      PDF_STORE_NAME
-    );
-
+    const store =
+      transaction.objectStore(PDF_STORE);
 
     store.put({
       ref,
       file,
-      name: file.name,
-      type: file.type,
-      size: file.size,
       savedAt: new Date().toISOString()
     });
 
-
     transaction.oncomplete = () => {
-
-      db.close();
-
-      resolve(true);
+      database.close();
+      resolve();
     };
 
-
     transaction.onerror = () => {
-
-      db.close();
-
+      database.close();
       reject(transaction.error);
     };
 
   });
 }
 
-
-/* =========================================================
-   GET PDF
-   ========================================================= */
-
 async function getPdfFile(ref) {
-
-  const db = await openPdfDatabase();
+  const database = await openPdfDatabase();
 
   return new Promise((resolve, reject) => {
 
-    const transaction = db.transaction(
-      PDF_STORE_NAME,
-      'readonly'
-    );
+    const transaction =
+      database.transaction(
+        PDF_STORE,
+        'readonly'
+      );
 
-    const store = transaction.objectStore(
-      PDF_STORE_NAME
-    );
+    const store =
+      transaction.objectStore(PDF_STORE);
 
-    const request = store.get(ref);
-
+    const request =
+      store.get(ref);
 
     request.onsuccess = () => {
-
-      db.close();
-
+      database.close();
       resolve(request.result || null);
     };
 
-
     request.onerror = () => {
-
-      db.close();
-
+      database.close();
       reject(request.error);
     };
 
   });
 }
 
-
-/* =========================================================
-   DELETE PDF
-   ========================================================= */
-
 async function deletePdfFile(ref) {
+  const database = await openPdfDatabase();
 
-  try {
+  return new Promise((resolve, reject) => {
 
-    const db = await openPdfDatabase();
-
-    return new Promise((resolve, reject) => {
-
-      const transaction = db.transaction(
-        PDF_STORE_NAME,
+    const transaction =
+      database.transaction(
+        PDF_STORE,
         'readwrite'
       );
 
-      const store = transaction.objectStore(
-        PDF_STORE_NAME
-      );
+    const store =
+      transaction.objectStore(PDF_STORE);
 
-      store.delete(ref);
+    store.delete(ref);
 
+    transaction.oncomplete = () => {
+      database.close();
+      resolve();
+    };
 
-      transaction.oncomplete = () => {
+    transaction.onerror = () => {
+      database.close();
+      reject(transaction.error);
+    };
 
-        db.close();
-
-        resolve(true);
-      };
-
-
-      transaction.onerror = () => {
-
-        db.close();
-
-        reject(transaction.error);
-      };
-
-    });
-
-  } catch (error) {
-
-    console.error(
-      'Unable to delete PDF:',
-      error
-    );
-
-    return false;
-  }
+  });
 }
 
-
 /* =========================================================
-   PDF FILE SELECTION
-   ========================================================= */
+   PDF UPLOAD
+========================================================= */
 
 function setupPdfUpload() {
+  const input = byId('documentPdf');
 
-  const fileInput =
-    document.querySelector('#documentFile');
+  if (!input) return;
 
-  const selectedFile =
-    document.querySelector('#selectedFile');
-
-  const selectedFileName =
-    document.querySelector('#selectedFileName');
-
-  const removeButton =
-    document.querySelector('#removeSelectedFile');
-
-
-  if (!fileInput) {
-    return;
-  }
-
-
-  fileInput.addEventListener(
+  input.addEventListener(
     'change',
-    () => {
+    function () {
 
-      const file = fileInput.files?.[0];
+      const file = input.files?.[0];
 
-      if (!file) {
+      if (!file) return;
 
-        if (selectedFile) {
-          selectedFile.style.display = 'none';
-        }
-
-        return;
-      }
-
-
-      const isPdf =
-        file.type === 'application/pdf' ||
-        file.name.toLowerCase().endsWith('.pdf');
-
-
-      if (!isPdf) {
-
-        fileInput.value = '';
-
-        if (selectedFile) {
-          selectedFile.style.display = 'none';
-        }
+      if (file.type !== 'application/pdf') {
+        input.value = '';
 
         showToast(
-          'Only PDF files are allowed.',
+          'Only PDF documents are allowed.',
           'error'
         );
 
         return;
       }
 
-
-      const maxSize =
-        10 * 1024 * 1024;
-
+      const maxSize = 10 * 1024 * 1024;
 
       if (file.size > maxSize) {
-
-        fileInput.value = '';
-
-        if (selectedFile) {
-          selectedFile.style.display = 'none';
-        }
+        input.value = '';
 
         showToast(
           'The PDF must not exceed 10 MB.',
@@ -970,989 +1000,406 @@ function setupPdfUpload() {
         );
 
         return;
-      }
-
-
-      if (selectedFileName) {
-
-        selectedFileName.textContent =
-          `${file.name} (${formatFileSize(file.size)})`;
-      }
-
-
-      if (selectedFile) {
-
-        selectedFile.style.display =
-          'block';
-      }
-
-    }
-  );
-
-
-  removeButton?.addEventListener(
-    'click',
-    () => {
-
-      fileInput.value = '';
-
-      if (selectedFile) {
-        selectedFile.style.display = 'none';
-      }
-
-      if (selectedFileName) {
-        selectedFileName.textContent = '';
       }
 
     }
   );
 }
 
-
 /* =========================================================
-   REGISTER DOCUMENT
-   ========================================================= */
+   DOCUMENT REGISTRATION
+========================================================= */
 
 function setupDocumentRegistration() {
+  const form = byId('documentForm');
 
-  const modal =
-    document.querySelector('#documentModal');
+  if (!form) return;
 
-  const form =
-    document.querySelector('#documentForm');
-
-  const openButton =
-    document.querySelector('#openModal');
-
-  const quickButton =
-    document.querySelector('#quickRegisterBtn');
-
-  const cancelButton =
-    document.querySelector('#cancelDocumentBtn');
-
-  const closeButton =
-    document.querySelector('#closeDocumentModal');
-
-
-  function openRegisterModal() {
-
-    if (!modal) {
-      return;
-    }
-
-    modal.showModal();
-  }
-
-
-  function closeRegisterModal() {
-
-    if (!modal) {
-      return;
-    }
-
-    if (modal.open) {
-      modal.close();
-    }
-
-    resetDocumentForm();
-  }
-
-
-  openButton?.addEventListener(
-    'click',
-    openRegisterModal
-  );
-
-
-  quickButton?.addEventListener(
-    'click',
-    openRegisterModal
-  );
-
-
-  closeButton?.addEventListener(
-    'click',
-    closeRegisterModal
-  );
-
-
-  /*
-    IMPORTANT:
-    This is type="button" in index.html,
-    therefore it does NOT trigger validation.
-  */
-
-  cancelButton?.addEventListener(
-    'click',
-    event => {
-
-      event.preventDefault();
-
-      closeRegisterModal();
-    }
-  );
-
-
-  /*
-    CLOSE WHEN CLICKING OUTSIDE THE DIALOG
-  */
-
-  modal?.addEventListener(
-    'click',
-    event => {
-
-      const rect =
-        modal.getBoundingClientRect();
-
-      const clickedInside =
-        event.clientX >= rect.left &&
-        event.clientX <= rect.right &&
-        event.clientY >= rect.top &&
-        event.clientY <= rect.bottom;
-
-
-      if (!clickedInside) {
-
-        closeRegisterModal();
-      }
-
-    }
-  );
-
-
-  /*
-    SUBMIT
-  */
-
-  form?.addEventListener(
+  form.addEventListener(
     'submit',
-    async event => {
+    async function (event) {
 
       event.preventDefault();
 
-
-      const reference =
-        document.querySelector('#reference')
-          ?.value
-          .trim();
-
-      const origin =
-        document.querySelector('#origin')
-          ?.value
-          .trim();
+      const ref =
+        byId('documentRef')?.value.trim();
 
       const title =
-        document.querySelector('#subject')
-          ?.value
-          .trim();
+        byId('documentTitle')?.value.trim();
+
+      const origin =
+        byId('documentOrigin')?.value.trim();
 
       const destination =
-        document.querySelector('#department')
-          ?.value;
+        byId('documentDestination')?.value.trim();
 
       const action =
-        document.querySelector('#action')
-          ?.value;
+        byId('documentAction')?.value.trim();
 
       const notes =
-        document.querySelector('#notes')
-          ?.value
-          .trim() || '';
+        byId('documentNotes')?.value.trim() || '';
 
-
-      const fileInput =
-        document.querySelector('#documentFile');
+      const pdfInput =
+        byId('documentPdf');
 
       const file =
-        fileInput?.files?.[0] || null;
+        pdfInput?.files?.[0] || null;
 
-
-      /* =========================
-         VALIDATION
-      ========================== */
-
-      if (!reference) {
-
+      if (
+        !ref ||
+        !title ||
+        !origin ||
+        !destination ||
+        !action
+      ) {
         showToast(
-          'Please enter the reference number.',
-          'error'
-        );
-
-        document.querySelector('#reference')?.focus();
-
-        return;
-      }
-
-
-      if (!origin) {
-
-        showToast(
-          'Please enter the origin of the document.',
-          'error'
-        );
-
-        document.querySelector('#origin')?.focus();
-
-        return;
-      }
-
-
-      if (!title) {
-
-        showToast(
-          'Please enter the document subject.',
-          'error'
-        );
-
-        document.querySelector('#subject')?.focus();
-
-        return;
-      }
-
-
-      if (!destination) {
-
-        showToast(
-          'Please select the department to route the document to.',
-          'error'
-        );
-
-        document.querySelector('#department')?.focus();
-
-        return;
-      }
-
-
-      if (!action) {
-
-        showToast(
-          'Please select the required action.',
-          'error'
-        );
-
-        document.querySelector('#action')?.focus();
-
-        return;
-      }
-
-
-      if (!file) {
-
-        showToast(
-          'Please attach the PDF document.',
-          'error'
-        );
-
-        fileInput?.focus();
-
-        return;
-      }
-
-
-      const isPdf =
-        file.type === 'application/pdf' ||
-        file.name.toLowerCase().endsWith('.pdf');
-
-
-      if (!isPdf) {
-
-        showToast(
-          'Only PDF files are allowed.',
+          'Please complete all required fields.',
           'error'
         );
 
         return;
       }
 
-
-      if (file.size > 10 * 1024 * 1024) {
-
-        showToast(
-          'The PDF must not exceed 10 MB.',
-          'error'
-        );
-
-        return;
-      }
-
-
-      /*
-        CHECK DUPLICATE REFERENCE
-      */
+      const documents = loadDocuments();
 
       const duplicate =
         documents.some(
-          doc =>
-            String(doc.ref).toLowerCase() ===
-            reference.toLowerCase()
+          document =>
+            document.ref.toLowerCase() ===
+            ref.toLowerCase()
         );
 
-
       if (duplicate) {
-
         showToast(
-          'A document with this reference already exists.',
+          'A document with this reference number already exists.',
           'error'
         );
 
         return;
       }
 
+      if (file) {
 
-      /* =========================
-         CURRENT USER
-      ========================== */
+        if (file.type !== 'application/pdf') {
+          showToast(
+            'Only PDF documents are allowed.',
+            'error'
+          );
 
-      const currentUser =
-        getCurrentUser();
+          return;
+        }
 
+        if (file.size > 10 * 1024 * 1024) {
+          showToast(
+            'The PDF must not exceed 10 MB.',
+            'error'
+          );
 
-      /* =========================
-         CREATE DOCUMENT
-      ========================== */
+          return;
+        }
+
+      }
 
       const now =
         new Date().toISOString();
 
-
-      const newDocument = {
-
-        ref: reference,
-
+      const document = {
+        ref,
         title,
-
         origin,
-
         destination,
 
-        action,
+        /*
+          The registering office is the initial
+          current holder until the document is
+          forwarded.
+        */
+        currentOffice: origin,
 
+        action,
         notes,
 
         kind: 'Internal',
 
-        status: 'Awaiting action',
+        status: 'Received',
 
-        state: '',
+        state: 'active',
 
-        hasAttachment: true,
+        hasAttachment: Boolean(file),
 
-        attachmentName: file.name,
+        attachmentName:
+          file?.name || '',
 
         attachmentType:
-          file.type || 'application/pdf',
+          file?.type || '',
 
-        attachmentSize: file.size,
+        attachmentSize:
+          file?.size || 0,
 
         createdAt: now,
 
         registeredBy:
-          currentUser.name,
-
-        registeredByDepartment:
-          currentUser.department,
+          currentUserName(),
 
         history: [
-
           {
             action: 'Document registered',
-
-            by: currentUser.name,
-
-            department:
-              currentUser.department,
-
-            date: now,
-
-            note:
-              `Document registered and routed to ${destination}.`
+            from: origin,
+            to: origin,
+            user: currentUserName(),
+            department: currentUserDepartment(),
+            status: 'Received',
+            remarks: 'Document registered into KSUCflow.',
+            date: now
           }
-
         ],
 
         notesList: notes
           ? [
               {
-                text: notes,
-                by: currentUser.name,
+                note: notes,
+                user: currentUserName(),
                 date: now
               }
             ]
           : []
-
       };
 
+      if (file) {
+        try {
+          await savePdfFile(ref, file);
+        } catch (error) {
+          console.error(error);
 
-      /* =========================
-         SAVE PDF
-      ========================== */
+          showToast(
+            'Unable to save the PDF attachment.',
+            'error'
+          );
 
-      try {
-
-        await savePdfFile(
-          reference,
-          file
-        );
-
-      } catch (error) {
-
-        console.error(
-          'PDF storage error:',
-          error
-        );
-
-        showToast(
-          'The PDF could not be saved. Please try again.',
-          'error'
-        );
-
-        return;
+          return;
+        }
       }
 
+      documents.unshift(document);
 
-      /* =========================
-         SAVE DOCUMENT
-      ========================== */
-
-      documents.unshift(
-        newDocument
-      );
-
-      saveDocuments();
-
-
-      /* =========================
-         ACTIVITY
-      ========================== */
+      saveDocuments(documents);
 
       addActivity(
         'Document registered',
-        `${reference} was registered and routed to ${destination}.`,
+        `${ref} — ${title}`,
         'document'
       );
 
-
-      /* =========================
-         RESET
-      ========================== */
-
-      resetDocumentForm();
-
-
-      if (modal?.open) {
-        modal.close();
-      }
-
+      form.reset();
 
       renderDashboard();
 
-
       showToast(
-        `Document ${reference} registered successfully.`,
-        'success'
+        'Document registered successfully.'
       );
+
+      /*
+        If a registration dialog exists,
+        close it after successful submission.
+      */
+      const dialog =
+        byId('registrationDialog');
+
+      if (
+        dialog &&
+        typeof dialog.close === 'function'
+      ) {
+        dialog.close();
+      }
 
     }
   );
-
 }
 
-
 /* =========================================================
-   RESET DOCUMENT FORM
-   ========================================================= */
+   SEARCH
+========================================================= */
 
-function resetDocumentForm() {
+function setupSearch() {
+  const input =
+    byId('documentSearch');
 
-  const form =
-    document.querySelector('#documentForm');
+  if (!input) return;
 
-  form?.reset();
-
-
-  const selectedFile =
-    document.querySelector('#selectedFile');
-
-  const selectedFileName =
-    document.querySelector('#selectedFileName');
-
-
-  if (selectedFile) {
-
-    selectedFile.style.display =
-      'none';
-  }
-
-
-  if (selectedFileName) {
-
-    selectedFileName.textContent =
-      '';
-  }
+  input.addEventListener(
+    'input',
+    function () {
+      renderDocuments(
+        input.value
+      );
+    }
+  );
 }
 
-
 /* =========================================================
-   REVIEW DOCUMENT
-   ========================================================= */
+   REVIEW / QUICK VIEW
+========================================================= */
 
 function openDocumentReview(ref) {
+  const documents = loadDocuments();
 
-  const doc =
+  const document =
     documents.find(
       item => item.ref === ref
     );
 
-
-  if (!doc) {
-
+  if (!document) {
     showToast(
-      'Document not found.',
+      'Document could not be found.',
       'error'
     );
 
     return;
   }
 
-
-  const modal =
-    document.querySelector('#reviewModal');
-
-  const title =
-    document.querySelector('#reviewTitle');
-
-  const reference =
-    document.querySelector('#reviewReference');
-
-  const content =
-    document.querySelector('#reviewContent');
-
-
-  if (!modal || !content) {
-    return;
-  }
-
-
-  title.textContent =
-    doc.title || 'Document';
-
-  reference.textContent =
-    doc.ref || '';
-
-
-  content.innerHTML = `
-
-    <div class="review-details">
-
-      <div class="detail-item">
-        <span>Reference</span>
-        <strong>${escapeHtml(doc.ref)}</strong>
-      </div>
-
-      <div class="detail-item">
-        <span>Origin</span>
-        <strong>${escapeHtml(doc.origin)}</strong>
-      </div>
-
-      <div class="detail-item">
-        <span>Destination</span>
-        <strong>${escapeHtml(doc.destination)}</strong>
-      </div>
-
-      <div class="detail-item">
-        <span>Required Action</span>
-        <strong>${escapeHtml(doc.action)}</strong>
-      </div>
-
-      <div class="detail-item">
-        <span>Status</span>
-        <strong>
-          ${escapeHtml(doc.status)}
-        </strong>
-      </div>
-
-      <div class="detail-item">
-        <span>Registered</span>
-        <strong>
-          ${formatDate(doc.createdAt)}
-        </strong>
-      </div>
-
-    </div>
-
-    <div class="review-notes">
-
-      <h3>Notes</h3>
-
-      <p>
-        ${escapeHtml(doc.notes || 'No notes added.')}
-      </p>
-
-    </div>
-
-    <div class="review-file">
-
-      <h3>Attachment</h3>
-
-      <p>
-        ${
-          doc.hasAttachment
-            ? escapeHtml(doc.attachmentName)
-            : 'No PDF attached.'
-        }
-      </p>
-
-    </div>
-
-  `;
-
-
-  modal.showModal();
+  window.location.href =
+    `document-view.html?ref=${encodeURIComponent(ref)}`;
 }
-
-
-/* =========================================================
-   REVIEW MODAL EVENTS
-   ========================================================= */
 
 function setupReviewModal() {
-
-  const modal =
-    document.querySelector('#reviewModal');
-
-  const close =
-    document.querySelector('#closeReviewModal');
-
-  const closeButton =
-    document.querySelector('#closeReviewBtn');
-
-
-  close?.addEventListener(
-    'click',
-    () => modal?.close()
-  );
-
-
-  closeButton?.addEventListener(
-    'click',
-    () => modal?.close()
-  );
-
+  /*
+    Kept as a compatibility hook for
+    the existing KSUCflow interface.
+  */
 }
-
-
-/* =========================================================
-   SEARCH
-   ========================================================= */
-
-function setupSearch() {
-
-  const search =
-    document.querySelector('#documentSearch');
-
-
-  search?.addEventListener(
-    'input',
-    () => {
-
-      renderDocuments(
-        search.value
-      );
-
-    }
-  );
-
-}
-
-
-/* =========================================================
-   NOTIFICATIONS
-   ========================================================= */
-
-function getNotifications() {
-
-  return documents
-    .filter(
-      doc =>
-        doc.status === 'Awaiting action' ||
-        doc.status === 'Returned for changes'
-    )
-    .map(doc => ({
-
-      ref: doc.ref,
-
-      title: doc.title,
-
-      status: doc.status,
-
-      date: doc.createdAt
-
-    }));
-}
-
-
-function updateNotificationCount() {
-
-  const notifications =
-    getNotifications();
-
-  const count =
-    notifications.length;
-
-
-  const countEl =
-    document.querySelector('#notificationCount');
-
-  const dot =
-    document.querySelector('#notificationDot');
-
-
-  if (countEl) {
-
-    countEl.textContent =
-      count > 99
-        ? '99+'
-        : count;
-  }
-
-
-  if (dot) {
-
-    dot.style.display =
-      count > 0
-        ? 'block'
-        : 'none';
-  }
-}
-
-
-function showNotifications() {
-
-  const modal =
-    document.querySelector('#notificationModal');
-
-  const list =
-    document.querySelector('#notificationList');
-
-
-  if (!modal || !list) {
-    return;
-  }
-
-
-  const notifications =
-    getNotifications();
-
-
-  if (!notifications.length) {
-
-    list.innerHTML = `
-
-      <div class="empty-state">
-
-        <div class="empty-icon">
-          ✓
-        </div>
-
-        <h3>No notifications</h3>
-
-        <p>
-          You have no pending document notifications.
-        </p>
-
-      </div>
-
-    `;
-
-  } else {
-
-    list.innerHTML =
-      notifications.map(item => `
-
-        <div class="notification-item">
-
-          <div>
-
-            <strong>
-              ${escapeHtml(item.title)}
-            </strong>
-
-            <p>
-              ${escapeHtml(item.ref)}
-            </p>
-
-            <small>
-              ${formatDate(item.date)}
-            </small>
-
-          </div>
-
-          <span class="status-badge ${statusClass(item.status)}">
-            ${escapeHtml(item.status)}
-          </span>
-
-        </div>
-
-      `).join('');
-  }
-
-
-  modal.showModal();
-}
-
 
 /* =========================================================
    REPORTS
-   ========================================================= */
+========================================================= */
 
 function showReports() {
-
-  const modal =
-    document.querySelector('#reportsModal');
-
-  const content =
-    document.querySelector('#reportsContent');
-
-
-  if (!modal || !content) {
-    return;
-  }
-
+  const documents = loadDocuments();
 
   const total =
     documents.length;
 
+  const transit =
+    documents.filter(
+      document => document.status === 'In transit'
+    ).length;
+
   const awaiting =
     documents.filter(
-      d => d.status === 'Awaiting action'
+      document =>
+        document.status === 'Awaiting action'
+    ).length;
+
+  const received =
+    documents.filter(
+      document =>
+        document.status === 'Received'
     ).length;
 
   const approved =
     documents.filter(
-      d => d.status === 'Approved'
+      document =>
+        document.status === 'Approved'
     ).length;
 
-  const transit =
+  const completed =
     documents.filter(
-      d => d.status === 'In transit'
-    ).length;
-
-  const returned =
-    documents.filter(
-      d => d.status === 'Returned for changes'
+      document =>
+        document.status === 'Completed'
     ).length;
 
   const rejected =
     documents.filter(
-      d =>
-        d.status === 'Rejected' ||
-        d.status === 'Not approved'
+      document =>
+        document.status === 'Not approved'
     ).length;
 
+  const report = `
+    <div class="report-summary">
 
-  content.innerHTML = `
-
-    <div class="stats-grid report-stats">
-
-      <div class="stat-card">
-        <div>
-          <span class="stat-label">
-            Total Documents
-          </span>
-          <strong>${total}</strong>
-        </div>
+      <div>
+        <strong>Total documents</strong>
+        <span>${total}</span>
       </div>
 
-      <div class="stat-card">
-        <div>
-          <span class="stat-label">
-            Awaiting Action
-          </span>
-          <strong>${awaiting}</strong>
-        </div>
+      <div>
+        <strong>Received</strong>
+        <span>${received}</span>
       </div>
 
-      <div class="stat-card">
-        <div>
-          <span class="stat-label">
-            Approved
-          </span>
-          <strong>${approved}</strong>
-        </div>
+      <div>
+        <strong>In transit</strong>
+        <span>${transit}</span>
       </div>
 
-      <div class="stat-card">
-        <div>
-          <span class="stat-label">
-            In Transit
-          </span>
-          <strong>${transit}</strong>
-        </div>
+      <div>
+        <strong>Awaiting action</strong>
+        <span>${awaiting}</span>
       </div>
 
-      <div class="stat-card">
-        <div>
-          <span class="stat-label">
-            Returned
-          </span>
-          <strong>${returned}</strong>
-        </div>
+      <div>
+        <strong>Approved</strong>
+        <span>${approved}</span>
       </div>
 
-      <div class="stat-card">
-        <div>
-          <span class="stat-label">
-            Rejected
-          </span>
-          <strong>${rejected}</strong>
-        </div>
+      <div>
+        <strong>Completed</strong>
+        <span>${completed}</span>
+      </div>
+
+      <div>
+        <strong>Not approved</strong>
+        <span>${rejected}</span>
       </div>
 
     </div>
-
   `;
 
+  const container =
+    byId('reportContent');
 
-  modal.showModal();
+  if (container) {
+    container.innerHTML = report;
+  }
+
+  return {
+    total,
+    received,
+    transit,
+    awaiting,
+    approved,
+    completed,
+    rejected
+  };
 }
-
 
 /* =========================================================
    SETTINGS
-   ========================================================= */
+========================================================= */
 
 function loadSettings() {
+
+  const defaults = {
+    systemName: 'KSUCflow',
+    institution:
+      'Koitaleel Samoei University College'
+  };
 
   try {
 
     const saved =
-      localStorage.getItem(
-        SETTINGS_KEY
+      JSON.parse(
+        localStorage.getItem(SETTINGS_KEY) || 'null'
       );
 
-    if (saved) {
-
-      return JSON.parse(saved);
-    }
+    return {
+      ...defaults,
+      ...(saved || {})
+    };
 
   } catch (error) {
-
-    console.warn(
-      'Settings could not be loaded.'
-    );
+    return defaults;
   }
-
-
-  return {
-
-    systemName: 'KSUCflow',
-
-    institution:
-      'Koitaleel Samoei University'
-
-  };
 }
-
 
 function saveSettings(settings) {
 
@@ -1960,325 +1407,147 @@ function saveSettings(settings) {
     SETTINGS_KEY,
     JSON.stringify(settings)
   );
+
 }
-
-
-function showSettings() {
-
-  const modal =
-    document.querySelector('#customizerModal');
-
-  if (!modal) {
-    return;
-  }
-
-
-  const settings =
-    loadSettings();
-
-
-  const systemName =
-    document.querySelector(
-      '#systemNameSetting'
-    );
-
-  const institution =
-    document.querySelector(
-      '#institutionSetting'
-    );
-
-
-  if (systemName) {
-
-    systemName.value =
-      settings.systemName;
-  }
-
-
-  if (institution) {
-
-    institution.value =
-      settings.institution;
-  }
-
-
-  modal.showModal();
-}
-
 
 /* =========================================================
-   USER MENU
-   ========================================================= */
+   USER INTERFACE
+========================================================= */
 
 function updateUserInterface() {
 
   const user =
     getCurrentUser();
 
+  const settings =
+    loadSettings();
 
-  const name =
-    document.querySelector(
-      '#currentUserName'
-    );
+  const userName =
+    user?.name || 'User';
 
-  const role =
-    document.querySelector(
-      '#currentUserRole'
-    );
+  const userRole =
+    user?.role || 'Staff';
 
   const avatar =
-    document.querySelector(
-      '#userAvatar'
-    );
+    userName
+      .trim()
+      .charAt(0)
+      .toUpperCase();
 
-
-  if (name) {
-    name.textContent =
-      user.name;
+  if (byId('userName')) {
+    byId('userName').textContent =
+      userName;
   }
 
-
-  if (role) {
-    role.textContent =
-      user.role;
+  if (byId('userRole')) {
+    byId('userRole').textContent =
+      userRole;
   }
 
-
-  if (avatar) {
-
-    avatar.textContent =
-      String(user.name)
-        .trim()
-        .charAt(0)
-        .toUpperCase() || 'U';
+  if (byId('userAvatar')) {
+    byId('userAvatar').textContent =
+      avatar;
   }
 
-
-  const modalName =
-    document.querySelector(
-      '#userModalName'
-    );
-
-  const modalRole =
-    document.querySelector(
-      '#userModalRole'
-    );
-
-
-  if (modalName) {
-    modalName.textContent =
-      user.name;
+  if (byId('avatar')) {
+    byId('avatar').textContent =
+      avatar;
   }
 
-
-  if (modalRole) {
-    modalRole.textContent =
-      user.role;
+  if (byId('greetingName')) {
+    byId('greetingName').textContent =
+      userName;
   }
 
-
-  const greeting =
-    document.querySelector(
-      '#greeting'
-    );
-
-
-  if (greeting) {
-
-    greeting.textContent =
-      `Welcome back, ${user.name}. Manage your university documents and workflow from one place.`;
+  if (byId('institutionName')) {
+    byId('institutionName').textContent =
+      settings.institution;
   }
+
+  if (byId('appName')) {
+    byId('appName').textContent =
+      settings.systemName;
+  }
+
 }
-
 
 /* =========================================================
    NAVIGATION
-   ========================================================= */
+========================================================= */
 
 function setupNavigation() {
 
-  const reportsButtons = [
-    document.querySelector('#reportsBtn'),
-    document.querySelector('#quickReportsBtn')
-  ];
+  const reportsButton =
+    byId('reportsButton');
 
-
-  reportsButtons.forEach(button => {
-
-    button?.addEventListener(
+  if (reportsButton) {
+    reportsButton.addEventListener(
       'click',
       showReports
     );
+  }
 
-  });
+  const notificationButton =
+    byId('notificationButton');
 
-
-  const notificationButtons = [
-    document.querySelector('#notificationsBtn'),
-    document.querySelector('#topNotificationsBtn')
-  ];
-
-
-  notificationButtons.forEach(button => {
-
-    button?.addEventListener(
+  if (notificationButton) {
+    notificationButton.addEventListener(
       'click',
-      showNotifications
+      function () {
+        renderNotifications();
+      }
     );
+  }
 
-  });
+  const settingsButton =
+    byId('settingsButton');
 
+  if (settingsButton) {
 
-  document
-    .querySelector('#settingsBtn')
-    ?.addEventListener(
+    settingsButton.addEventListener(
       'click',
-      showSettings
-    );
+      function () {
 
+        const settings =
+          loadSettings();
 
-  document
-    .querySelector('#adminBtn')
-    ?.addEventListener(
-      'click',
-      () => {
+        if (byId('systemNameInput')) {
+          byId('systemNameInput').value =
+            settings.systemName;
+        }
 
-        document
-          .querySelector('#adminModal')
-          ?.showModal();
+        if (byId('institutionInput')) {
+          byId('institutionInput').value =
+            settings.institution;
+        }
 
       }
     );
 
+  }
 
-  document
-    .querySelector('#userMenuBtn')
-    ?.addEventListener(
+  const saveSettingsButton =
+    byId('saveSettings');
+
+  if (saveSettingsButton) {
+
+    saveSettingsButton.addEventListener(
       'click',
-      () => {
-
-        document
-          .querySelector('#userModal')
-          ?.showModal();
-
-      }
-    );
-
-
-  document
-    .querySelector('#closeNotificationModal')
-    ?.addEventListener(
-      'click',
-      () => {
-
-        document
-          .querySelector('#notificationModal')
-          ?.close();
-
-      }
-    );
-
-
-  document
-    .querySelector('#closeReportsModal')
-    ?.addEventListener(
-      'click',
-      () => {
-
-        document
-          .querySelector('#reportsModal')
-          ?.close();
-
-      }
-    );
-
-
-  document
-    .querySelector('#closeCustomizerModal')
-    ?.addEventListener(
-      'click',
-      () => {
-
-        document
-          .querySelector('#customizerModal')
-          ?.close();
-
-      }
-    );
-
-
-  document
-    .querySelector('#closeAdminModal')
-    ?.addEventListener(
-      'click',
-      () => {
-
-        document
-          .querySelector('#adminModal')
-          ?.close();
-
-      }
-    );
-
-
-  document
-    .querySelector('#closeUserModal')
-    ?.addEventListener(
-      'click',
-      () => {
-
-        document
-          .querySelector('#userModal')
-          ?.close();
-
-      }
-    );
-
-
-  document
-    .querySelector('#cancelSettingsBtn')
-    ?.addEventListener(
-      'click',
-      () => {
-
-        document
-          .querySelector('#customizerModal')
-          ?.close();
-
-      }
-    );
-
-
-  document
-    .querySelector('#saveSettingsBtn')
-    ?.addEventListener(
-      'click',
-      () => {
+      function () {
 
         const settings = {
-
           systemName:
-            document.querySelector(
-              '#systemNameSetting'
-            )?.value.trim()
+            byId('systemNameInput')?.value.trim()
             || 'KSUCflow',
 
           institution:
-            document.querySelector(
-              '#institutionSetting'
-            )?.value.trim()
-            || 'Koitaleel Samoei University'
-
+            byId('institutionInput')?.value.trim()
+            || 'Koitaleel Samoei University College'
         };
-
 
         saveSettings(settings);
 
-
-        document
-          .querySelector('#customizerModal')
-          ?.close();
-
+        updateUserInterface();
 
         showToast(
           'Settings saved successfully.'
@@ -2287,120 +1556,208 @@ function setupNavigation() {
       }
     );
 
-
-  document
-    .querySelector('#userSettingsBtn')
-    ?.addEventListener(
-      'click',
-      () => {
-
-        document
-          .querySelector('#userModal')
-          ?.close();
-
-        showSettings();
-
-      }
-    );
-
-
-  document
-    .querySelector('#signOutBtn')
-    ?.addEventListener(
-      'click',
-      signOut
-    );
-
-
-  document
-    .querySelector('#userSignOutBtn')
-    ?.addEventListener(
-      'click',
-      () => {
-
-        document
-          .querySelector('#userModal')
-          ?.close();
-
-        signOut();
-
-      }
-    );
-
-}
-
-
-/* =========================================================
-   SIGN OUT
-   ========================================================= */
-
-function signOut() {
-
-  const confirmed =
-    window.confirm(
-      'Are you sure you want to sign out?'
-    );
-
-
-  if (!confirmed) {
-    return;
   }
 
+  const signOut =
+    byId('signOut');
 
-  localStorage.removeItem(
-    SESSION_KEY
-  );
+  if (signOut) {
 
+    signOut.addEventListener(
+      'click',
+      function () {
 
-  /*
-    If login.html exists, return there.
-  */
+        localStorage.removeItem(
+          SESSION_KEY
+        );
 
-  window.location.href =
-    'login.html';
+        window.location.href =
+          'login.html';
+
+      }
+    );
+
+  }
+
 }
-
 
 /* =========================================================
-   CLOSE DIALOGS WITH ESCAPE
-   ========================================================= */
+   DASHBOARD QUICK FILTERS
+========================================================= */
 
-function setupDialogBehaviour() {
+function setupWorkflowShortcuts() {
 
-  document
-    .querySelectorAll('dialog')
-    .forEach(dialog => {
+  const inboxButton =
+    byId('myInboxButton');
 
-      dialog.addEventListener(
-        'cancel',
-        event => {
+  if (inboxButton) {
 
-          /*
-            Allow the normal ESC behaviour.
-          */
+    inboxButton.addEventListener(
+      'click',
+      function () {
 
-          event.preventDefault();
+        const department =
+          currentUserDepartment();
 
-          dialog.close();
+        const documents =
+          loadDocuments().filter(
+            document =>
+              getCurrentOffice(document) ===
+                department &&
+              !isCompleted(document) &&
+              !isInTransit(document)
+          );
 
-        }
-      );
+        localStorage.setItem(
+          'ksucDocumentFilter',
+          JSON.stringify({
+            type: 'office',
+            value: department
+          })
+        );
 
-    });
+        window.location.href =
+          'documents.html';
+
+      }
+    );
+
+  }
+
+  const receiptButton =
+    byId('awaitingReceiptButton');
+
+  if (receiptButton) {
+
+    receiptButton.addEventListener(
+      'click',
+      function () {
+
+        localStorage.setItem(
+          'ksucDocumentFilter',
+          JSON.stringify({
+            type: 'status',
+            value: 'In transit'
+          })
+        );
+
+        window.location.href =
+          'documents.html';
+
+      }
+    );
+
+  }
+
+  const actionButton =
+    byId('myActionsButton');
+
+  if (actionButton) {
+
+    actionButton.addEventListener(
+      'click',
+      function () {
+
+        localStorage.setItem(
+          'ksucDocumentFilter',
+          JSON.stringify({
+            type: 'status',
+            value: 'Awaiting action'
+          })
+        );
+
+        window.location.href =
+          'documents.html';
+
+      }
+    );
+
+  }
 
 }
 
+/* =========================================================
+   CLEANUP / DATA MIGRATION
+========================================================= */
+
+function migrateDocuments() {
+
+  const documents =
+    loadDocuments();
+
+  let changed = false;
+
+  documents.forEach(document => {
+
+    if (!Array.isArray(document.history)) {
+      document.history = [];
+      changed = true;
+    }
+
+    if (!Array.isArray(document.notesList)) {
+      document.notesList = [];
+      changed = true;
+    }
+
+    /*
+      Older documents may not have currentOffice.
+    */
+    if (!document.currentOffice) {
+
+      const last =
+        latestHistory(document);
+
+      document.currentOffice =
+        last?.to ||
+        document.destination ||
+        document.origin ||
+        '';
+
+      changed = true;
+    }
+
+    /*
+      Older workflow records may have
+      "For approval", "For action", etc.
+    */
+    if (
+      document.status === 'For approval' ||
+      document.status === 'For action' ||
+      document.status === 'For review' ||
+      document.status === 'For information'
+    ) {
+
+      document.status =
+        'Awaiting action';
+
+      changed = true;
+    }
+
+  });
+
+  if (changed) {
+    saveDocuments(documents);
+  }
+
+}
 
 /* =========================================================
    INITIALIZE
-   ========================================================= */
+========================================================= */
 
 function initializeApp() {
 
-  console.log(
-    'KSUCflow application initializing...'
-  );
+  /*
+    Ensure storage exists.
+  */
+  loadDocuments();
+  loadActivity();
 
+  /*
+    Bring older documents into the
+    current workflow model.
+  */
+  migrateDocuments();
 
   updateUserInterface();
 
@@ -2416,29 +1773,33 @@ function initializeApp() {
 
   setupNavigation();
 
-  setupDialogBehaviour();
+  setupWorkflowShortcuts();
 
+  /*
+    Keep the dashboard current when
+    returning to the tab.
+  */
+  document.addEventListener(
+    'visibilitychange',
+    function () {
 
-  console.log(
-    'KSUCflow application ready.'
+      if (
+        document.visibilityState ===
+        'visible'
+      ) {
+        renderDashboard();
+      }
+
+    }
   );
-}
 
+}
 
 /* =========================================================
-   START APPLICATION
-   ========================================================= */
+   START
+========================================================= */
 
-if (
-  document.readyState === 'loading'
-) {
-
-  document.addEventListener(
-    'DOMContentLoaded',
-    initializeApp
-  );
-
-} else {
-
-  initializeApp();
-}
+document.addEventListener(
+  'DOMContentLoaded',
+  initializeApp
+);
