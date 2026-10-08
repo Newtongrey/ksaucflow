@@ -1,24 +1,41 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Document | KSUCflow</title>
+<title>Document Tracking | KSUCflow</title>
 
 <style>
+
 * {
     box-sizing: border-box;
 }
 
+:root {
+    --maroon: #7D0000;
+    --maroon-dark: #5D0000;
+    --maroon-light: #F8EEEE;
+    --ink: #24344d;
+    --muted: #748196;
+    --line: #e3e8ee;
+    --canvas: #f5f7fa;
+    --green: #238457;
+    --amber: #a36b09;
+    --red: #b63b3b;
+    --shadow: 0 8px 30px rgba(20,35,58,.08);
+}
+
 body {
     margin: 0;
-    font-family: Arial, sans-serif;
-    background: #f5f7fa;
-    color: #26364e;
+    background: var(--canvas);
+    color: var(--ink);
+    font-family: Inter, Arial, sans-serif;
 }
 
 button,
+input,
 select,
 textarea {
     font: inherit;
@@ -33,70 +50,127 @@ button {
 ========================= */
 
 .topbar {
+
     height: 70px;
-    background: #182b4d;
+
+    background: var(--maroon);
+
     color: white;
+
     display: flex;
+
     align-items: center;
+
     justify-content: space-between;
-    padding: 0 32px;
+
+    padding: 0 30px;
+
 }
 
 .brand {
+
     display: flex;
+
     align-items: center;
+
     gap: 12px;
+
 }
 
 .brand-mark {
+
     width: 38px;
     height: 38px;
-    background: #376fd5;
+
     border-radius: 8px;
+
+    background: rgba(255,255,255,.15);
+
     display: flex;
+
     align-items: center;
     justify-content: center;
-    font-weight: bold;
+
+    font-weight: 800;
+
 }
 
 .brand strong {
+
     font-size: 17px;
+
 }
 
 .brand small {
+
     display: block;
+
+    color: #ead6d6;
+
     font-size: 11px;
-    color: #b9c6d8;
+
     margin-top: 2px;
+
 }
 
-.back-button {
-    border: 1px solid rgba(255,255,255,.2);
+.top-actions {
+
+    display: flex;
+
+    gap: 8px;
+
+}
+
+.top-button {
+
+    border: 1px solid rgba(255,255,255,.22);
+
     background: rgba(255,255,255,.08);
+
     color: white;
+
     padding: 9px 14px;
+
     border-radius: 7px;
+
+}
+
+.top-button:hover {
+
+    background: rgba(255,255,255,.17);
+
 }
 
 /* =========================
-   CONTENT
+   PAGE
 ========================= */
 
 .content {
+
     max-width: 1450px;
+
     margin: auto;
+
     padding: 30px;
+
 }
 
 .breadcrumb {
-    font-size: 12px;
-    color: #7d8a9c;
-    margin-bottom: 18px;
+
+    font-size: 11px;
+
+    color: var(--muted);
+
+    margin-bottom: 15px;
+
 }
 
 .breadcrumb a {
-    color: #376fd5;
-    cursor: pointer;
+
+    color: var(--maroon);
+
+    text-decoration: none;
+
 }
 
 /* =========================
@@ -104,67 +178,115 @@ button {
 ========================= */
 
 .document-header {
+
     background: white;
-    border: 1px solid #e2e8ef;
-    border-radius: 11px;
+
+    border: 1px solid var(--line);
+
+    border-radius: 12px;
+
     padding: 24px;
-    display: flex;
-    justify-content: space-between;
-    gap: 20px;
-    align-items: flex-start;
+
+    box-shadow: var(--shadow);
+
     margin-bottom: 20px;
+
 }
 
-.document-heading h1 {
+.header-top {
+
+    display: flex;
+
+    justify-content: space-between;
+
+    gap: 20px;
+
+}
+
+.header-title {
+
+    flex: 1;
+
+}
+
+.header-title h1 {
+
     margin: 0;
-    color: #182b4d;
+
+    color: var(--maroon);
+
     font-size: 25px;
+
     line-height: 1.35;
+
 }
 
 .reference {
-    color: #7a8799;
+
+    display: inline-block;
+
+    margin-top: 8px;
+
+    color: var(--muted);
+
     font-size: 12px;
-    margin-top: 7px;
+
+    font-weight: 600;
+
 }
 
 .header-actions {
+
     display: flex;
+
     gap: 8px;
+
     flex-wrap: wrap;
+
 }
 
 .primary {
+
+    background: var(--maroon);
+
     border: none;
-    background: #376fd5;
+
     color: white;
+
     padding: 10px 15px;
+
     border-radius: 7px;
+
     font-weight: 600;
+
 }
 
 .primary:hover {
-    background: #2d5fb9;
+
+    background: var(--maroon-dark);
+
 }
 
 .secondary {
-    border: 1px solid #dce3eb;
+
     background: white;
+
+    border: 1px solid #dce3eb;
+
     color: #526174;
+
     padding: 10px 15px;
+
     border-radius: 7px;
+
 }
 
 .secondary:hover {
-    background: #f6f8fa;
-}
 
-.danger {
-    border: 1px solid #efcaca;
-    background: white;
-    color: #c0392b;
-    padding: 10px 15px;
-    border-radius: 7px;
+    background: var(--maroon-light);
+
+    color: var(--maroon);
+
 }
 
 /* =========================
@@ -172,203 +294,365 @@ button {
 ========================= */
 
 .grid {
+
     display: grid;
-    grid-template-columns: minmax(0, 1.7fr) minmax(300px, .8fr);
+
+    grid-template-columns:
+        minmax(0,1fr)
+        330px;
+
     gap: 20px;
+
 }
 
-/* =========================
-   CARDS
-========================= */
+.panel {
 
-.card {
     background: white;
-    border: 1px solid #e2e8ef;
-    border-radius: 10px;
+
+    border: 1px solid var(--line);
+
+    border-radius: 11px;
+
+    box-shadow: var(--shadow);
+
     margin-bottom: 20px;
+
     overflow: hidden;
+
 }
 
-.card-header {
-    padding: 16px 20px;
-    border-bottom: 1px solid #edf0f4;
+.panel-header {
+
+    padding: 17px 19px;
+
+    border-bottom: 1px solid var(--line);
+
     display: flex;
+
+    align-items: center;
+
     justify-content: space-between;
-    align-items: center;
+
 }
 
-.card-header h2 {
-    font-size: 15px;
+.panel-header h2 {
+
     margin: 0;
-    color: #293a52;
+
+    font-size: 14px;
+
+    color: #34445b;
+
 }
 
-.card-body {
+.panel-body {
+
     padding: 20px;
+
 }
 
 /* =========================
-   STATUS
-========================= */
-
-.status {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    padding: 6px 10px;
-    border-radius: 20px;
-    background: #fff4df;
-    color: #a36c09;
-    font-size: 11px;
-    font-weight: 600;
-}
-
-.status-dot {
-    width: 7px;
-    height: 7px;
-    border-radius: 50%;
-    background: currentColor;
-}
-
-/* =========================
-   INFO GRID
+   INFO
 ========================= */
 
 .info-grid {
+
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 20px 30px;
+
+    grid-template-columns:
+        repeat(2,minmax(0,1fr));
+
+    gap: 18px;
+
 }
 
-.info label {
+.info-item label {
+
     display: block;
-    color: #8a96a7;
+
+    color: #8995a5;
+
     font-size: 10px;
+
     text-transform: uppercase;
-    letter-spacing: .05em;
+
     font-weight: 700;
-    margin-bottom: 6px;
+
+    letter-spacing: .04em;
+
+    margin-bottom: 5px;
+
 }
 
-.info strong,
-.info span {
-    display: block;
-    color: #33435a;
+.info-item div {
+
     font-size: 13px;
+
+    color: #36465c;
+
+    font-weight: 600;
+
 }
 
 /* =========================
-   WORKFLOW
+   TIMELINE
 ========================= */
 
 .timeline {
+
     position: relative;
+
 }
 
 .timeline::before {
+
     content: "";
+
     position: absolute;
-    left: 16px;
+
+    left: 17px;
+
     top: 8px;
+
     bottom: 8px;
+
     width: 2px;
-    background: #e5eaf0;
+
+    background: #ead7d7;
+
 }
 
 .timeline-item {
+
     position: relative;
-    display: flex;
-    gap: 16px;
-    padding-bottom: 25px;
+
+    display: grid;
+
+    grid-template-columns: 36px 1fr;
+
+    gap: 12px;
+
+    margin-bottom: 25px;
+
 }
 
 .timeline-item:last-child {
-    padding-bottom: 0;
+
+    margin-bottom: 0;
+
 }
 
-.timeline-icon {
+.timeline-dot {
+
     width: 34px;
+
     height: 34px;
+
     border-radius: 50%;
-    background: #eef3f8;
-    color: #607086;
+
+    background: white;
+
+    border: 2px solid #d8baba;
+
+    color: var(--maroon);
+
     display: flex;
+
     align-items: center;
+
     justify-content: center;
-    flex-shrink: 0;
-    position: relative;
-    z-index: 1;
-    border: 3px solid white;
-    font-size: 12px;
+
+    z-index: 2;
+
+    font-size: 13px;
+
+    font-weight: 800;
+
 }
 
-.timeline-item.current .timeline-icon {
-    background: #376fd5;
-    color: white;
-}
+.timeline-item.current .timeline-dot {
 
-.timeline-item.completed .timeline-icon {
-    background: #23865b;
+    background: var(--maroon);
+
+    border-color: var(--maroon);
+
     color: white;
+
+    box-shadow:
+        0 0 0 5px rgba(125,0,0,.08);
+
 }
 
 .timeline-content {
-    padding-top: 2px;
+
+    padding-top: 1px;
+
 }
 
-.timeline-content strong {
-    font-size: 12px;
-    color: #34445b;
+.timeline-title {
+
+    font-weight: 700;
+
+    color: #35445a;
+
+    font-size: 13px;
+
 }
 
-.timeline-content p {
-    margin: 4px 0;
-    color: #66758a;
-    font-size: 12px;
-    line-height: 1.5;
+.timeline-meta {
+
+    color: #8995a5;
+
+    font-size: 11px;
+
+    margin-top: 4px;
+
 }
 
-.timeline-content small {
-    color: #98a3b1;
-    font-size: 10px;
+.timeline-remarks {
+
+    background: #faf7f7;
+
+    border-left: 3px solid #d9b8b8;
+
+    padding: 8px 10px;
+
+    margin-top: 8px;
+
+    color: #657388;
+
+    font-size: 11px;
+
+    border-radius: 0 5px 5px 0;
+
 }
 
 /* =========================
-   ACTION PANEL
+   STATUS CARD
+========================= */
+
+.status-card {
+
+    background: linear-gradient(
+        135deg,
+        #7D0000,
+        #5D0000
+    );
+
+    color: white;
+
+    border-radius: 11px;
+
+    padding: 20px;
+
+    margin-bottom: 20px;
+
+    box-shadow: 0 10px 30px rgba(125,0,0,.18);
+
+}
+
+.status-label {
+
+    color: #ead6d6;
+
+    font-size: 10px;
+
+    text-transform: uppercase;
+
+    letter-spacing: .05em;
+
+    font-weight: 700;
+
+}
+
+.status-value {
+
+    font-size: 21px;
+
+    font-weight: 700;
+
+    margin: 5px 0 16px;
+
+}
+
+.status-detail {
+
+    border-top: 1px solid rgba(255,255,255,.18);
+
+    padding-top: 13px;
+
+    margin-top: 12px;
+
+}
+
+.status-detail small {
+
+    display: block;
+
+    color: #ead6d6;
+
+    font-size: 10px;
+
+}
+
+.status-detail strong {
+
+    display: block;
+
+    margin-top: 3px;
+
+    font-size: 12px;
+
+}
+
+/* =========================
+   ACTIONS
 ========================= */
 
 .action-list {
+
     display: grid;
+
     gap: 8px;
+
 }
 
-.action-list button {
+.action-button {
+
     width: 100%;
-    text-align: left;
-    padding: 11px 12px;
-    border: 1px solid #e0e6ed;
+
+    border: 1px solid #e0e5eb;
+
     background: white;
+
+    padding: 11px 12px;
+
     border-radius: 7px;
-    color: #425269;
+
+    text-align: left;
+
+    color: #47566b;
+
     font-size: 12px;
+
 }
 
-.action-list button:hover {
-    background: #f5f8fb;
+.action-button:hover {
+
+    border-color: #d3b0b0;
+
+    background: var(--maroon-light);
+
+    color: var(--maroon);
+
 }
 
-.action-list .main-action {
-    background: #376fd5;
-    color: white;
-    border-color: #376fd5;
-}
+.action-button.danger:hover {
 
-.action-list .main-action:hover {
-    background: #2d5fb9;
-}
+    color: var(--red);
 
-.action-list .danger-action {
-    color: #c0392b;
+    background: #fff3f3;
+
 }
 
 /* =========================
@@ -376,44 +660,37 @@ button {
 ========================= */
 
 .attachment {
-    display: flex;
-    align-items: center;
-    gap: 12px;
+
+    border: 1px solid #e4e9ef;
+
     padding: 11px;
-    border: 1px solid #e7ebf0;
+
     border-radius: 7px;
-    margin-bottom: 8px;
-}
 
-.file-icon {
-    width: 34px;
-    height: 34px;
-    background: #edf2f8;
-    border-radius: 6px;
     display: flex;
+
+    justify-content: space-between;
+
     align-items: center;
-    justify-content: center;
+
 }
 
-.attachment-info {
-    flex: 1;
+.attachment-name {
+
+    font-size: 12px;
+
+    font-weight: 600;
+
 }
 
-.attachment-info strong {
-    display: block;
-    font-size: 11px;
-}
+.attachment-meta {
 
-.attachment-info small {
-    color: #8b97a7;
     font-size: 10px;
-}
 
-.attachment button {
-    border: none;
-    background: transparent;
-    color: #376fd5;
-    font-size: 11px;
+    color: var(--muted);
+
+    margin-top: 3px;
+
 }
 
 /* =========================
@@ -421,111 +698,195 @@ button {
 ========================= */
 
 .note {
-    background: #f8fafc;
-    border-left: 3px solid #376fd5;
-    padding: 12px;
-    margin-bottom: 10px;
-    border-radius: 4px;
+
+    background: #faf7f7;
+
+    border-left: 3px solid var(--maroon);
+
+    padding: 10px 12px;
+
+    margin-bottom: 9px;
+
+    border-radius: 0 6px 6px 0;
+
 }
 
-.note strong {
-    font-size: 11px;
+.note:last-child {
+
+    margin-bottom: 0;
+
 }
 
-.note p {
-    margin: 5px 0;
-    font-size: 11px;
-    color: #637186;
+.note-text {
+
+    font-size: 12px;
+
     line-height: 1.5;
+
 }
 
-.note small {
-    color: #9aa5b3;
-    font-size: 9px;
+.note-meta {
+
+    font-size: 10px;
+
+    color: var(--muted);
+
+    margin-top: 5px;
+
 }
 
 /* =========================
-   MODAL
+   MODALS
 ========================= */
 
-.modal {
+.modal-backdrop {
+
     display: none;
+
     position: fixed;
+
     inset: 0;
-    background: rgba(16,28,47,.48);
+
+    background: rgba(18,31,51,.5);
+
     z-index: 1000;
+
     align-items: center;
+
     justify-content: center;
+
     padding: 20px;
+
 }
 
-.modal.show {
+.modal-backdrop.show {
+
     display: flex;
+
 }
 
-.modal-box {
+.modal {
+
+    width: min(560px,100%);
+
     background: white;
-    width: min(550px,100%);
-    border-radius: 11px;
-    box-shadow: 0 25px 70px rgba(0,0,0,.2);
+
+    border-radius: 12px;
+
+    box-shadow: 0 25px 70px rgba(0,0,0,.22);
+
     overflow: hidden;
+
 }
 
 .modal-header {
+
     padding: 18px 20px;
-    border-bottom: 1px solid #e8edf2;
+
+    border-bottom: 1px solid var(--line);
+
     display: flex;
+
     justify-content: space-between;
+
 }
 
 .modal-header h2 {
+
     margin: 0;
+
     font-size: 16px;
+
 }
 
 .close {
+
     border: none;
+
     background: transparent;
+
+    color: #8290a2;
+
     font-size: 22px;
-    color: #8b97a6;
+
 }
 
 .modal-body {
+
     padding: 20px;
+
 }
 
 .form-group {
-    margin-bottom: 15px;
+
+    margin-bottom: 16px;
+
+}
+
+.form-group:last-child {
+
+    margin-bottom: 0;
+
 }
 
 .form-group label {
+
     display: block;
-    margin-bottom: 6px;
+
     font-size: 11px;
-    font-weight: 600;
-    color: #526174;
+
+    font-weight: 700;
+
+    color: #657388;
+
+    margin-bottom: 6px;
+
 }
 
 .form-group select,
 .form-group textarea {
+
     width: 100%;
+
     border: 1px solid #dce3eb;
+
     border-radius: 7px;
+
     padding: 10px;
+
     outline: none;
+
 }
 
 .form-group textarea {
-    min-height: 100px;
+
+    min-height: 110px;
+
     resize: vertical;
+
+}
+
+.form-group select:focus,
+.form-group textarea:focus {
+
+    border-color: var(--maroon);
+
+    box-shadow: 0 0 0 3px rgba(125,0,0,.07);
+
 }
 
 .modal-footer {
+
     padding: 14px 20px;
+
     background: #fafbfd;
+
     display: flex;
+
     justify-content: flex-end;
+
     gap: 8px;
+
 }
 
 /* =========================
@@ -533,125 +894,175 @@ button {
 ========================= */
 
 #toast {
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    background: white;
-    border: 1px solid #dfe5eb;
-    box-shadow: 0 12px 35px rgba(20,40,70,.16);
-    padding: 13px 17px;
-    border-radius: 8px;
-    z-index: 3000;
-    display: none;
-    font-size: 12px;
-}
 
-#toast.show {
-    display: block;
+    position: fixed;
+
+    top: 22px;
+
+    right: 22px;
+
+    background: white;
+
+    border-left: 4px solid var(--maroon);
+
+    border-top: 1px solid #e0e6ed;
+
+    border-right: 1px solid #e0e6ed;
+
+    border-bottom: 1px solid #e0e6ed;
+
+    padding: 13px 17px;
+
+    border-radius: 8px;
+
+    box-shadow: 0 12px 35px rgba(20,40,70,.15);
+
+    font-size: 12px;
+
+    display: none;
+
+    z-index: 3000;
+
 }
 
 /* =========================
-   MOBILE
+   RESPONSIVE
 ========================= */
 
 @media(max-width:900px) {
 
     .grid {
+
         grid-template-columns: 1fr;
+
     }
+
 }
 
 @media(max-width:650px) {
 
-    .topbar {
-        padding: 0 15px;
-    }
-
     .content {
+
         padding: 18px 12px;
+
     }
 
-    .document-header {
+    .header-top {
+
         display: block;
+
     }
 
     .header-actions {
-        margin-top: 18px;
+
+        margin-top: 15px;
+
     }
 
     .info-grid {
+
         grid-template-columns: 1fr;
+
     }
 
-    .header-actions button {
-        flex: 1;
+    .top-actions {
+
+        display: none;
+
     }
+
 }
+
 </style>
+
 </head>
+
 
 <body>
 
-<!-- =========================
-     TOP BAR
-========================= -->
 
 <header class="topbar">
 
     <div class="brand">
 
-        <div class="brand-mark">K</div>
+        <div class="brand-mark">
+            K
+        </div>
 
         <div>
-            <strong>KSUCflow</strong>
-            <small>Document Management Portal</small>
+
+            <strong>
+                KSUCflow
+            </strong>
+
+            <small>
+                Document Management Portal
+            </small>
+
         </div>
 
     </div>
 
-    <button
-        class="back-button"
-        onclick="goBack()"
-    >
-        ← Back to Documents
-    </button>
+
+    <div class="top-actions">
+
+        <button
+            class="top-button"
+            onclick="goBack()"
+        >
+            ← Documents
+        </button>
+
+        <button
+            class="top-button"
+            onclick="signOut()"
+        >
+            Sign out
+        </button>
+
+    </div>
 
 </header>
 
 
 <main class="content">
 
-    <!-- BREADCRUMB -->
 
-    <div class="breadcrumb">
+<div class="breadcrumb">
 
-        <a onclick="goBack()">
-            All Documents
-        </a>
+    <a href="index.html">
+        Dashboard
+    </a>
 
-        &nbsp; / &nbsp;
+    &nbsp; / &nbsp;
 
-        Document Details
+    <a href="documents.html">
+        Documents
+    </a>
 
-    </div>
+    &nbsp; / &nbsp;
+
+    Tracking Record
+
+</div>
 
 
-    <!-- DOCUMENT HEADER -->
+<section class="document-header">
 
-    <section class="document-header">
+    <div class="header-top">
 
-        <div class="document-heading">
+        <div class="header-title">
 
             <h1 id="documentTitle">
                 Loading document...
             </h1>
 
-            <div
+            <span
                 id="documentReference"
                 class="reference"
             >
                 —
-            </div>
+            </span>
 
         </div>
 
@@ -667,615 +1078,647 @@ button {
 
             <button
                 class="secondary"
-                onclick="routeDocument()"
+                onclick="openRouteModal()"
             >
                 ➡ Forward
             </button>
 
             <button
                 class="primary"
-                onclick="takeAction()"
+                onclick="openActionModal()"
             >
                 ✓ Take Action
             </button>
 
         </div>
 
-    </section>
+    </div>
 
+</section>
 
-    <!-- MAIN GRID -->
 
-    <div class="grid">
+<div class="grid">
 
-        <!-- =====================
-             LEFT
-        ====================== -->
 
-        <div>
+<!-- LEFT -->
 
+<div>
 
-            <!-- DOCUMENT INFORMATION -->
 
-            <section class="card">
+<section class="panel">
 
-                <div class="card-header">
+    <div class="panel-header">
 
-                    <h2>Document Information</h2>
-
-                    <span
-                        id="statusBadge"
-                        class="status"
-                    >
-                        <span class="status-dot"></span>
-                        Loading
-                    </span>
-
-                </div>
-
-
-                <div class="card-body">
-
-                    <div class="info-grid">
-
-                        <div class="info">
-
-                            <label>
-                                Reference Number
-                            </label>
-
-                            <strong id="infoReference">
-                                —
-                            </strong>
-
-                        </div>
-
-
-                        <div class="info">
-
-                            <label>
-                                Subject
-                            </label>
-
-                            <strong id="infoSubject">
-                                —
-                            </strong>
-
-                        </div>
-
-
-                        <div class="info">
-
-                            <label>
-                                Origin
-                            </label>
-
-                            <span id="infoOrigin">
-                                —
-                            </span>
-
-                        </div>
-
-
-                        <div class="info">
-
-                            <label>
-                                Current Department
-                            </label>
-
-                            <span id="infoDepartment">
-                                —
-                            </span>
-
-                        </div>
-
-
-                        <div class="info">
-
-                            <label>
-                                Intended Action
-                            </label>
-
-                            <span id="infoAction">
-                                —
-                            </span>
-
-                        </div>
-
-
-                        <div class="info">
-
-                            <label>
-                                Registered By
-                            </label>
-
-                            <span id="infoRegisteredBy">
-                                Registry
-                            </span>
-
-                        </div>
-
-
-                        <div class="info">
-
-                            <label>
-                                Date Registered
-                            </label>
-
-                            <span id="infoDate">
-                                —
-                            </span>
-
-                        </div>
-
-
-                        <div class="info">
-
-                            <label>
-                                Priority
-                            </label>
-
-                            <span>
-                                Normal
-                            </span>
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-            </section>
-
-
-            <!-- WORKFLOW HISTORY -->
-
-            <section class="card">
-
-                <div class="card-header">
-
-                    <h2>Workflow History</h2>
-
-                </div>
-
-                <div
-                    id="timeline"
-                    class="card-body timeline"
-                >
-
-                </div>
-
-            </section>
-
-
-            <!-- ATTACHMENTS -->
-
-            <section class="card">
-
-                <div class="card-header">
-
-                    <h2>Attachments</h2>
-
-                    <button
-                        class="secondary"
-                        onclick="addAttachment()"
-                    >
-                        + Add Attachment
-                    </button>
-
-                </div>
-
-                <div
-                    id="attachments"
-                    class="card-body"
-                >
-
-                </div>
-
-            </section>
-
-
-            <!-- NOTES -->
-
-            <section class="card">
-
-                <div class="card-header">
-
-                    <h2>Internal Notes</h2>
-
-                    <button
-                        class="secondary"
-                        onclick="addNote()"
-                    >
-                        + Add Note
-                    </button>
-
-                </div>
-
-                <div
-                    id="notes"
-                    class="card-body"
-                >
-
-                </div>
-
-            </section>
-
-        </div>
-
-
-        <!-- =====================
-             RIGHT
-        ====================== -->
-
-        <aside>
-
-
-            <!-- CURRENT STATUS -->
-
-            <section class="card">
-
-                <div class="card-header">
-
-                    <h2>Current Status</h2>
-
-                </div>
-
-                <div class="card-body">
-
-                    <div class="info">
-
-                        <label>
-                            Currently With
-                        </label>
-
-                        <strong id="currentHolder">
-                            —
-                        </strong>
-
-                    </div>
-
-                    <br>
-
-                    <div class="info">
-
-                        <label>
-                            Next Action
-                        </label>
-
-                        <span id="nextAction">
-                            —
-                        </span>
-
-                    </div>
-
-                    <br>
-
-                    <div class="info">
-
-                        <label>
-                            Time in Current Department
-                        </label>
-
-                        <span>
-                            —
-                        </span>
-
-                    </div>
-
-                </div>
-
-            </section>
-
-
-            <!-- ACTIONS -->
-
-            <section class="card">
-
-                <div class="card-header">
-
-                    <h2>Document Actions</h2>
-
-                </div>
-
-                <div class="card-body">
-
-                    <div class="action-list">
-
-                        <button
-                            class="main-action"
-                            onclick="takeAction()"
-                        >
-                            ✓ Take Action
-                        </button>
-
-                        <button
-                            onclick="routeDocument()"
-                        >
-                            ➡ Forward / Route
-                        </button>
-
-                        <button
-                            onclick="returnDocument()"
-                        >
-                            ↩ Return for Changes
-                        </button>
-
-                        <button
-                            onclick="approveDocument()"
-                        >
-                            ✓ Approve
-                        </button>
-
-                        <button
-                            onclick="addNote()"
-                        >
-                            📝 Add Internal Note
-                        </button>
-
-                        <button
-                            onclick="printDocument()"
-                        >
-                            🖨 Print Record
-                        </button>
-
-                        <button
-                            class="danger-action"
-                            onclick="deleteDocument()"
-                        >
-                            🗑 Delete Document
-                        </button>
-
-                    </div>
-
-                </div>
-
-            </section>
-
-
-            <!-- QUICK INFORMATION -->
-
-            <section class="card">
-
-                <div class="card-header">
-
-                    <h2>Tracking</h2>
-
-                </div>
-
-                <div class="card-body">
-
-                    <div class="info">
-
-                        <label>
-                            Document Reference
-                        </label>
-
-                        <strong id="trackingReference">
-                            —
-                        </strong>
-
-                    </div>
-
-                    <br>
-
-                    <div class="info">
-
-                        <label>
-                            Total Movements
-                        </label>
-
-                        <span id="movementCount">
-                            0
-                        </span>
-
-                    </div>
-
-                </div>
-
-            </section>
-
-        </aside>
+        <h2>
+            Document Information
+        </h2>
 
     </div>
 
-</main>
+
+    <div class="panel-body">
+
+        <div class="info-grid">
+
+            <div class="info-item">
+
+                <label>
+                    Reference
+                </label>
+
+                <div id="infoReference">
+                    —
+                </div>
+
+            </div>
 
 
-<!-- =========================
-     ACTION MODAL
-========================= -->
+            <div class="info-item">
 
-<div
-    id="actionModal"
-    class="modal"
+                <label>
+                    Subject
+                </label>
+
+                <div id="infoSubject">
+                    —
+                </div>
+
+            </div>
+
+
+            <div class="info-item">
+
+                <label>
+                    Origin Office
+                </label>
+
+                <div id="infoOrigin">
+                    —
+                </div>
+
+            </div>
+
+
+            <div class="info-item">
+
+                <label>
+                    Current Office
+                </label>
+
+                <div id="infoDestination">
+                    —
+                </div>
+
+            </div>
+
+
+            <div class="info-item">
+
+                <label>
+                    Required Action
+                </label>
+
+                <div id="infoAction">
+                    —
+                </div>
+
+            </div>
+
+
+            <div class="info-item">
+
+                <label>
+                    Registered By
+                </label>
+
+                <div id="infoRegisteredBy">
+                    —
+                </div>
+
+            </div>
+
+
+            <div class="info-item">
+
+                <label>
+                    Date Registered
+                </label>
+
+                <div id="infoCreated">
+                    —
+                </div>
+
+            </div>
+
+
+            <div class="info-item">
+
+                <label>
+                    Movement Count
+                </label>
+
+                <div id="movementCount">
+                    0
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<section
+    class="panel"
+    id="history"
 >
 
-    <div class="modal-box">
+    <div class="panel-header">
 
-        <div class="modal-header">
+        <h2>
+            Workflow History
+        </h2>
 
-            <h2>Take Action</h2>
+    </div>
 
-            <button
-                class="close"
-                onclick="closeModal('actionModal')"
-            >
-                ×
-            </button>
 
+    <div class="panel-body">
+
+        <div
+            id="timeline"
+            class="timeline"
+        >
         </div>
 
-        <div class="modal-body">
+    </div>
 
-            <div class="form-group">
-
-                <label>
-                    Decision
-                </label>
-
-                <select id="decision">
-
-                    <option value="approved">
-                        Approve
-                    </option>
-
-                    <option value="forward">
-                        Forward
-                    </option>
-
-                    <option value="return">
-                        Return for changes
-                    </option>
-
-                    <option value="reject">
-                        Reject
-                    </option>
-
-                </select>
-
-            </div>
+</section>
 
 
-            <div class="form-group">
+<section class="panel">
 
-                <label>
-                    Instruction / Comment
-                </label>
+    <div class="panel-header">
 
-                <textarea
-                    id="actionComment"
-                    placeholder="Enter your decision, instruction or comment..."
-                ></textarea>
+        <h2>
+            Attachments
+        </h2>
 
-            </div>
+        <button
+            class="secondary"
+            onclick="addAttachment()"
+        >
+            + Add
+        </button>
 
-        </div>
+    </div>
 
-        <div class="modal-footer">
 
-            <button
-                class="secondary"
-                onclick="closeModal('actionModal')"
-            >
-                Cancel
-            </button>
+    <div
+        id="attachments"
+        class="panel-body"
+    >
+    </div>
 
-            <button
-                class="primary"
-                onclick="saveAction()"
-            >
-                Submit Action
-            </button>
+</section>
 
-        </div>
+
+<section class="panel">
+
+    <div class="panel-header">
+
+        <h2>
+            Internal Notes
+        </h2>
+
+        <button
+            class="secondary"
+            onclick="addNote()"
+        >
+            + Add Note
+        </button>
+
+    </div>
+
+
+    <div
+        id="notes"
+        class="panel-body"
+    >
+    </div>
+
+</section>
+
+</div>
+
+
+<!-- RIGHT -->
+
+<aside>
+
+
+<div class="status-card">
+
+    <div class="status-label">
+        Current Status
+    </div>
+
+    <div
+        id="currentStatus"
+        class="status-value"
+    >
+        —
+    </div>
+
+
+    <div class="status-detail">
+
+        <small>
+            CURRENTLY WITH
+        </small>
+
+        <strong id="currentHolder">
+            —
+        </strong>
+
+    </div>
+
+
+    <div class="status-detail">
+
+        <small>
+            NEXT ACTION
+        </small>
+
+        <strong id="nextAction">
+            —
+        </strong>
+
+    </div>
+
+
+    <div class="status-detail">
+
+        <small>
+            TIME IN CURRENT OFFICE
+        </small>
+
+        <strong id="timeCurrentOffice">
+            —
+        </strong>
 
     </div>
 
 </div>
 
 
-<!-- =========================
-     ROUTE MODAL
-========================= -->
+<section class="panel">
 
-<div
-    id="routeModal"
-    class="modal"
->
+    <div class="panel-header">
 
-    <div class="modal-box">
+        <h2>
+            Document Actions
+        </h2>
 
-        <div class="modal-header">
+    </div>
 
-            <h2>Forward Document</h2>
+
+    <div class="panel-body">
+
+        <div class="action-list">
 
             <button
-                class="close"
-                onclick="closeModal('routeModal')"
+                class="action-button"
+                onclick="receiveDocument()"
             >
-                ×
+                📥 &nbsp; Receive Document
             </button>
 
-        </div>
-
-        <div class="modal-body">
-
-            <div class="form-group">
-
-                <label>
-                    Destination Department
-                </label>
-
-                <select id="routeDepartment">
-
-                    <option>
-                        Registry
-                    </option>
-
-                    <option>
-                        Finance
-                    </option>
-
-                    <option>
-                        Human Resources
-                    </option>
-
-                    <option>
-                        Academic Affairs
-                    </option>
-
-                    <option>
-                        Procurement
-                    </option>
-
-                    <option>
-                        Administration
-                    </option>
-
-                    <option>
-                        Planning
-                    </option>
-
-                </select>
-
-            </div>
-
-
-            <div class="form-group">
-
-                <label>
-                    Routing Instruction
-                </label>
-
-                <textarea
-                    id="routeComment"
-                    placeholder="Add an instruction for the receiving department..."
-                ></textarea>
-
-            </div>
-
-        </div>
-
-        <div class="modal-footer">
 
             <button
-                class="secondary"
-                onclick="closeModal('routeModal')"
+                class="action-button"
+                onclick="openRouteModal()"
             >
-                Cancel
+                ➡ &nbsp; Forward / Route
             </button>
 
+
             <button
-                class="primary"
-                onclick="saveRoute()"
+                class="action-button"
+                onclick="openActionModal()"
             >
-                Forward Document
+                ✓ &nbsp; Take Action
+            </button>
+
+
+            <button
+                class="action-button"
+                onclick="returnDocument()"
+            >
+                ↩ &nbsp; Return for Changes
+            </button>
+
+
+            <button
+                class="action-button"
+                onclick="approveDocument()"
+            >
+                ✓ &nbsp; Approve
+            </button>
+
+
+            <button
+                class="action-button"
+                onclick="addNote()"
+            >
+                📝 &nbsp; Add Internal Note
+            </button>
+
+
+            <button
+                class="action-button"
+                onclick="printDocument()"
+            >
+                🖨 &nbsp; Print Record
+            </button>
+
+
+            <button
+                class="action-button danger"
+                onclick="deleteDocument()"
+            >
+                🗑 &nbsp; Delete Document
             </button>
 
         </div>
 
     </div>
+
+</section>
+
+
+<section class="panel">
+
+    <div class="panel-header">
+
+        <h2>
+            Tracking
+        </h2>
+
+    </div>
+
+    <div class="panel-body">
+
+        <div class="info-item">
+
+            <label>
+                Tracking Reference
+            </label>
+
+            <div id="trackingReference">
+                —
+            </div>
+
+        </div>
+
+
+        <div
+            class="info-item"
+            style="margin-top:18px;"
+        >
+
+            <label>
+                Total Movements
+            </label>
+
+            <div id="trackingMovementCount">
+                0
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+</aside>
+
+</div>
+
+</main>
+
+
+<!-- ACTION MODAL -->
+
+<div
+    id="actionModal"
+    class="modal-backdrop"
+>
+
+<div class="modal">
+
+    <div class="modal-header">
+
+        <h2>
+            Take Action
+        </h2>
+
+        <button
+            class="close"
+            onclick="closeModal('actionModal')"
+        >
+            ×
+        </button>
+
+    </div>
+
+
+    <div class="modal-body">
+
+        <div class="form-group">
+
+            <label>
+                Action / Decision
+            </label>
+
+            <select id="decision">
+
+                <option value="approved">
+                    Approve
+                </option>
+
+                <option value="completed">
+                    Complete
+                </option>
+
+                <option value="forward">
+                    Forward
+                </option>
+
+                <option value="return">
+                    Return for changes
+                </option>
+
+                <option value="reject">
+                    Reject / Not approved
+                </option>
+
+            </select>
+
+        </div>
+
+
+        <div class="form-group">
+
+            <label>
+                Remarks / Instructions
+            </label>
+
+            <textarea
+                id="actionComment"
+                placeholder="Enter remarks, instructions or action taken..."
+            ></textarea>
+
+        </div>
+
+    </div>
+
+
+    <div class="modal-footer">
+
+        <button
+            class="secondary"
+            onclick="closeModal('actionModal')"
+        >
+            Cancel
+        </button>
+
+        <button
+            class="primary"
+            onclick="saveAction()"
+        >
+            Save Action
+        </button>
+
+    </div>
+
+</div>
+
+</div>
+
+
+<!-- ROUTE MODAL -->
+
+<div
+    id="routeModal"
+    class="modal-backdrop"
+>
+
+<div class="modal">
+
+    <div class="modal-header">
+
+        <h2>
+            Forward / Route Document
+        </h2>
+
+        <button
+            class="close"
+            onclick="closeModal('routeModal')"
+        >
+            ×
+        </button>
+
+    </div>
+
+
+    <div class="modal-body">
+
+        <div class="form-group">
+
+            <label>
+                Forward To
+            </label>
+
+            <select id="routeDepartment">
+
+                <option value="">
+                    Select department
+                </option>
+
+                <option>
+                    Registry
+                </option>
+
+                <option>
+                    Finance
+                </option>
+
+                <option>
+                    Human Resources
+                </option>
+
+                <option>
+                    Academic Affairs
+                </option>
+
+                <option>
+                    Procurement
+                </option>
+
+                <option>
+                    Administration
+                </option>
+
+                <option>
+                    Planning
+                </option>
+
+                <option>
+                    Vice Chancellor's Office
+                </option>
+
+            </select>
+
+        </div>
+
+
+        <div class="form-group">
+
+            <label>
+                Forwarding Instructions
+            </label>
+
+            <textarea
+                id="routeComment"
+                placeholder="Enter instructions or remarks..."
+            ></textarea>
+
+        </div>
+
+    </div>
+
+
+    <div class="modal-footer">
+
+        <button
+            class="secondary"
+            onclick="closeModal('routeModal')"
+        >
+            Cancel
+        </button>
+
+        <button
+            class="primary"
+            onclick="saveRoute()"
+        >
+            Forward Document
+        </button>
+
+    </div>
+
+</div>
 
 </div>
 
@@ -1286,182 +1729,474 @@ button {
 <script>
 
 /* =====================================================
-   LOAD DOCUMENT
+   STORAGE
 ===================================================== */
 
-let documentData =
-    JSON.parse(
-        localStorage.getItem(
-            'ksucSelectedDocument'
-        ) || 'null'
-    );
+const DOCUMENTS_KEY = 'ksucDocuments';
 
+let documents = [];
 
-let allDocuments =
-    JSON.parse(
-        localStorage.getItem(
-            'ksucDocuments'
-        ) || '[]'
-    );
+let currentDocument = null;
 
 
 /* =====================================================
-   FALLBACK
+   HELPERS
 ===================================================== */
 
-if (!documentData) {
+function escapeHtml(value) {
 
-    documentData = {
-        ref: 'No document selected',
-        title: 'Document unavailable',
-        origin: '—',
-        destination: '—',
-        action: '—',
-        status: 'Unknown'
-    };
+    return String(value ?? '')
+        .replace(/[&<>"']/g, char => ({
+            '&':'&amp;',
+            '<':'&lt;',
+            '>':'&gt;',
+            '"':'&quot;',
+            "'":'&#039;'
+        }[char]));
 
 }
 
 
-/* =====================================================
-   SAVE
-===================================================== */
+function loadDocuments() {
+
+    try {
+
+        const saved =
+            JSON.parse(
+                localStorage.getItem(
+                    DOCUMENTS_KEY
+                ) || '[]'
+            );
+
+        documents =
+            Array.isArray(saved)
+            ? saved
+            : [];
+
+    } catch (error) {
+
+        documents = [];
+
+    }
+
+}
+
 
 function saveDocuments() {
 
     localStorage.setItem(
-        'ksucDocuments',
-        JSON.stringify(allDocuments)
+        DOCUMENTS_KEY,
+        JSON.stringify(documents)
     );
 
 }
 
 
-/* =====================================================
-   FIND ORIGINAL
-===================================================== */
+function getCurrentUser() {
+
+    try {
+
+        return JSON.parse(
+            localStorage.getItem(
+                'ksucSession'
+            ) || 'null'
+        );
+
+    } catch (error) {
+
+        return null;
+
+    }
+
+}
+
+
+function getSelectedDocument() {
+
+    try {
+
+        return JSON.parse(
+            localStorage.getItem(
+                'ksucSelectedDocument'
+            ) || 'null'
+        );
+
+    } catch (error) {
+
+        return null;
+
+    }
+
+}
+
+
+function formatDate(value) {
+
+    if (!value) return '—';
+
+    const date =
+        new Date(value);
+
+    if (Number.isNaN(
+        date.getTime()
+    )) {
+
+        return '—';
+
+    }
+
+    return date.toLocaleString(
+        'en-GB',
+        {
+            day:'2-digit',
+            month:'short',
+            year:'numeric',
+            hour:'2-digit',
+            minute:'2-digit'
+        }
+    );
+
+}
+
 
 function findDocumentIndex() {
 
-    return allDocuments.findIndex(
+    if (!currentDocument) {
+        return -1;
+    }
+
+    return documents.findIndex(
         doc =>
-            doc.ref === documentData.ref
+            doc.ref ===
+            currentDocument.ref
     );
 
 }
 
 
 /* =====================================================
-   DATE
+   USER
 ===================================================== */
 
-function formatDate(date) {
+function currentUserName() {
 
-    if (!date) {
-        return '05 Oct 2026';
-    }
+    const user =
+        getCurrentUser();
 
-    return new Date(date)
-        .toLocaleDateString(
-            'en-GB',
-            {
-                day:'2-digit',
-                month:'short',
-                year:'numeric'
-            }
-        );
+    return (
+        user?.name ||
+        'System User'
+    );
+
+}
+
+
+function currentUserDepartment() {
+
+    const user =
+        getCurrentUser();
+
+    return (
+        user?.department ||
+        currentDocument?.destination ||
+        'Unknown Office'
+    );
 
 }
 
 
 /* =====================================================
-   RENDER
+   HISTORY
+===================================================== */
+
+function ensureHistory() {
+
+    if (
+        !Array.isArray(
+            currentDocument.history
+        )
+    ) {
+
+        currentDocument.history = [];
+
+    }
+
+}
+
+
+function addHistoryEntry({
+    action,
+    from,
+    to,
+    user,
+    status,
+    remarks
+}) {
+
+    ensureHistory();
+
+    currentDocument.history.push({
+
+        action:
+            action || 'Action',
+
+        from:
+            from || '',
+
+        to:
+            to || '',
+
+        user:
+            user || currentUserName(),
+
+        status:
+            status ||
+            currentDocument.status ||
+            'Registered',
+
+        remarks:
+            remarks || '',
+
+        date:
+            new Date().toISOString()
+
+    });
+
+}
+
+
+/* =====================================================
+   RENDER DOCUMENT
 ===================================================== */
 
 function renderDocument() {
 
+    if (!currentDocument) {
+
+        document.getElementById(
+            'documentTitle'
+        ).textContent =
+            'Document not found';
+
+        return;
+
+    }
+
+
     document.getElementById(
         'documentTitle'
     ).textContent =
-        documentData.title || 'Untitled document';
+        currentDocument.title ||
+        'Untitled document';
 
 
     document.getElementById(
         'documentReference'
     ).textContent =
-        documentData.ref || 'No reference';
+        currentDocument.ref ||
+        'No reference';
 
 
     document.getElementById(
         'infoReference'
     ).textContent =
-        documentData.ref || '—';
+        currentDocument.ref || '—';
 
 
     document.getElementById(
         'infoSubject'
     ).textContent =
-        documentData.title || '—';
+        currentDocument.title || '—';
 
 
     document.getElementById(
         'infoOrigin'
     ).textContent =
-        documentData.origin || '—';
+        currentDocument.origin || '—';
 
 
     document.getElementById(
-        'infoDepartment'
+        'infoDestination'
     ).textContent =
-        documentData.destination || '—';
+        currentDocument.destination || '—';
 
 
     document.getElementById(
         'infoAction'
     ).textContent =
-        documentData.action || '—';
+        currentDocument.action || '—';
 
 
     document.getElementById(
-        'infoDate'
+        'infoRegisteredBy'
+    ).textContent =
+        currentDocument.registeredBy || '—';
+
+
+    document.getElementById(
+        'infoCreated'
     ).textContent =
         formatDate(
-            documentData.createdAt
+            currentDocument.createdAt
         );
-
-
-    document.getElementById(
-        'currentHolder'
-    ).textContent =
-        documentData.destination || '—';
-
-
-    document.getElementById(
-        'nextAction'
-    ).textContent =
-        documentData.action || 'Awaiting action';
 
 
     document.getElementById(
         'trackingReference'
     ).textContent =
-        documentData.ref || '—';
+        currentDocument.ref || '—';
 
 
-    const badge =
-        document.getElementById(
-            'statusBadge'
-        );
+    const history =
+        Array.isArray(
+            currentDocument.history
+        )
+        ? currentDocument.history
+        : [];
 
-    badge.innerHTML = `
-        <span class="status-dot"></span>
-        ${documentData.status || 'Registered'}
-    `;
 
+    document.getElementById(
+        'movementCount'
+    ).textContent =
+        history.length;
+
+
+    document.getElementById(
+        'trackingMovementCount'
+    ).textContent =
+        history.length;
+
+
+    document.getElementById(
+        'currentStatus'
+    ).textContent =
+        currentDocument.status ||
+        'Registered';
+
+
+    document.getElementById(
+        'currentHolder'
+    ).textContent =
+        currentDocument.destination ||
+        '—';
+
+
+    document.getElementById(
+        'nextAction'
+    ).textContent =
+        currentDocument.action ||
+        'Awaiting action';
+
+
+    calculateCurrentOfficeTime();
 
     renderTimeline();
+
     renderAttachments();
+
     renderNotes();
+
+}
+
+
+/* =====================================================
+   TIME IN CURRENT OFFICE
+===================================================== */
+
+function calculateCurrentOfficeTime() {
+
+    const element =
+        document.getElementById(
+            'timeCurrentOffice'
+        );
+
+
+    const history =
+        Array.isArray(
+            currentDocument.history
+        )
+        ? currentDocument.history
+        : [];
+
+
+    if (!history.length) {
+
+        element.textContent = 'Just registered';
+
+        return;
+
+    }
+
+
+    const latest =
+        history[history.length - 1];
+
+
+    const start =
+        new Date(
+            latest.date
+        );
+
+
+    if (Number.isNaN(
+        start.getTime()
+    )) {
+
+        element.textContent = '—';
+
+        return;
+
+    }
+
+
+    const diff =
+        Date.now() -
+        start.getTime();
+
+
+    const minutes =
+        Math.max(
+            0,
+            Math.floor(
+                diff / 60000
+            )
+        );
+
+
+    if (minutes < 60) {
+
+        element.textContent =
+            `${minutes} minute${minutes === 1 ? '' : 's'}`;
+
+        return;
+
+    }
+
+
+    const hours =
+        Math.floor(
+            minutes / 60
+        );
+
+
+    if (hours < 24) {
+
+        element.textContent =
+            `${hours} hour${hours === 1 ? '' : 's'}`;
+
+        return;
+
+    }
+
+
+    const days =
+        Math.floor(
+            hours / 24
+        );
+
+
+    element.textContent =
+        `${days} day${days === 1 ? '' : 's'}`;
 
 }
 
@@ -1472,154 +2207,677 @@ function renderDocument() {
 
 function renderTimeline() {
 
-    const timeline =
+    const container =
         document.getElementById(
             'timeline'
         );
 
 
     const history =
-        documentData.history || [];
+        Array.isArray(
+            currentDocument.history
+        )
+        ? currentDocument.history
+        : [];
 
 
     if (!history.length) {
 
-        timeline.innerHTML = `
-
-            <div class="timeline-item current">
-
-                <div class="timeline-icon">
-                    ✓
-                </div>
-
-                <div class="timeline-content">
-
-                    <strong>
-                        Document Registered
-                    </strong>
-
-                    <p>
-                        ${escapeHtml(
-                            documentData.origin ||
-                            'Registry'
-                        )}
-                        registered this document.
-                    </p>
-
-                    <small>
-                        ${formatDate(
-                            documentData.createdAt
-                        )}
-                    </small>
-
-                </div>
-
+        container.innerHTML = `
+            <div style="
+                color:#8490a0;
+                font-size:12px;
+            ">
+                No workflow history recorded yet.
             </div>
-
-
-            <div class="timeline-item current">
-
-                <div class="timeline-icon">
-                    →
-                </div>
-
-                <div class="timeline-content">
-
-                    <strong>
-                        Current Location
-                    </strong>
-
-                    <p>
-                        Document is currently with
-                        <strong>
-                            ${escapeHtml(
-                                documentData.destination ||
-                                'the receiving department'
-                            )}
-                        </strong>.
-                    </p>
-
-                    <small>
-                        Awaiting action
-                    </small>
-
-                </div>
-
-            </div>
-
         `;
-
-        document.getElementById(
-            'movementCount'
-        ).textContent = 2;
 
         return;
 
     }
 
 
-    timeline.innerHTML =
+    container.innerHTML =
         history.map(
-            (item,index) => `
+            (item,index) => {
 
-                <div class="
-                    timeline-item
-                    ${
-                        index === history.length - 1
-                        ? 'current'
-                        : 'completed'
-                    }
-                ">
+                const isCurrent =
+                    index ===
+                    history.length - 1;
 
-                    <div class="timeline-icon">
-                        ${
-                            index === history.length - 1
-                            ? '→'
-                            : '✓'
-                        }
+
+                let icon = '•';
+
+                if (
+                    item.action
+                        ?.toLowerCase()
+                        .includes('register')
+                ) {
+
+                    icon = '✓';
+
+                }
+
+                if (
+                    item.action
+                        ?.toLowerCase()
+                        .includes('receive')
+                ) {
+
+                    icon = '↓';
+
+                }
+
+                if (
+                    item.action
+                        ?.toLowerCase()
+                        .includes('forward')
+                ) {
+
+                    icon = '→';
+
+                }
+
+                if (
+                    item.action
+                        ?.toLowerCase()
+                        .includes('approv')
+                ) {
+
+                    icon = '✓';
+
+                }
+
+
+                return `
+
+                    <div class="
+                        timeline-item
+                        ${isCurrent ? 'current' : ''}
+                    ">
+
+                        <div class="timeline-dot">
+                            ${icon}
+                        </div>
+
+
+                        <div class="timeline-content">
+
+                            <div class="timeline-title">
+
+                                ${escapeHtml(
+                                    item.action ||
+                                    'Workflow action'
+                                )}
+
+                            </div>
+
+
+                            <div class="timeline-meta">
+
+                                ${
+                                    item.from
+                                    ? escapeHtml(item.from)
+                                    : ''
+                                }
+
+                                ${
+                                    item.to
+                                    ? ` → ${escapeHtml(item.to)}`
+                                    : ''
+                                }
+
+                                ${
+                                    item.user
+                                    ? ` · ${escapeHtml(item.user)}`
+                                    : ''
+                                }
+
+                                ${
+                                    item.date
+                                    ? ` · ${formatDate(item.date)}`
+                                    : ''
+                                }
+
+                            </div>
+
+
+                            ${
+                                item.status
+                                ? `
+                                    <div class="timeline-meta">
+                                        Status:
+                                        <strong>
+                                            ${escapeHtml(item.status)}
+                                        </strong>
+                                    </div>
+                                `
+                                : ''
+                            }
+
+
+                            ${
+                                item.remarks
+                                ? `
+                                    <div class="timeline-remarks">
+                                        ${escapeHtml(item.remarks)}
+                                    </div>
+                                `
+                                : ''
+                            }
+
+                        </div>
+
                     </div>
 
-                    <div class="timeline-content">
+                `;
 
-                        <strong>
-                            ${escapeHtml(
-                                item.action ||
-                                'Document movement'
-                            )}
-                        </strong>
+            }
+        ).join('');
 
-                        <p>
-                            ${escapeHtml(
-                                item.comment ||
-                                ''
-                            )}
-                        </p>
+}
 
-                        <small>
-                            ${escapeHtml(
-                                item.user ||
-                                'System'
-                            )}
-                            ·
-                            ${escapeHtml(
-                                item.date ||
-                                ''
-                            )}
-                        </small>
 
-                    </div>
+/* =====================================================
+   RECEIVE
+===================================================== */
 
-                </div>
+function receiveDocument() {
 
-            `
+    if (!currentDocument) return;
+
+
+    const index =
+        findDocumentIndex();
+
+    if (index === -1) return;
+
+
+    const user =
+        getCurrentUser();
+
+
+    const office =
+        user?.department ||
+        currentDocument.destination;
+
+
+    currentDocument.status =
+        'Received';
+
+
+    currentDocument.updatedAt =
+        new Date().toISOString();
+
+
+    addHistoryEntry({
+
+        action:
+            'Document Received',
+
+        from:
+            currentDocument.origin,
+
+        to:
+            office,
+
+        user:
+            currentUserName(),
+
+        status:
+            'Received',
+
+        remarks:
+            'Document received by the office.'
+
+    });
+
+
+    documents[index] =
+        currentDocument;
+
+
+    saveDocuments();
+
+
+    refreshSelectedDocument();
+
+
+    showToast(
+        'Document received successfully.'
+    );
+
+}
+
+
+/* =====================================================
+   ROUTE
+===================================================== */
+
+function openRouteModal() {
+
+    document
+        .getElementById(
+            'routeModal'
         )
-        .join('');
+        .classList.add('show');
+
+}
+
+
+function saveRoute() {
+
+    if (!currentDocument) return;
+
+
+    const destination =
+        document.getElementById(
+            'routeDepartment'
+        ).value;
+
+
+    const remarks =
+        document.getElementById(
+            'routeComment'
+        ).value.trim();
+
+
+    if (!destination) {
+
+        showToast(
+            'Please select the destination office.'
+        );
+
+        return;
+
+    }
+
+
+    const index =
+        findDocumentIndex();
+
+    if (index === -1) return;
+
+
+    const from =
+        currentDocument.destination ||
+        currentUserDepartment();
+
+
+    currentDocument.destination =
+        destination;
+
+
+    currentDocument.status =
+        'In transit';
+
+
+    currentDocument.updatedAt =
+        new Date().toISOString();
+
+
+    addHistoryEntry({
+
+        action:
+            'Document Forwarded',
+
+        from:
+            from,
+
+        to:
+            destination,
+
+        user:
+            currentUserName(),
+
+        status:
+            'In transit',
+
+        remarks:
+            remarks
+
+    });
+
+
+    documents[index] =
+        currentDocument;
+
+
+    saveDocuments();
+
+
+    closeModal('routeModal');
 
 
     document.getElementById(
-        'movementCount'
-    ).textContent =
-        history.length;
+        'routeComment'
+    ).value = '';
+
+
+    refreshSelectedDocument();
+
+
+    showToast(
+        `Document forwarded to ${destination}.`
+    );
+
+}
+
+
+/* =====================================================
+   ACTION
+===================================================== */
+
+function openActionModal() {
+
+    document
+        .getElementById(
+            'actionModal'
+        )
+        .classList.add('show');
+
+}
+
+
+function saveAction() {
+
+    if (!currentDocument) return;
+
+
+    const decision =
+        document.getElementById(
+            'decision'
+        ).value;
+
+
+    const remarks =
+        document.getElementById(
+            'actionComment'
+        ).value.trim();
+
+
+    const index =
+        findDocumentIndex();
+
+    if (index === -1) return;
+
+
+    let status =
+        currentDocument.status;
+
+
+    let action =
+        'Action Taken';
+
+
+    if (decision === 'approved') {
+
+        status = 'Approved';
+
+        action = 'Document Approved';
+
+    }
+
+
+    if (decision === 'completed') {
+
+        status = 'Completed';
+
+        action = 'Document Completed';
+
+    }
+
+
+    if (decision === 'forward') {
+
+        status = 'In transit';
+
+        action = 'Document Forwarded';
+
+    }
+
+
+    if (decision === 'return') {
+
+        status = 'Returned for changes';
+
+        action = 'Document Returned';
+
+    }
+
+
+    if (decision === 'reject') {
+
+        status = 'Not approved';
+
+        action = 'Document Rejected';
+
+    }
+
+
+    currentDocument.status =
+        status;
+
+
+    currentDocument.updatedAt =
+        new Date().toISOString();
+
+
+    addHistoryEntry({
+
+        action:
+            action,
+
+        from:
+            currentDocument.destination,
+
+        to:
+            currentDocument.destination,
+
+        user:
+            currentUserName(),
+
+        status:
+            status,
+
+        remarks:
+            remarks
+
+    });
+
+
+    documents[index] =
+        currentDocument;
+
+
+    saveDocuments();
+
+
+    closeModal('actionModal');
+
+
+    document.getElementById(
+        'actionComment'
+    ).value = '';
+
+
+    refreshSelectedDocument();
+
+
+    showToast(
+        `${action} successfully recorded.`
+    );
+
+}
+
+
+/* =====================================================
+   QUICK ACTIONS
+===================================================== */
+
+function returnDocument() {
+
+    document.getElementById(
+        'decision'
+    ).value = 'return';
+
+    openActionModal();
+
+}
+
+
+function approveDocument() {
+
+    document.getElementById(
+        'decision'
+    ).value = 'approved';
+
+    openActionModal();
+
+}
+
+
+/* =====================================================
+   NOTES
+===================================================== */
+
+function addNote() {
+
+    if (!currentDocument) return;
+
+
+    const note =
+        prompt(
+            'Enter internal note:'
+        );
+
+
+    if (!note || !note.trim()) {
+        return;
+    }
+
+
+    if (
+        !Array.isArray(
+            currentDocument.notesList
+        )
+    ) {
+
+        currentDocument.notesList = [];
+
+    }
+
+
+    currentDocument.notesList.push({
+
+        note:
+            note.trim(),
+
+        user:
+            currentUserName(),
+
+        date:
+            new Date().toISOString()
+
+    });
+
+
+    currentDocument.updatedAt =
+        new Date().toISOString();
+
+
+    const index =
+        findDocumentIndex();
+
+
+    if (index !== -1) {
+
+        documents[index] =
+            currentDocument;
+
+        saveDocuments();
+
+    }
+
+
+    renderNotes();
+
+
+    showToast(
+        'Internal note added.'
+    );
+
+}
+
+
+function renderNotes() {
+
+    const container =
+        document.getElementById(
+            'notes'
+        );
+
+
+    const notes =
+        Array.isArray(
+            currentDocument?.notesList
+        )
+        ? currentDocument.notesList
+        : [];
+
+
+    if (!notes.length) {
+
+        container.innerHTML = `
+            <div style="
+                color:#8490a0;
+                font-size:12px;
+            ">
+                No internal notes have been added.
+            </div>
+        `;
+
+        return;
+
+    }
+
+
+    container.innerHTML =
+        notes.slice()
+            .reverse()
+            .map(
+                note => `
+
+                    <div class="note">
+
+                        <div class="note-text">
+
+                            ${escapeHtml(
+                                note.note
+                            )}
+
+                        </div>
+
+                        <div class="note-meta">
+
+                            ${escapeHtml(
+                                note.user ||
+                                'System User'
+                            )}
+
+                            ·
+
+                            ${formatDate(
+                                note.date
+                            )}
+
+                        </div>
+
+                    </div>
+
+                `
+            )
+            .join('');
 
 }
 
@@ -1636,95 +2894,37 @@ function renderAttachments() {
         );
 
 
-    const attachments =
-        documentData.attachments || [];
-
-
-    if (!attachments.length) {
+    if (
+        currentDocument?.hasAttachment &&
+        currentDocument?.attachmentName
+    ) {
 
         container.innerHTML = `
 
-            <div style="
-                text-align:center;
-                padding:20px;
-                color:#8b97a7;
-                font-size:12px;
-            ">
+            <div class="attachment">
 
-                No attachments have been added.
+                <div>
 
-            </div>
+                    <div class="attachment-name">
 
-        `;
-
-        return;
-
-    }
-
-
-    container.innerHTML =
-        attachments.map(
-            file => `
-
-                <div class="attachment">
-
-                    <div class="file-icon">
                         📄
-                    </div>
 
-                    <div class="attachment-info">
-
-                        <strong>
-                            ${escapeHtml(file.name)}
-                        </strong>
-
-                        <small>
-                            ${escapeHtml(file.type || 'File')}
-                        </small>
+                        ${escapeHtml(
+                            currentDocument.attachmentName
+                        )}
 
                     </div>
 
-                    <button>
-                        View
-                    </button>
+                    <div class="attachment-meta">
+
+                        ${
+                            currentDocument.attachmentType ||
+                            'PDF document'
+                        }
+
+                    </div>
 
                 </div>
-
-            `
-        )
-        .join('');
-
-}
-
-
-/* =====================================================
-   NOTES
-===================================================== */
-
-function renderNotes() {
-
-    const container =
-        document.getElementById(
-            'notes'
-        );
-
-
-    const notes =
-        documentData.notesList || [];
-
-
-    if (!notes.length) {
-
-        container.innerHTML = `
-
-            <div style="
-                text-align:center;
-                padding:20px;
-                color:#8b97a7;
-                font-size:12px;
-            ">
-
-                No internal notes.
 
             </div>
 
@@ -1735,417 +2935,26 @@ function renderNotes() {
     }
 
 
-    container.innerHTML =
-        notes.map(
-            note => `
+    container.innerHTML = `
 
-                <div class="note">
+        <div style="
+            color:#8490a0;
+            font-size:12px;
+        ">
 
-                    <strong>
-                        ${escapeHtml(
-                            note.user || 'Staff'
-                        )}
-                    </strong>
+            No attachment has been registered.
 
-                    <p>
-                        ${escapeHtml(
-                            note.text
-                        )}
-                    </p>
+        </div>
 
-                    <small>
-                        ${escapeHtml(
-                            note.date || ''
-                        )}
-                    </small>
-
-                </div>
-
-            `
-        )
-        .join('');
+    `;
 
 }
 
-
-/* =====================================================
-   ESCAPE
-===================================================== */
-
-function escapeHtml(value) {
-
-    return String(value ?? '')
-        .replace(
-            /[&<>"']/g,
-            char => ({
-                '&':'&amp;',
-                '<':'&lt;',
-                '>':'&gt;',
-                '"':'&quot;',
-                "'":'&#039;'
-            }[char])
-        );
-
-}
-
-
-/* =====================================================
-   ACTION
-===================================================== */
-
-function takeAction() {
-
-    document
-        .getElementById('actionModal')
-        .classList.add('show');
-
-}
-
-
-/* =====================================================
-   SAVE ACTION
-===================================================== */
-
-function saveAction() {
-
-    const decision =
-        document.getElementById(
-            'decision'
-        ).value;
-
-
-    const comment =
-        document.getElementById(
-            'actionComment'
-        ).value.trim();
-
-
-    if (!comment) {
-
-        showToast(
-            'Please enter an instruction or comment.'
-        );
-
-        return;
-
-    }
-
-
-    const index =
-        findDocumentIndex();
-
-
-    if (index === -1) {
-
-        showToast(
-            'Document could not be found.'
-        );
-
-        return;
-
-    }
-
-
-    const doc =
-        allDocuments[index];
-
-
-    if (!doc.history) {
-        doc.history = [];
-    }
-
-
-    let status =
-        'Approved';
-
-
-    if (decision === 'forward') {
-
-        status = 'In transit';
-
-    }
-
-
-    if (decision === 'return') {
-
-        status = 'Returned for changes';
-
-    }
-
-
-    if (decision === 'reject') {
-
-        status = 'Not approved';
-
-    }
-
-
-    doc.status = status;
-
-
-    doc.history.push({
-
-        action:
-            decision === 'approved'
-            ? 'Document Approved'
-            : decision === 'forward'
-            ? 'Document Forwarded'
-            : decision === 'return'
-            ? 'Document Returned'
-            : 'Document Rejected',
-
-        comment,
-
-        user:
-            'Current User',
-
-        date:
-            new Date().toLocaleString(
-                'en-GB'
-            )
-
-    });
-
-
-    documentData = doc;
-
-    saveDocuments();
-
-    localStorage.setItem(
-        'ksucSelectedDocument',
-        JSON.stringify(doc)
-    );
-
-
-    closeModal(
-        'actionModal'
-    );
-
-
-    renderDocument();
-
-
-    showToast(
-        `Document ${doc.ref} updated successfully.`
-    );
-
-}
-
-
-/* =====================================================
-   ROUTING
-===================================================== */
-
-function routeDocument() {
-
-    document
-        .getElementById('routeModal')
-        .classList.add('show');
-
-}
-
-
-function saveRoute() {
-
-    const department =
-        document.getElementById(
-            'routeDepartment'
-        ).value;
-
-
-    const comment =
-        document.getElementById(
-            'routeComment'
-        ).value.trim();
-
-
-    const index =
-        findDocumentIndex();
-
-
-    if (index === -1) {
-
-        showToast(
-            'Document could not be found.'
-        );
-
-        return;
-
-    }
-
-
-    const doc =
-        allDocuments[index];
-
-
-    doc.destination =
-        department;
-
-
-    doc.status =
-        'In transit';
-
-
-    if (!doc.history) {
-        doc.history = [];
-    }
-
-
-    doc.history.push({
-
-        action:
-            `Forwarded to ${department}`,
-
-        comment:
-            comment ||
-            `Document routed to ${department}.`,
-
-        user:
-            'Current User',
-
-        date:
-            new Date().toLocaleString(
-                'en-GB'
-            )
-
-    });
-
-
-    documentData = doc;
-
-    saveDocuments();
-
-
-    localStorage.setItem(
-        'ksucSelectedDocument',
-        JSON.stringify(doc)
-    );
-
-
-    closeModal(
-        'routeModal'
-    );
-
-
-    renderDocument();
-
-
-    showToast(
-        `Document forwarded to ${department}.`
-    );
-
-}
-
-
-/* =====================================================
-   RETURN
-===================================================== */
-
-function returnDocument() {
-
-    document
-        .getElementById('decision')
-        .value =
-        'return';
-
-    takeAction();
-
-}
-
-
-/* =====================================================
-   APPROVE
-===================================================== */
-
-function approveDocument() {
-
-    document
-        .getElementById('decision')
-        .value =
-        'approved';
-
-    takeAction();
-
-}
-
-
-/* =====================================================
-   NOTE
-===================================================== */
-
-function addNote() {
-
-    const text =
-        prompt(
-            'Enter the internal note:'
-        );
-
-
-    if (!text || !text.trim()) {
-        return;
-    }
-
-
-    const index =
-        findDocumentIndex();
-
-
-    if (index === -1) return;
-
-
-    const doc =
-        allDocuments[index];
-
-
-    if (!doc.notesList) {
-        doc.notesList = [];
-    }
-
-
-    doc.notesList.push({
-
-        text: text.trim(),
-
-        user:
-            'Current User',
-
-        date:
-            new Date().toLocaleString(
-                'en-GB'
-            )
-
-    });
-
-
-    documentData = doc;
-
-    saveDocuments();
-
-
-    localStorage.setItem(
-        'ksucSelectedDocument',
-        JSON.stringify(doc)
-    );
-
-
-    renderNotes();
-
-
-    showToast(
-        'Internal note added.'
-    );
-
-}
-
-
-/* =====================================================
-   ATTACHMENT
-===================================================== */
 
 function addAttachment() {
 
     showToast(
-        'File attachment will be connected to the document storage system in the next phase.'
+        'Attachment upload will be connected to the existing PDF storage in the next stage.'
     );
 
 }
@@ -2157,15 +2966,16 @@ function addAttachment() {
 
 function deleteDocument() {
 
+    if (!currentDocument) return;
+
+
     const confirmed =
         confirm(
-            `Delete ${documentData.ref}?\n\nThis action cannot be undone.`
+            `Delete document ${currentDocument.ref}? This cannot be undone.`
         );
 
 
-    if (!confirmed) {
-        return;
-    }
+    if (!confirmed) return;
 
 
     const index =
@@ -2174,7 +2984,7 @@ function deleteDocument() {
 
     if (index !== -1) {
 
-        allDocuments.splice(
+        documents.splice(
             index,
             1
         );
@@ -2201,7 +3011,219 @@ function deleteDocument() {
 
 function printDocument() {
 
-    window.print();
+    if (!currentDocument) return;
+
+
+    const printWindow =
+        window.open(
+            '',
+            '_blank'
+        );
+
+
+    if (!printWindow) {
+
+        showToast(
+            'Please allow pop-ups to print the record.'
+        );
+
+        return;
+
+    }
+
+
+    const history =
+        Array.isArray(
+            currentDocument.history
+        )
+        ? currentDocument.history
+        : [];
+
+
+    printWindow.document.write(`
+
+        <html>
+
+        <head>
+
+            <title>
+                ${escapeHtml(
+                    currentDocument.ref
+                )}
+            </title>
+
+            <style>
+
+                body {
+                    font-family: Arial, sans-serif;
+                    padding: 40px;
+                    color: #222;
+                }
+
+                h1 {
+                    color: #7D0000;
+                }
+
+                h2 {
+                    margin-top: 30px;
+                    color: #444;
+                }
+
+                .field {
+                    margin: 12px 0;
+                }
+
+                .timeline {
+                    margin-top: 20px;
+                }
+
+                .movement {
+                    padding: 12px 0;
+                    border-bottom: 1px solid #ddd;
+                }
+
+                small {
+                    color: #777;
+                }
+
+            </style>
+
+        </head>
+
+
+        <body>
+
+            <h1>
+                KOITALEEL SAMOEI UNIVERSITY COLLEGE
+            </h1>
+
+            <h2>
+                KSUCflow Document Tracking Record
+            </h2>
+
+            <hr>
+
+            <div class="field">
+                <strong>Reference:</strong>
+                ${escapeHtml(
+                    currentDocument.ref
+                )}
+            </div>
+
+            <div class="field">
+                <strong>Subject:</strong>
+                ${escapeHtml(
+                    currentDocument.title
+                )}
+            </div>
+
+            <div class="field">
+                <strong>Origin:</strong>
+                ${escapeHtml(
+                    currentDocument.origin
+                )}
+            </div>
+
+            <div class="field">
+                <strong>Current Office:</strong>
+                ${escapeHtml(
+                    currentDocument.destination
+                )}
+            </div>
+
+            <div class="field">
+                <strong>Status:</strong>
+                ${escapeHtml(
+                    currentDocument.status
+                )}
+            </div>
+
+
+            <h2>
+                Workflow History
+            </h2>
+
+            <div class="timeline">
+
+                ${
+                    history.map(
+                        item => `
+
+                            <div class="movement">
+
+                                <strong>
+                                    ${escapeHtml(
+                                        item.action
+                                    )}
+                                </strong>
+
+                                <br>
+
+                                ${
+                                    item.from
+                                    ? escapeHtml(item.from)
+                                    : ''
+                                }
+
+                                ${
+                                    item.to
+                                    ? ` → ${escapeHtml(item.to)}`
+                                    : ''
+                                }
+
+                                <br>
+
+                                <small>
+
+                                    ${
+                                        item.user
+                                        ? escapeHtml(item.user)
+                                        : ''
+                                    }
+
+                                    ·
+
+                                    ${
+                                        item.date
+                                        ? formatDate(item.date)
+                                        : ''
+                                    }
+
+                                </small>
+
+
+                                ${
+                                    item.remarks
+                                    ? `
+                                        <p>
+                                            ${escapeHtml(
+                                                item.remarks
+                                            )}
+                                        </p>
+                                    `
+                                    : ''
+                                }
+
+                            </div>
+
+                        `
+                    ).join('')
+                }
+
+            </div>
+
+        </body>
+
+        </html>
+
+    `);
+
+
+    printWindow.document.close();
+
+    printWindow.focus();
+
+    printWindow.print();
 
 }
 
@@ -2220,13 +3242,67 @@ function closeModal(id) {
 
 
 /* =====================================================
-   BACK
+   REFRESH
+===================================================== */
+
+function refreshSelectedDocument() {
+
+    const index =
+        findDocumentIndex();
+
+    if (index !== -1) {
+
+        currentDocument =
+            documents[index];
+
+    }
+
+
+    localStorage.setItem(
+        'ksucSelectedDocument',
+        JSON.stringify(
+            currentDocument
+        )
+    );
+
+
+    renderDocument();
+
+}
+
+
+/* =====================================================
+   NAVIGATION
 ===================================================== */
 
 function goBack() {
 
     window.location.href =
         'documents.html';
+
+}
+
+
+function signOut() {
+
+    if (
+        !confirm(
+            'Are you sure you want to sign out?'
+        )
+    ) {
+
+        return;
+
+    }
+
+
+    localStorage.removeItem(
+        'ksucSession'
+    );
+
+
+    window.location.href =
+        'login.html';
 
 }
 
@@ -2247,27 +3323,140 @@ function showToast(message) {
         message;
 
 
-    toast.classList.add(
-        'show'
-    );
+    toast.style.display =
+        'block';
 
 
-    setTimeout(
-        () =>
-            toast.classList.remove(
-                'show'
-            ),
-        3000
-    );
+    setTimeout(() => {
+
+        toast.style.display =
+            'none';
+
+    },3000);
 
 }
 
 
 /* =====================================================
-   INITIALIZE
+   INITIALIZATION
 ===================================================== */
 
-renderDocument();
+loadDocuments();
+
+
+const selected =
+    getSelectedDocument();
+
+
+if (selected) {
+
+    const found =
+        documents.find(
+            doc =>
+                doc.ref ===
+                selected.ref
+        );
+
+
+    currentDocument =
+        found || selected;
+
+}
+
+
+if (!currentDocument) {
+
+    document.getElementById(
+        'documentTitle'
+    ).textContent =
+        'No document selected';
+
+} else {
+
+    /*
+     * Make sure older documents
+     * have a usable history.
+     */
+
+    ensureHistory();
+
+
+    if (
+        currentDocument.history.length === 0
+    ) {
+
+        addHistoryEntry({
+
+            action:
+                'Document Registered',
+
+            from:
+                currentDocument.origin,
+
+            to:
+                currentDocument.destination,
+
+            user:
+                currentDocument.registeredBy ||
+                currentUserName(),
+
+            status:
+                currentDocument.status ||
+                'Awaiting action',
+
+            remarks:
+                'Document registered in KSUCflow.'
+
+        });
+
+
+        const index =
+            findDocumentIndex();
+
+
+        if (index !== -1) {
+
+            documents[index] =
+                currentDocument;
+
+            saveDocuments();
+
+        }
+
+    }
+
+
+    renderDocument();
+
+}
+
+
+/* =====================================================
+   AUTO OPEN MODALS FROM LINKS
+===================================================== */
+
+if (
+    window.location.hash === '#route'
+) {
+
+    setTimeout(
+        openRouteModal,
+        250
+    );
+
+}
+
+
+if (
+    window.location.hash === '#action'
+) {
+
+    setTimeout(
+        openActionModal,
+        250
+    );
+
+}
 
 </script>
 
