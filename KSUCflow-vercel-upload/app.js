@@ -540,13 +540,6 @@ function renderDashboard() {
     byId('transitDocuments').textContent = transit;
   }
 
-  /*
-    Optional newer dashboard counters.
-    These only update if the corresponding elements
-    exist, so the current dashboard will continue
-    working without modification.
-  */
-
   if (byId('myInbox')) {
     byId('myInbox').textContent = inbox;
   }
@@ -966,7 +959,7 @@ async function deletePdfFile(ref) {
 ========================================================= */
 
 function setupPdfUpload() {
-  const input = byId('documentPdf');
+  const input = byId('documentFile');
 
   if (!input) return;
 
@@ -1002,8 +995,50 @@ function setupPdfUpload() {
         return;
       }
 
+      const selectedFile = byId('selectedFile');
+      const selectedFileName = byId('selectedFileName');
+
+      if (selectedFileName) {
+        selectedFileName.textContent =
+          `${file.name} (${formatFileSize(file.size)})`;
+      }
+
+      if (selectedFile) {
+        selectedFile.style.display = 'block';
+      }
+
     }
   );
+
+  const removeButton =
+    byId('removeSelectedFile');
+
+  if (removeButton) {
+
+    removeButton.addEventListener(
+      'click',
+      function () {
+
+        input.value = '';
+
+        const selectedFile =
+          byId('selectedFile');
+
+        const selectedFileName =
+          byId('selectedFileName');
+
+        if (selectedFile) {
+          selectedFile.style.display = 'none';
+        }
+
+        if (selectedFileName) {
+          selectedFileName.textContent = '';
+        }
+
+      }
+    );
+
+  }
 }
 
 /* =========================================================
@@ -1011,9 +1046,96 @@ function setupPdfUpload() {
 ========================================================= */
 
 function setupDocumentRegistration() {
-  const form = byId('documentForm');
 
-  if (!form) return;
+  const form =
+    byId('documentForm');
+
+  const modal =
+    byId('documentModal');
+
+  const openButton =
+    byId('openModal');
+
+  const quickRegisterButton =
+    byId('quickRegisterBtn');
+
+  const closeButton =
+    byId('closeDocumentModal');
+
+  const cancelButton =
+    byId('cancelDocumentBtn');
+
+  if (!form || !modal) {
+    console.warn(
+      'KSUCflow: document registration form or modal not found.'
+    );
+
+    return;
+  }
+
+  /* -------------------------------------------------------
+     OPEN MODAL
+  ------------------------------------------------------- */
+
+  function openRegistrationModal() {
+
+    if (
+      typeof modal.showModal === 'function'
+    ) {
+      modal.showModal();
+    } else {
+      modal.setAttribute('open', '');
+    }
+
+  }
+
+  /* -------------------------------------------------------
+     CLOSE MODAL
+  ------------------------------------------------------- */
+
+  function closeRegistrationModal() {
+
+    if (
+      typeof modal.close === 'function'
+    ) {
+      modal.close();
+    } else {
+      modal.removeAttribute('open');
+    }
+
+  }
+
+  if (openButton) {
+    openButton.addEventListener(
+      'click',
+      openRegistrationModal
+    );
+  }
+
+  if (quickRegisterButton) {
+    quickRegisterButton.addEventListener(
+      'click',
+      openRegistrationModal
+    );
+  }
+
+  if (closeButton) {
+    closeButton.addEventListener(
+      'click',
+      closeRegistrationModal
+    );
+  }
+
+  if (cancelButton) {
+    cancelButton.addEventListener(
+      'click',
+      closeRegistrationModal
+    );
+  }
+
+  /* -------------------------------------------------------
+     FORM SUBMISSION
+  ------------------------------------------------------- */
 
   form.addEventListener(
     'submit',
@@ -1021,29 +1143,38 @@ function setupDocumentRegistration() {
 
       event.preventDefault();
 
+      /*
+       * IMPORTANT:
+       * These IDs match the actual index.html.
+       */
+
       const ref =
-        byId('documentRef')?.value.trim();
+        byId('reference')?.value.trim();
 
       const title =
-        byId('documentTitle')?.value.trim();
+        byId('subject')?.value.trim();
 
       const origin =
-        byId('documentOrigin')?.value.trim();
+        byId('origin')?.value.trim();
 
       const destination =
-        byId('documentDestination')?.value.trim();
+        byId('department')?.value;
 
       const action =
-        byId('documentAction')?.value.trim();
+        byId('action')?.value;
 
       const notes =
-        byId('documentNotes')?.value.trim() || '';
+        byId('notes')?.value.trim() || '';
 
-      const pdfInput =
-        byId('documentPdf');
+      const fileInput =
+        byId('documentFile');
 
       const file =
-        pdfInput?.files?.[0] || null;
+        fileInput?.files?.[0] || null;
+
+      /* ---------------------------------------------------
+         VALIDATION
+      --------------------------------------------------- */
 
       if (
         !ref ||
@@ -1052,6 +1183,7 @@ function setupDocumentRegistration() {
         !destination ||
         !action
       ) {
+
         showToast(
           'Please complete all required fields.',
           'error'
@@ -1060,16 +1192,23 @@ function setupDocumentRegistration() {
         return;
       }
 
-      const documents = loadDocuments();
+      /* ---------------------------------------------------
+         CHECK DUPLICATE REFERENCE
+      --------------------------------------------------- */
+
+      const documents =
+        loadDocuments();
 
       const duplicate =
         documents.some(
           document =>
-            document.ref.toLowerCase() ===
+            String(document.ref || '')
+              .toLowerCase() ===
             ref.toLowerCase()
         );
 
       if (duplicate) {
+
         showToast(
           'A document with this reference number already exists.',
           'error'
@@ -1078,9 +1217,16 @@ function setupDocumentRegistration() {
         return;
       }
 
+      /* ---------------------------------------------------
+         CHECK PDF
+      --------------------------------------------------- */
+
       if (file) {
 
-        if (file.type !== 'application/pdf') {
+        if (
+          file.type !== 'application/pdf'
+        ) {
+
           showToast(
             'Only PDF documents are allowed.',
             'error'
@@ -1089,7 +1235,11 @@ function setupDocumentRegistration() {
           return;
         }
 
-        if (file.size > 10 * 1024 * 1024) {
+        if (
+          file.size >
+          10 * 1024 * 1024
+        ) {
+
           showToast(
             'The PDF must not exceed 10 MB.',
             'error'
@@ -1100,23 +1250,37 @@ function setupDocumentRegistration() {
 
       }
 
+      /* ---------------------------------------------------
+         CREATE DOCUMENT
+      --------------------------------------------------- */
+
       const now =
         new Date().toISOString();
 
-      const document = {
+      const documentRecord = {
+
         ref,
+
         title,
+
+        subject: title,
+
         origin,
+
+        originatingOffice: origin,
+
         destination,
 
         /*
-          The registering office is the initial
-          current holder until the document is
-          forwarded.
-        */
+         * The registering office is the
+         * current holder initially.
+         */
         currentOffice: origin,
 
         action,
+
+        requiredAction: action,
+
         notes,
 
         kind: 'Internal',
@@ -1125,7 +1289,8 @@ function setupDocumentRegistration() {
 
         state: 'active',
 
-        hasAttachment: Boolean(file),
+        hasAttachment:
+          Boolean(file),
 
         attachmentName:
           file?.name || '',
@@ -1141,35 +1306,75 @@ function setupDocumentRegistration() {
         registeredBy:
           currentUserName(),
 
+        registeredAt: now,
+
         history: [
+
           {
-            action: 'Document registered',
-            from: origin,
-            to: origin,
-            user: currentUserName(),
-            department: currentUserDepartment(),
-            status: 'Received',
-            remarks: 'Document registered into KSUCflow.',
-            date: now
+
+            action:
+              'Document registered',
+
+            from:
+              origin,
+
+            to:
+              origin,
+
+            user:
+              currentUserName(),
+
+            department:
+              currentUserDepartment(),
+
+            status:
+              'Received',
+
+            remarks:
+              notes ||
+              'Document registered into KSUCflow.',
+
+            date:
+              now
+
           }
+
         ],
 
-        notesList: notes
-          ? [
-              {
-                note: notes,
-                user: currentUserName(),
-                date: now
-              }
-            ]
-          : []
+        notesList:
+          notes
+            ? [
+                {
+                  note: notes,
+                  text: notes,
+                  user:
+                    currentUserName(),
+                  date: now
+                }
+              ]
+            : []
+
       };
 
+      /* ---------------------------------------------------
+         SAVE PDF
+      --------------------------------------------------- */
+
       if (file) {
+
         try {
-          await savePdfFile(ref, file);
+
+          await savePdfFile(
+            ref,
+            file
+          );
+
         } catch (error) {
-          console.error(error);
+
+          console.error(
+            'PDF storage error:',
+            error
+          );
 
           showToast(
             'Unable to save the PDF attachment.',
@@ -1178,11 +1383,24 @@ function setupDocumentRegistration() {
 
           return;
         }
+
       }
 
-      documents.unshift(document);
+      /* ---------------------------------------------------
+         SAVE DOCUMENT
+      --------------------------------------------------- */
 
-      saveDocuments(documents);
+      documents.unshift(
+        documentRecord
+      );
+
+      saveDocuments(
+        documents
+      );
+
+      /* ---------------------------------------------------
+         ACTIVITY
+      --------------------------------------------------- */
 
       addActivity(
         'Document registered',
@@ -1190,30 +1408,57 @@ function setupDocumentRegistration() {
         'document'
       );
 
+      /* ---------------------------------------------------
+         RESET FORM
+      --------------------------------------------------- */
+
       form.reset();
 
+      const selectedFile =
+        byId('selectedFile');
+
+      const selectedFileName =
+        byId('selectedFileName');
+
+      if (selectedFile) {
+        selectedFile.style.display =
+          'none';
+      }
+
+      if (selectedFileName) {
+        selectedFileName.textContent =
+          '';
+      }
+
+      /* ---------------------------------------------------
+         REFRESH DASHBOARD
+      --------------------------------------------------- */
+
       renderDashboard();
+
+      /* ---------------------------------------------------
+         CLOSE
+      --------------------------------------------------- */
+
+      closeRegistrationModal();
+
+      /* ---------------------------------------------------
+         SUCCESS
+      --------------------------------------------------- */
 
       showToast(
         'Document registered successfully.'
       );
 
       /*
-        If a registration dialog exists,
-        close it after successful submission.
-      */
-      const dialog =
-        byId('registrationDialog');
-
-      if (
-        dialog &&
-        typeof dialog.close === 'function'
-      ) {
-        dialog.close();
-      }
+       * Stay on dashboard.
+       * The user can click View on the document
+       * when it appears in Recent Documents.
+       */
 
     }
   );
+
 }
 
 /* =========================================================
@@ -1221,6 +1466,7 @@ function setupDocumentRegistration() {
 ========================================================= */
 
 function setupSearch() {
+
   const input =
     byId('documentSearch');
 
@@ -1229,11 +1475,14 @@ function setupSearch() {
   input.addEventListener(
     'input',
     function () {
+
       renderDocuments(
         input.value
       );
+
     }
   );
+
 }
 
 /* =========================================================
@@ -1241,7 +1490,9 @@ function setupSearch() {
 ========================================================= */
 
 function openDocumentReview(ref) {
-  const documents = loadDocuments();
+
+  const documents =
+    loadDocuments();
 
   const document =
     documents.find(
@@ -1249,6 +1500,7 @@ function openDocumentReview(ref) {
     );
 
   if (!document) {
+
     showToast(
       'Document could not be found.',
       'error'
@@ -1259,12 +1511,12 @@ function openDocumentReview(ref) {
 
   window.location.href =
     `document-view.html?ref=${encodeURIComponent(ref)}`;
+
 }
 
 function setupReviewModal() {
   /*
-    Kept as a compatibility hook for
-    the existing KSUCflow interface.
+    Compatibility hook.
   */
 }
 
@@ -1273,14 +1525,17 @@ function setupReviewModal() {
 ========================================================= */
 
 function showReports() {
-  const documents = loadDocuments();
+
+  const documents =
+    loadDocuments();
 
   const total =
     documents.length;
 
   const transit =
     documents.filter(
-      document => document.status === 'In transit'
+      document =>
+        document.status === 'In transit'
     ).length;
 
   const awaiting =
@@ -1314,6 +1569,7 @@ function showReports() {
     ).length;
 
   const report = `
+
     <div class="report-summary">
 
       <div>
@@ -1352,13 +1608,16 @@ function showReports() {
       </div>
 
     </div>
+
   `;
 
   const container =
+    byId('reportsContent') ||
     byId('reportContent');
 
   if (container) {
-    container.innerHTML = report;
+    container.innerHTML =
+      report;
   }
 
   return {
@@ -1370,6 +1629,7 @@ function showReports() {
     completed,
     rejected
   };
+
 }
 
 /* =========================================================
@@ -1379,16 +1639,22 @@ function showReports() {
 function loadSettings() {
 
   const defaults = {
-    systemName: 'KSUCflow',
+
+    systemName:
+      'KSUCflow',
+
     institution:
       'Koitaleel Samoei University College'
+
   };
 
   try {
 
     const saved =
       JSON.parse(
-        localStorage.getItem(SETTINGS_KEY) || 'null'
+        localStorage.getItem(
+          SETTINGS_KEY
+        ) || 'null'
       );
 
     return {
@@ -1397,8 +1663,11 @@ function loadSettings() {
     };
 
   } catch (error) {
+
     return defaults;
+
   }
+
 }
 
 function saveSettings(settings) {
@@ -1434,6 +1703,29 @@ function updateUserInterface() {
       .charAt(0)
       .toUpperCase();
 
+  /*
+   * Current index.html IDs
+   */
+
+  if (byId('currentUserName')) {
+    byId('currentUserName').textContent =
+      userName;
+  }
+
+  if (byId('currentUserRole')) {
+    byId('currentUserRole').textContent =
+      userRole;
+  }
+
+  if (byId('userAvatar')) {
+    byId('userAvatar').textContent =
+      avatar;
+  }
+
+  /*
+   * Compatibility IDs
+   */
+
   if (byId('userName')) {
     byId('userName').textContent =
       userName;
@@ -1442,11 +1734,6 @@ function updateUserInterface() {
   if (byId('userRole')) {
     byId('userRole').textContent =
       userRole;
-  }
-
-  if (byId('userAvatar')) {
-    byId('userAvatar').textContent =
-      avatar;
   }
 
   if (byId('avatar')) {
@@ -1469,6 +1756,11 @@ function updateUserInterface() {
       settings.systemName;
   }
 
+  if (byId('greeting')) {
+    byId('greeting').textContent =
+      `Welcome back, ${userName}.`;
+  }
+
 }
 
 /* =========================================================
@@ -1477,39 +1769,141 @@ function updateUserInterface() {
 
 function setupNavigation() {
 
-  const reportsButton =
-    byId('reportsButton');
+  /* -------------------------------------------------------
+     NOTIFICATIONS
+  ------------------------------------------------------- */
 
-  if (reportsButton) {
-    reportsButton.addEventListener(
-      'click',
-      showReports
-    );
-  }
+  const notificationButtons = [
+    byId('notificationsBtn'),
+    byId('topNotificationsBtn'),
+    byId('notificationButton')
+  ].filter(Boolean);
 
-  const notificationButton =
-    byId('notificationButton');
+  notificationButtons.forEach(button => {
 
-  if (notificationButton) {
-    notificationButton.addEventListener(
+    button.addEventListener(
       'click',
       function () {
+
+        const modal =
+          byId('notificationModal');
+
         renderNotifications();
+
+        if (
+          modal &&
+          typeof modal.showModal === 'function'
+        ) {
+          modal.showModal();
+        }
+
       }
     );
+
+  });
+
+  const closeNotification =
+    byId('closeNotificationModal');
+
+  if (closeNotification) {
+
+    closeNotification.addEventListener(
+      'click',
+      function () {
+
+        const modal =
+          byId('notificationModal');
+
+        if (modal) {
+          modal.close();
+        }
+
+      }
+    );
+
   }
 
-  const settingsButton =
-    byId('settingsButton');
+  /* -------------------------------------------------------
+     REPORTS
+  ------------------------------------------------------- */
 
-  if (settingsButton) {
+  const reportsButtons = [
+    byId('reportsBtn'),
+    byId('quickReportsBtn'),
+    byId('reportsButton')
+  ].filter(Boolean);
 
-    settingsButton.addEventListener(
+  reportsButtons.forEach(button => {
+
+    button.addEventListener(
+      'click',
+      function () {
+
+        showReports();
+
+        const modal =
+          byId('reportsModal');
+
+        if (
+          modal &&
+          typeof modal.showModal === 'function'
+        ) {
+          modal.showModal();
+        }
+
+      }
+    );
+
+  });
+
+  const closeReports =
+    byId('closeReportsModal');
+
+  if (closeReports) {
+
+    closeReports.addEventListener(
+      'click',
+      function () {
+
+        const modal =
+          byId('reportsModal');
+
+        if (modal) {
+          modal.close();
+        }
+
+      }
+    );
+
+  }
+
+  /* -------------------------------------------------------
+     SETTINGS
+  ------------------------------------------------------- */
+
+  const settingsButtons = [
+    byId('settingsBtn'),
+    byId('settingsButton')
+  ].filter(Boolean);
+
+  settingsButtons.forEach(button => {
+
+    button.addEventListener(
       'click',
       function () {
 
         const settings =
           loadSettings();
+
+        if (byId('systemNameSetting')) {
+          byId('systemNameSetting').value =
+            settings.systemName;
+        }
+
+        if (byId('institutionSetting')) {
+          byId('institutionSetting').value =
+            settings.institution;
+        }
 
         if (byId('systemNameInput')) {
           byId('systemNameInput').value =
@@ -1521,12 +1915,65 @@ function setupNavigation() {
             settings.institution;
         }
 
+        const modal =
+          byId('customizerModal');
+
+        if (
+          modal &&
+          typeof modal.showModal === 'function'
+        ) {
+          modal.showModal();
+        }
+
+      }
+    );
+
+  });
+
+  const closeSettings =
+    byId('closeCustomizerModal');
+
+  if (closeSettings) {
+
+    closeSettings.addEventListener(
+      'click',
+      function () {
+
+        const modal =
+          byId('customizerModal');
+
+        if (modal) {
+          modal.close();
+        }
+
+      }
+    );
+
+  }
+
+  const cancelSettings =
+    byId('cancelSettingsBtn');
+
+  if (cancelSettings) {
+
+    cancelSettings.addEventListener(
+      'click',
+      function () {
+
+        const modal =
+          byId('customizerModal');
+
+        if (modal) {
+          modal.close();
+        }
+
       }
     );
 
   }
 
   const saveSettingsButton =
+    byId('saveSettingsBtn') ||
     byId('saveSettings');
 
   if (saveSettingsButton) {
@@ -1536,18 +1983,31 @@ function setupNavigation() {
       function () {
 
         const settings = {
+
           systemName:
-            byId('systemNameInput')?.value.trim()
-            || 'KSUCflow',
+            byId('systemNameSetting')?.value.trim() ||
+            byId('systemNameInput')?.value.trim() ||
+            'KSUCflow',
 
           institution:
-            byId('institutionInput')?.value.trim()
-            || 'Koitaleel Samoei University College'
+            byId('institutionSetting')?.value.trim() ||
+            byId('institutionInput')?.value.trim() ||
+            'Koitaleel Samoei University College'
+
         };
 
-        saveSettings(settings);
+        saveSettings(
+          settings
+        );
 
         updateUserInterface();
+
+        const modal =
+          byId('customizerModal');
+
+        if (modal) {
+          modal.close();
+        }
 
         showToast(
           'Settings saved successfully.'
@@ -1558,12 +2018,133 @@ function setupNavigation() {
 
   }
 
-  const signOut =
-    byId('signOut');
+  /* -------------------------------------------------------
+     ADMINISTRATION
+  ------------------------------------------------------- */
 
-  if (signOut) {
+  const adminButton =
+    byId('adminBtn');
 
-    signOut.addEventListener(
+  if (adminButton) {
+
+    adminButton.addEventListener(
+      'click',
+      function () {
+
+        const modal =
+          byId('adminModal');
+
+        if (
+          modal &&
+          typeof modal.showModal === 'function'
+        ) {
+          modal.showModal();
+        } else {
+          window.location.href =
+            'admin.html';
+        }
+
+      }
+    );
+
+  }
+
+  const closeAdmin =
+    byId('closeAdminModal');
+
+  if (closeAdmin) {
+
+    closeAdmin.addEventListener(
+      'click',
+      function () {
+
+        const modal =
+          byId('adminModal');
+
+        if (modal) {
+          modal.close();
+        }
+
+      }
+    );
+
+  }
+
+  /* -------------------------------------------------------
+     USER MENU
+  ------------------------------------------------------- */
+
+  const userMenu =
+    byId('userMenuBtn');
+
+  if (userMenu) {
+
+    userMenu.addEventListener(
+      'click',
+      function () {
+
+        const user =
+          getCurrentUser();
+
+        if (byId('userModalName')) {
+          byId('userModalName').textContent =
+            user?.name || 'User';
+        }
+
+        if (byId('userModalRole')) {
+          byId('userModalRole').textContent =
+            user?.role || 'Staff';
+        }
+
+        const modal =
+          byId('userModal');
+
+        if (
+          modal &&
+          typeof modal.showModal === 'function'
+        ) {
+          modal.showModal();
+        }
+
+      }
+    );
+
+  }
+
+  const closeUser =
+    byId('closeUserModal');
+
+  if (closeUser) {
+
+    closeUser.addEventListener(
+      'click',
+      function () {
+
+        const modal =
+          byId('userModal');
+
+        if (modal) {
+          modal.close();
+        }
+
+      }
+    );
+
+  }
+
+  /* -------------------------------------------------------
+     SIGN OUT
+  ------------------------------------------------------- */
+
+  const signOutButtons = [
+    byId('signOutBtn'),
+    byId('signOut'),
+    byId('userSignOutBtn')
+  ].filter(Boolean);
+
+  signOutButtons.forEach(button => {
+
+    button.addEventListener(
       'click',
       function () {
 
@@ -1577,7 +2158,7 @@ function setupNavigation() {
       }
     );
 
-  }
+  });
 
 }
 
@@ -1598,15 +2179,6 @@ function setupWorkflowShortcuts() {
 
         const department =
           currentUserDepartment();
-
-        const documents =
-          loadDocuments().filter(
-            document =>
-              getCurrentOffice(document) ===
-                department &&
-              !isCompleted(document) &&
-              !isInTransit(document)
-          );
 
         localStorage.setItem(
           'ksucDocumentFilter',
@@ -1699,9 +2271,6 @@ function migrateDocuments() {
       changed = true;
     }
 
-    /*
-      Older documents may not have currentOffice.
-    */
     if (!document.currentOffice) {
 
       const last =
@@ -1716,10 +2285,6 @@ function migrateDocuments() {
       changed = true;
     }
 
-    /*
-      Older workflow records may have
-      "For approval", "For action", etc.
-    */
     if (
       document.status === 'For approval' ||
       document.status === 'For action' ||
@@ -1736,7 +2301,9 @@ function migrateDocuments() {
   });
 
   if (changed) {
-    saveDocuments(documents);
+    saveDocuments(
+      documents
+    );
   }
 
 }
@@ -1747,16 +2314,10 @@ function migrateDocuments() {
 
 function initializeApp() {
 
-  /*
-    Ensure storage exists.
-  */
   loadDocuments();
+
   loadActivity();
 
-  /*
-    Bring older documents into the
-    current workflow model.
-  */
   migrateDocuments();
 
   updateUserInterface();
@@ -1775,10 +2336,6 @@ function initializeApp() {
 
   setupWorkflowShortcuts();
 
-  /*
-    Keep the dashboard current when
-    returning to the tab.
-  */
   document.addEventListener(
     'visibilitychange',
     function () {
@@ -1787,7 +2344,9 @@ function initializeApp() {
         document.visibilityState ===
         'visible'
       ) {
+
         renderDashboard();
+
       }
 
     }
