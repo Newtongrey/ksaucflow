@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>KSUCflow | Administrator Login</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+  <link
+    href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap"
+    rel="stylesheet"
+  >
+
+  <link rel="stylesheet" href="admin-login.css">
+</head>
+
+<body>
+
+  <main class="admin-login">
+
+    <section class="login-card">
+
+      <div class="brand">
+        <span class="brand-mark">K</span>
+
+        <div>
+          <strong>KSUC<span>flow</span></strong>
+          <small>ADMINISTRATION</small>
+        </div>
+      </div>
+
+      <div class="intro">
+        <p class="eyebrow">ADMINISTRATOR PORTAL</p>
+
+        <h1>Welcome back.</h1>
+
+        <p>
+          Sign in to manage users, document workflows,
+          system settings and administrative functions.
+        </p>
+      </div>
+
+      <form id="adminLoginForm">
+
+        <label>
+          Administrator email
+
+          <input
+            type="email"
+            id="adminEmail"
+            placeholder="name@ksuc.ac.ke"
+            autocomplete="username"
+            required
+          >
+        </label>
+
+        <label>
+          Password
+
+          <div class="password-field">
+            <input
+              type="password"
+              id="adminPassword"
+              placeholder="Enter your password"
+              autocomplete="current-password"
+              required
+            >
+
+            <button
+              type="button"
+              id="showAdminPassword"
+            >
+              Show
+            </button>
+          </div>
+        </label>
+
+        <p
+          class="error"
+          id="adminLoginError"
+          aria-live="polite"
+        ></p>
+
+        <button
+          type="submit"
+          class="login-button"
+        >
+          Sign in to administration
+        </button>
+
+      </form>
+
+      <div class="security-note">
+        <span>🔒</span>
+
+        <p>
+          This area is restricted to authorised
+          KSUCflow administrators.
+        </p>
+      </div>
+
+      <a
+        href="login.html"
+        class="back-link"
+      >
+        ← Return to staff login
+      </a>
+
+    </section>
+
+  </main>
+
+  <script src="admin-login.js"></script>
+
+</body>
+</html>
