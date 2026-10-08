@@ -1,22 +1,613 @@
 <!doctype html>
 <html lang="en">
+
 <head>
-  <meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>KSUCflow | Admin Control Centre</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" /><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="admin.css" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>KSUCflow | Administration</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+  <link
+    href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap"
+    rel="stylesheet"
+  >
+
+  <link rel="stylesheet" href="admin.css">
 </head>
+
 <body>
-  <header><a class="brand" href="index.html"><span id="mark">K</span><b id="brandName">KSUCflow</b></a><div class="admin-name"><span>NM</span><div><strong>Newton Mwangi</strong><small>Super Administrator</small></div><button id="signOut" style="margin-left:13px;border:1px solid #627a9b;border-radius:5px;background:transparent;color:#fff;padding:6px 8px;font-size:10px;cursor:pointer">Sign out</button></div></header>
-  <main>
-    <div class="page-title"><div><p class="eyebrow">SYSTEM ADMINISTRATION</p><h1>Control centre</h1><p>Manage users, access rights and the KSUCflow portal.</p></div><a class="back" href="index.html">← Return to document portal</a></div>
-    <section class="metrics"><article><p>Total users</p><strong id="totalUsers">0</strong></article><article><p>Active accounts</p><strong id="activeUsers">0</strong></article><article><p>Administrators</p><strong id="adminUsers">0</strong></article><article><p>Documents registered</p><strong id="documentTotal">—</strong></article></section>
-    <section class="layout"><section class="card users"><div class="card-head"><div><h2>User management</h2><p>Manage accounts, roles and access to KSUCflow.</p></div><button class="primary" id="addUser">+ Add user</button></div><div class="table-wrap"><table><thead><tr><th>USER</th><th>DEPARTMENT</th><th>ACCESS RIGHTS</th><th>STATUS</th><th>ACTIONS</th></tr></thead><tbody id="userRows"></tbody></table></div></section>
-      <aside class="side"><section class="card"><div class="card-head"><div><h2>Administrator privileges</h2><p>Your current authority</p></div></div><ul class="privileges"><li>✓ Create, edit and deactivate user accounts</li><li>✓ Set temporary passwords and reset credentials</li><li>✓ Assign staff, department head and administrator roles</li><li>✓ Change portal branding and system settings</li><li>✓ Review document activity and departmental workload</li></ul></section><section class="card"><div class="card-head"><div><h2>Portal settings</h2><p>Identity and appearance</p></div></div><label>Application name<input id="appName" /></label><label>Institution name<input id="institution" /></label><label>Primary colour<input id="primaryColor" type="color" /></label><button class="primary full" id="saveSettings">Save portal settings</button><button class="text" id="resetSettings">Restore defaults</button></section></aside>
+
+  <!-- TOP BAR -->
+
+  <header class="topbar">
+
+    <a class="brand" href="index.html">
+
+      <span class="brand-mark" id="mark">K</span>
+
+      <span class="brand-text">
+
+        <strong id="brandName">KSUCflow</strong>
+
+        <small>ADMINISTRATION</small>
+
+      </span>
+
+    </a>
+
+
+    <div class="admin-profile">
+
+      <div class="avatar" id="adminAvatar">
+        NM
+      </div>
+
+      <div class="admin-details">
+
+        <strong id="adminName">
+          Administrator
+        </strong>
+
+        <small id="adminRole">
+          System Administrator
+        </small>
+
+      </div>
+
+      <button
+        id="signOut"
+        class="sign-out"
+        type="button"
+      >
+        Sign out
+      </button>
+
+    </div>
+
+  </header>
+
+
+  <!-- PAGE -->
+
+  <main class="admin-main">
+
+    <!-- PAGE HEADER -->
+
+    <section class="page-header">
+
+      <div>
+
+        <p class="eyebrow">
+          SYSTEM ADMINISTRATION
+        </p>
+
+        <h1>
+          Control centre
+        </h1>
+
+        <p class="page-description">
+          Manage users, access rights and the KSUCflow
+          document workflow system.
+        </p>
+
+      </div>
+
+
+      <a
+        href="index.html"
+        class="return-button"
+      >
+        ← Document Portal
+      </a>
+
     </section>
+
+
+    <!-- METRICS -->
+
+    <section class="metrics">
+
+      <article class="metric-card">
+
+        <div class="metric-icon">
+          U
+        </div>
+
+        <div>
+
+          <p>Total users</p>
+
+          <strong id="totalUsers">
+            0
+          </strong>
+
+        </div>
+
+      </article>
+
+
+      <article class="metric-card">
+
+        <div class="metric-icon green">
+          ✓
+        </div>
+
+        <div>
+
+          <p>Active accounts</p>
+
+          <strong id="activeUsers">
+            0
+          </strong>
+
+        </div>
+
+      </article>
+
+
+      <article class="metric-card">
+
+        <div class="metric-icon gold">
+          A
+        </div>
+
+        <div>
+
+          <p>Administrators</p>
+
+          <strong id="adminUsers">
+            0
+          </strong>
+
+        </div>
+
+      </article>
+
+
+      <article class="metric-card">
+
+        <div class="metric-icon purple">
+          D
+        </div>
+
+        <div>
+
+          <p>Documents registered</p>
+
+          <strong id="documentTotal">
+            —
+          </strong>
+
+        </div>
+
+      </article>
+
+    </section>
+
+
+    <!-- MAIN CONTENT -->
+
+    <section class="admin-grid">
+
+
+      <!-- USER MANAGEMENT -->
+
+      <section class="panel users-panel">
+
+        <div class="panel-header">
+
+          <div>
+
+            <p class="section-label">
+              MANAGEMENT
+            </p>
+
+            <h2>
+              User management
+            </h2>
+
+            <p>
+              Manage KSUCflow accounts, roles and access.
+            </p>
+
+          </div>
+
+          <button
+            class="primary-button"
+            id="addUser"
+            type="button"
+          >
+            + Add user
+          </button>
+
+        </div>
+
+
+        <div class="table-container">
+
+          <table>
+
+            <thead>
+
+              <tr>
+
+                <th>
+                  USER
+                </th>
+
+                <th>
+                  DEPARTMENT
+                </th>
+
+                <th>
+                  ROLE
+                </th>
+
+                <th>
+                  STATUS
+                </th>
+
+                <th>
+                  ACTIONS
+                </th>
+
+              </tr>
+
+            </thead>
+
+            <tbody id="userRows"></tbody>
+
+          </table>
+
+        </div>
+
+      </section>
+
+
+      <!-- RIGHT COLUMN -->
+
+      <aside class="right-column">
+
+
+        <!-- ADMIN PRIVILEGES -->
+
+        <section class="panel">
+
+          <div class="panel-header compact">
+
+            <div>
+
+              <p class="section-label">
+                ACCESS
+              </p>
+
+              <h2>
+                Administrator privileges
+              </h2>
+
+              <p>
+                Your current authority
+              </p>
+
+            </div>
+
+          </div>
+
+
+          <ul class="privileges">
+
+            <li>
+              <span>✓</span>
+              Create and manage user accounts
+            </li>
+
+            <li>
+              <span>✓</span>
+              Assign roles and departments
+            </li>
+
+            <li>
+              <span>✓</span>
+              Enable or disable accounts
+            </li>
+
+            <li>
+              <span>✓</span>
+              Reset temporary passwords
+            </li>
+
+            <li>
+              <span>✓</span>
+              Manage portal settings
+            </li>
+
+            <li>
+              <span>✓</span>
+              Review document activity
+            </li>
+
+          </ul>
+
+        </section>
+
+
+        <!-- SETTINGS -->
+
+        <section class="panel settings-panel">
+
+          <div class="panel-header compact">
+
+            <div>
+
+              <p class="section-label">
+                SYSTEM
+              </p>
+
+              <h2>
+                Portal settings
+              </h2>
+
+              <p>
+                Identity and appearance
+              </p>
+
+            </div>
+
+          </div>
+
+
+          <div class="settings-form">
+
+            <label>
+
+              Application name
+
+              <input
+                id="appName"
+                type="text"
+              >
+
+            </label>
+
+
+            <label>
+
+              Institution name
+
+              <input
+                id="institution"
+                type="text"
+              >
+
+            </label>
+
+
+            <label>
+
+              Primary colour
+
+              <input
+                id="primaryColor"
+                type="color"
+              >
+
+            </label>
+
+
+            <button
+              class="primary-button full"
+              id="saveSettings"
+              type="button"
+            >
+              Save portal settings
+            </button>
+
+
+            <button
+              class="reset-button"
+              id="resetSettings"
+              type="button"
+            >
+              Restore defaults
+            </button>
+
+          </div>
+
+        </section>
+
+
+        <!-- QUICK LINKS -->
+
+        <section class="panel quick-panel">
+
+          <div class="panel-header compact">
+
+            <div>
+
+              <p class="section-label">
+                KSUC FLOW
+              </p>
+
+              <h2>
+                Administration
+              </h2>
+
+            </div>
+
+          </div>
+
+
+          <div class="quick-links">
+
+            <a href="index.html">
+              <span>Documents</span>
+              <small>Open document portal →</small>
+            </a>
+
+            <a href="admin.html">
+              <span>User management</span>
+              <small>Manage system accounts →</small>
+            </a>
+
+          </div>
+
+        </section>
+
+      </aside>
+
+    </section>
+
   </main>
-  <dialog id="userDialog"><form method="dialog" id="userForm"><div class="dialog-head"><div><p class="eyebrow">NEW ACCOUNT</p><h2>Create user</h2></div><button value="cancel" class="close">×</button></div><div class="form-grid"><label>Full name<input required id="name" /></label><label>Email<input required type="email" id="email" /></label><label>Department<select id="department"><option>Registry</option><option>Finance</option><option>Human Resources</option><option>Academic Affairs</option><option>Procurement</option></select></label><label>Role<select id="role"><option>Staff</option><option>Department Head</option><option>Administrator</option></select></label><label class="wide">Temporary password<input required minlength="8" type="password" id="password" placeholder="At least 8 characters" /></label></div><div class="dialog-actions"><button value="cancel" class="secondary">Cancel</button><button class="primary" value="default">Create account</button></div></form></dialog>
-  <script src="auth-guard.js"></script><script src="admin.js"></script>
+
+
+  <!-- ADD USER DIALOG -->
+
+  <dialog id="userDialog">
+
+    <form
+      method="dialog"
+      id="userForm"
+    >
+
+      <div class="dialog-header">
+
+        <div>
+
+          <p class="section-label">
+            NEW ACCOUNT
+          </p>
+
+          <h2>
+            Create user
+          </h2>
+
+        </div>
+
+
+        <button
+          value="cancel"
+          class="dialog-close"
+          type="submit"
+        >
+          ×
+        </button>
+
+      </div>
+
+
+      <div class="form-grid">
+
+        <label>
+
+          Full name
+
+          <input
+            required
+            id="name"
+            type="text"
+          >
+
+        </label>
+
+
+        <label>
+
+          Email address
+
+          <input
+            required
+            type="email"
+            id="email"
+          >
+
+        </label>
+
+
+        <label>
+
+          Department
+
+          <select id="department">
+
+            <option>Registry</option>
+            <option>Finance</option>
+            <option>Human Resources</option>
+            <option>Academic Affairs</option>
+            <option>Procurement</option>
+            <option>ICT</option>
+            <option>Planning</option>
+            <option>Admissions</option>
+            <option>Library</option>
+            <option>Examinations</option>
+
+          </select>
+
+        </label>
+
+
+        <label>
+
+          Role
+
+          <select id="role">
+
+            <option>Staff</option>
+            <option>Department Head</option>
+            <option>Administrator</option>
+
+          </select>
+
+        </label>
+
+
+        <label class="wide">
+
+          Temporary password
+
+          <input
+            required
+            minlength="8"
+            type="password"
+            id="password"
+            placeholder="At least 8 characters"
+          >
+
+        </label>
+
+      </div>
+
+
+      <div class="dialog-actions">
+
+        <button
+          value="cancel"
+          class="secondary-button"
+          type="submit"
+        >
+          Cancel
+        </button>
+
+        <button
+          class="primary-button"
+          value="default"
+          type="submit"
+        >
+          Create account
+        </button>
+
+      </div>
+
+    </form>
+
+  </dialog>
+
+
+  <script src="auth-guard.js"></script>
+  <script src="admin.js"></script>
+
 </body>
+
 </html>
