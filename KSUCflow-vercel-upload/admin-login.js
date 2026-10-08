@@ -9,101 +9,156 @@ function getUsers() {
 
   try {
 
-    return JSON.parse(
-      localStorage.getItem('routeflowUsers') || '[]'
+    const savedUsers = JSON.parse(
+      localStorage.getItem('routeflowUsers') || 'null'
     );
+
+    /*
+     * If users already exist in localStorage,
+     * use them.
+     */
+
+    if (Array.isArray(savedUsers)) {
+      return savedUsers;
+    }
 
   } catch (error) {
 
-    return [];
+    console.warn('Unable to read saved users.');
 
   }
+
+  /*
+   * No users found.
+   * This should normally not happen because
+   * login.js initializes the user list.
+   */
+
+  return [];
 
 }
 
 
 /*
- * ADMIN LOGIN
- *
- * Only users whose role is Administrator
- * are allowed into the administration portal.
+ * ADMINISTRATOR LOGIN
  */
 
-adminLoginForm.addEventListener('submit', function (event) {
+adminLoginForm.addEventListener(
+  'submit',
+  function (event) {
 
-  event.preventDefault();
+    event.preventDefault();
 
-  adminLoginError.textContent = '';
+    adminLoginError.textContent = '';
 
-  const email =
-    adminEmail.value.trim().toLowerCase();
+    const email =
+      adminEmail.value
+        .trim()
+        .toLowerCase();
 
-  const password =
-    adminPassword.value;
-
-  const user = getUsers().find(item =>
-    item.email &&
-    item.email.toLowerCase() === email &&
-    item.password === password
-  );
+    const password =
+      adminPassword.value;
 
 
-  if (!user) {
+    /*
+     * Find matching account
+     */
 
-    adminLoginError.textContent =
-      'The administrator email or password is incorrect.';
+    const user = getUsers().find(item =>
+      item.email &&
+      item.email.toLowerCase() === email &&
+      item.password === password
+    );
 
-    return;
+
+    /*
+     * Invalid credentials
+     */
+
+    if (!user) {
+
+      adminLoginError.textContent =
+        'The administrator email or password is incorrect.';
+
+      return;
+
+    }
+
+
+    /*
+     * Disabled account
+     */
+
+    if (!user.active) {
+
+      adminLoginError.textContent =
+        'This administrator account has been disabled.';
+
+      return;
+
+    }
+
+
+    /*
+     * Role protection
+     */
+
+    if (user.role !== 'Administrator') {
+
+      adminLoginError.textContent =
+        'This account does not have administrator privileges.';
+
+      return;
+
+    }
+
+
+    /*
+     * Create administrator session
+     */
+
+    const session = {
+      id: user.id,
+      name: user.name,
+      role: user.role,
+      department: user.department
+    };
+
+
+    localStorage.setItem(
+      'ksucSession',
+      JSON.stringify(session)
+    );
+
+
+    /*
+     * Confirm session before redirecting.
+     * This helps prevent redirecting before
+     * the browser has stored the session.
+     */
+
+    const savedSession =
+      localStorage.getItem('ksucSession');
+
+
+    if (!savedSession) {
+
+      adminLoginError.textContent =
+        'Unable to create your login session. Please try again.';
+
+      return;
+
+    }
+
+
+    /*
+     * Enter administration portal
+     */
+
+    window.location.replace('admin.html');
 
   }
-
-
-  if (!user.active) {
-
-    adminLoginError.textContent =
-      'This administrator account has been disabled.';
-
-    return;
-
-  }
-
-
-  if (user.role !== 'Administrator') {
-
-    adminLoginError.textContent =
-      'This account does not have administrator privileges.';
-
-    return;
-
-  }
-
-
-  /*
-   * Save authenticated session
-   */
-
-const session = {
-  id: user.id,
-  name: user.name,
-  role: user.role,
-  department: user.department
-};
-
-localStorage.setItem(
-  'ksucSession',
-  JSON.stringify(session)
 );
-
-window.location.replace('admin.html');
-
-
-  /*
-   * Enter administration portal
-   */
-
-  window.location.href = 'admin.html';
-
-});
 
 
 /*
@@ -117,11 +172,13 @@ showAdminPassword.addEventListener(
     if (adminPassword.type === 'password') {
 
       adminPassword.type = 'text';
+
       showAdminPassword.textContent = 'Hide';
 
     } else {
 
       adminPassword.type = 'password';
+
       showAdminPassword.textContent = 'Show';
 
     }
