@@ -11,11 +11,21 @@
     box-sizing: border-box;
 }
 
+:root {
+    --maroon: #7D0000;
+    --maroon-dark: #5D0000;
+    --maroon-light: #F8EEEE;
+    --ink: #26364e;
+    --muted: #748197;
+    --line: #e4e9ef;
+    --canvas: #f5f7fa;
+}
+
 body {
     margin: 0;
     font-family: Inter, Arial, sans-serif;
-    background: #f5f7fa;
-    color: #25344d;
+    background: var(--canvas);
+    color: var(--ink);
 }
 
 button,
@@ -29,7 +39,7 @@ button {
 }
 
 /* =========================
-   LAYOUT
+   TOP BAR
 ========================= */
 
 .page {
@@ -38,7 +48,7 @@ button {
 
 .topbar {
     height: 70px;
-    background: #182b4d;
+    background: var(--maroon);
     color: white;
     display: flex;
     align-items: center;
@@ -56,7 +66,7 @@ button {
     width: 38px;
     height: 38px;
     border-radius: 8px;
-    background: #376fd5;
+    background: rgba(255,255,255,.15);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -69,7 +79,7 @@ button {
 
 .brand small {
     display: block;
-    color: #b8c5d8;
+    color: #ead6d6;
     font-size: 11px;
     margin-top: 2px;
 }
@@ -80,7 +90,7 @@ button {
 }
 
 .top-button {
-    border: 1px solid rgba(255,255,255,.2);
+    border: 1px solid rgba(255,255,255,.22);
     background: rgba(255,255,255,.08);
     color: white;
     padding: 9px 14px;
@@ -111,17 +121,17 @@ button {
 .page-heading h1 {
     margin: 0;
     font-size: 27px;
-    color: #182b4d;
+    color: var(--maroon);
 }
 
 .page-heading p {
     margin: 7px 0 0;
-    color: #748197;
+    color: var(--muted);
     font-size: 13px;
 }
 
 .primary {
-    background: #376fd5;
+    background: var(--maroon);
     border: none;
     color: white;
     padding: 11px 17px;
@@ -130,7 +140,7 @@ button {
 }
 
 .primary:hover {
-    background: #2e60bd;
+    background: var(--maroon-dark);
 }
 
 /* =========================
@@ -139,7 +149,7 @@ button {
 
 .toolbar {
     background: white;
-    border: 1px solid #e4e9ef;
+    border: 1px solid var(--line);
     border-radius: 10px;
     padding: 15px;
     margin-bottom: 18px;
@@ -165,7 +175,8 @@ button {
 }
 
 .search-box input:focus {
-    border-color: #376fd5;
+    border-color: var(--maroon);
+    box-shadow: 0 0 0 3px rgba(125,0,0,.08);
 }
 
 .search-icon {
@@ -185,12 +196,21 @@ button {
     outline: none;
 }
 
+.filter-select:focus {
+    border-color: var(--maroon);
+}
+
 .filter-button {
     border: 1px solid #dce3eb;
     background: white;
     color: #526174;
     border-radius: 7px;
     padding: 10px 14px;
+}
+
+.filter-button:hover {
+    background: var(--maroon-light);
+    color: var(--maroon);
 }
 
 /* =========================
@@ -206,7 +226,7 @@ button {
 }
 
 .summary strong {
-    color: #25344d;
+    color: var(--maroon);
 }
 
 /* =========================
@@ -215,7 +235,7 @@ button {
 
 .table-card {
     background: white;
-    border: 1px solid #e4e9ef;
+    border: 1px solid var(--line);
     border-radius: 10px;
     overflow: visible;
 }
@@ -231,7 +251,7 @@ table {
 }
 
 thead {
-    background: #f8fafc;
+    background: #faf7f7;
 }
 
 th {
@@ -254,7 +274,7 @@ td {
 }
 
 tbody tr:hover {
-    background: #fafcff;
+    background: #fffafa;
 }
 
 tbody tr:last-child td {
@@ -274,6 +294,10 @@ tbody tr:last-child td {
     font-size: 10px;
     color: #8996a8;
 }
+
+/* =========================
+   STATUS
+========================= */
 
 .status,
 .tag {
@@ -296,8 +320,8 @@ tbody tr:last-child td {
 }
 
 .status.transit {
-    background: #eaf1ff;
-    color: #376fd5;
+    background: var(--maroon-light);
+    color: var(--maroon);
 }
 
 .status.done {
@@ -311,8 +335,8 @@ tbody tr:last-child td {
 }
 
 .tag.action {
-    background: #eef3ff;
-    color: #466dcc;
+    background: var(--maroon-light);
+    color: var(--maroon);
 }
 
 .tag.review {
@@ -346,8 +370,9 @@ tbody tr:last-child td {
 }
 
 .action-button:hover {
-    background: #f1f5fa;
-    border-color: #cbd5e1;
+    background: var(--maroon-light);
+    border-color: #d7baba;
+    color: var(--maroon);
 }
 
 .action-menu {
@@ -355,7 +380,7 @@ tbody tr:last-child td {
     position: absolute;
     right: 12px;
     top: 50px;
-    width: 190px;
+    width: 200px;
     background: white;
     border: 1px solid #dfe5ec;
     border-radius: 9px;
@@ -380,7 +405,8 @@ tbody tr:last-child td {
 }
 
 .action-menu button:hover {
-    background: #f3f6fa;
+    background: var(--maroon-light);
+    color: var(--maroon);
 }
 
 .action-menu .danger {
@@ -394,7 +420,7 @@ tbody tr:last-child td {
 }
 
 /* =========================
-   EMPTY STATE
+   EMPTY
 ========================= */
 
 .empty {
@@ -491,6 +517,11 @@ tbody tr:last-child td {
     border-radius: 7px;
 }
 
+.secondary:hover {
+    background: var(--maroon-light);
+    color: var(--maroon);
+}
+
 .danger-button {
     border: none;
     background: #c0392b;
@@ -512,7 +543,10 @@ tbody tr:last-child td {
 
 .toast {
     background: white;
-    border: 1px solid #e0e6ed;
+    border-left: 4px solid var(--maroon);
+    border-top: 1px solid #e0e6ed;
+    border-right: 1px solid #e0e6ed;
+    border-bottom: 1px solid #e0e6ed;
     box-shadow: 0 12px 35px rgba(20,40,70,.15);
     border-radius: 9px;
     padding: 13px 16px;
@@ -583,190 +617,201 @@ tbody tr:last-child td {
 
 <div class="page">
 
-    <!-- TOP BAR -->
+<header class="topbar">
 
-    <header class="topbar">
+    <div class="brand">
 
-        <div class="brand">
+        <div class="brand-mark">K</div>
 
-            <div class="brand-mark">K</div>
-
-            <div>
-                <strong>KSUCflow</strong>
-                <small>Document Management Portal</small>
-            </div>
-
+        <div>
+            <strong>KSUCflow</strong>
+            <small>Document Management Portal</small>
         </div>
 
-        <div class="top-actions">
+    </div>
 
-            <button class="top-button" onclick="goBack()">
-                ← Dashboard
-            </button>
+    <div class="top-actions">
 
-            <button class="top-button" onclick="location.href='login.html'">
-                Sign out
-            </button>
+        <button class="top-button" onclick="goBack()">
+            ← Dashboard
+        </button>
 
+        <button class="top-button" onclick="signOut()">
+            Sign out
+        </button>
+
+    </div>
+
+</header>
+
+
+<main class="content">
+
+    <div class="page-heading">
+
+        <div>
+            <h1>All Documents</h1>
+
+            <p>
+                Search, track and manage documents moving through the institution.
+            </p>
         </div>
 
-    </header>
+        <button
+            class="primary"
+            onclick="registerDocument()"
+        >
+            + Register Document
+        </button>
+
+    </div>
 
 
-    <!-- CONTENT -->
+    <div class="toolbar">
 
-    <main class="content">
+        <div class="search-box">
 
-        <div class="page-heading">
+            <span class="search-icon">⌕</span>
 
-            <div>
-                <h1>All Documents</h1>
-
-                <p>
-                    Search, track and manage documents moving through the institution.
-                </p>
-            </div>
-
-            <button
-                class="primary"
-                onclick="registerDocument()"
+            <input
+                id="searchInput"
+                type="search"
+                placeholder="Search reference, subject, department..."
             >
-                + Register Document
-            </button>
 
         </div>
 
 
-        <!-- FILTERS -->
+        <select id="statusFilter" class="filter-select">
 
-        <div class="toolbar">
+            <option value="">All statuses</option>
 
-            <div class="search-box">
+            <option value="Awaiting action">
+                Awaiting action
+            </option>
 
-                <span class="search-icon">⌕</span>
+            <option value="Received">
+                Received
+            </option>
 
-                <input
-                    id="searchInput"
-                    type="search"
-                    placeholder="Search reference, subject, department..."
-                >
+            <option value="In transit">
+                In transit
+            </option>
 
-            </div>
+            <option value="Approved">
+                Approved
+            </option>
 
+            <option value="Returned for changes">
+                Returned
+            </option>
 
-            <select
-                id="statusFilter"
-                class="filter-select"
-            >
-                <option value="">All statuses</option>
-                <option value="Awaiting action">Awaiting action</option>
-                <option value="Received">Received</option>
-                <option value="In transit">In transit</option>
-                <option value="Approved">Approved</option>
-                <option value="Returned for changes">Returned</option>
-                <option value="Completed">Completed</option>
-            </select>
+            <option value="Completed">
+                Completed
+            </option>
 
+            <option value="Not approved">
+                Not approved
+            </option>
 
-            <select
-                id="departmentFilter"
-                class="filter-select"
-            >
-                <option value="">All departments</option>
-            </select>
+        </select>
 
 
-            <select
-                id="sortFilter"
-                class="filter-select"
-            >
-                <option value="newest">Newest first</option>
-                <option value="oldest">Oldest first</option>
-                <option value="reference">Reference</option>
-                <option value="subject">Subject</option>
-            </select>
+        <select id="departmentFilter" class="filter-select">
+
+            <option value="">
+                All departments
+            </option>
+
+        </select>
 
 
-            <button
-                class="filter-button"
-                onclick="resetFilters()"
-            >
-                Reset
-            </button>
+        <select id="sortFilter" class="filter-select">
+
+            <option value="newest">
+                Newest first
+            </option>
+
+            <option value="oldest">
+                Oldest first
+            </option>
+
+            <option value="reference">
+                Reference
+            </option>
+
+            <option value="subject">
+                Subject
+            </option>
+
+        </select>
+
+
+        <button
+            class="filter-button"
+            onclick="resetFilters()"
+        >
+            Reset
+        </button>
+
+    </div>
+
+
+    <div class="summary">
+
+        <span>
+            Showing <strong id="showingCount">0</strong>
+        </span>
+
+        <span>
+            Total <strong id="totalCount">0</strong>
+        </span>
+
+        <span>
+            Awaiting action <strong id="pendingCount">0</strong>
+        </span>
+
+    </div>
+
+
+    <div class="table-card">
+
+        <div class="table-wrapper">
+
+            <table>
+
+                <thead>
+
+                    <tr>
+
+                        <th>Document</th>
+                        <th>Origin</th>
+                        <th>Current Department</th>
+                        <th>Action</th>
+                        <th>Status</th>
+                        <th>Last Updated</th>
+                        <th></th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody id="documentTable"></tbody>
+
+            </table>
 
         </div>
 
+    </div>
 
-        <!-- SUMMARY -->
-
-        <div class="summary">
-
-            <span>
-                Showing <strong id="showingCount">0</strong>
-            </span>
-
-            <span>
-                Total <strong id="totalCount">0</strong>
-            </span>
-
-            <span>
-                Awaiting action <strong id="pendingCount">0</strong>
-            </span>
-
-        </div>
-
-
-        <!-- DOCUMENT TABLE -->
-
-        <div class="table-card">
-
-            <div class="table-wrapper">
-
-                <table>
-
-                    <thead>
-
-                        <tr>
-
-                            <th>Document</th>
-
-                            <th>Origin</th>
-
-                            <th>Current Department</th>
-
-                            <th>Action</th>
-
-                            <th>Status</th>
-
-                            <th>Last Updated</th>
-
-                            <th></th>
-
-                        </tr>
-
-                    </thead>
-
-                    <tbody id="documentTable">
-
-                    </tbody>
-
-                </table>
-
-            </div>
-
-        </div>
-
-    </main>
+</main>
 
 </div>
 
 
 <!-- DELETE MODAL -->
 
-<div
-    id="deleteModal"
-    class="modal-backdrop"
->
+<div id="deleteModal" class="modal-backdrop">
 
     <div class="modal">
 
@@ -822,16 +867,13 @@ tbody tr:last-child td {
 
 <!-- VIEW MODAL -->
 
-<div
-    id="viewModal"
-    class="modal-backdrop"
->
+<div id="viewModal" class="modal-backdrop">
 
     <div class="modal">
 
         <div class="modal-header">
 
-            <h2>Document Details</h2>
+            <h2>Quick Document View</h2>
 
             <button
                 class="close"
@@ -842,10 +884,7 @@ tbody tr:last-child td {
 
         </div>
 
-        <div
-            id="viewBody"
-            class="modal-body"
-        ></div>
+        <div id="viewBody" class="modal-body"></div>
 
         <div class="modal-footer">
 
@@ -860,7 +899,7 @@ tbody tr:last-child td {
                 class="primary"
                 onclick="openFullDocument()"
             >
-                Open Document
+                Open Tracking Record
             </button>
 
         </div>
@@ -884,16 +923,9 @@ let documents =
         localStorage.getItem('ksucDocuments') || '[]'
     );
 
-
-/* =====================================================
-   FALLBACK DATA
-   Allows page to work even before documents exist.
-===================================================== */
-
 if (!Array.isArray(documents)) {
     documents = [];
 }
-
 
 let filteredDocuments = [...documents];
 
@@ -915,6 +947,7 @@ function escapeHtml(value) {
             '"':'&quot;',
             "'":'&#039;'
         }[char]));
+
 }
 
 
@@ -924,26 +957,69 @@ function saveDocuments() {
         'ksucDocuments',
         JSON.stringify(documents)
     );
+
+}
+
+
+function getCurrentUser() {
+
+    try {
+
+        return JSON.parse(
+            localStorage.getItem('ksucSession') || 'null'
+        );
+
+    } catch (error) {
+
+        return null;
+
+    }
+
 }
 
 
 function formatDate(document) {
 
-    if (document.createdAt) {
+    const value =
+        document.updatedAt ||
+        document.createdAt;
 
-        return new Date(
-            document.createdAt
-        ).toLocaleDateString(
-            'en-GB',
-            {
-                day:'2-digit',
-                month:'short',
-                year:'numeric'
-            }
-        );
+    if (!value) {
+        return '—';
     }
 
-    return '05 Oct 2026';
+    const date = new Date(value);
+
+    if (Number.isNaN(date.getTime())) {
+        return '—';
+    }
+
+    return date.toLocaleDateString(
+        'en-GB',
+        {
+            day:'2-digit',
+            month:'short',
+            year:'numeric'
+        }
+    );
+
+}
+
+
+function getDocumentDate(document) {
+
+    const value =
+        document.updatedAt ||
+        document.createdAt;
+
+    const date = new Date(value);
+
+    if (Number.isNaN(date.getTime())) {
+        return 0;
+    }
+
+    return date.getTime();
+
 }
 
 
@@ -979,6 +1055,7 @@ function statusClass(status) {
     }
 
     return '';
+
 }
 
 
@@ -1023,23 +1100,33 @@ function renderDocuments() {
                     <td>
 
                         <span class="doc-title">
-                            ${escapeHtml(doc.title || 'Untitled document')}
+                            ${escapeHtml(
+                                doc.title ||
+                                'Untitled document'
+                            )}
                         </span>
 
                         <span class="ref">
-                            ${escapeHtml(doc.ref || 'No reference')}
+                            ${escapeHtml(
+                                doc.ref ||
+                                'No reference'
+                            )}
                         </span>
 
                     </td>
 
 
                     <td>
-                        ${escapeHtml(doc.origin || '—')}
+                        ${escapeHtml(
+                            doc.origin || '—'
+                        )}
                     </td>
 
 
                     <td>
-                        ${escapeHtml(doc.destination || '—')}
+                        ${escapeHtml(
+                            doc.destination || '—'
+                        )}
                     </td>
 
 
@@ -1050,7 +1137,8 @@ function renderDocuments() {
                         }">
 
                             ${escapeHtml(
-                                doc.action || 'For action'
+                                doc.action ||
+                                'For action'
                             )}
 
                         </span>
@@ -1065,7 +1153,8 @@ function renderDocuments() {
                         }">
 
                             ${escapeHtml(
-                                doc.status || 'Registered'
+                                doc.status ||
+                                'Registered'
                             )}
 
                         </span>
@@ -1097,14 +1186,14 @@ function renderDocuments() {
                             <button
                                 onclick="viewDocument(${index})"
                             >
-                                👁 &nbsp; View document
+                                👁 &nbsp; Quick view
                             </button>
 
 
                             <button
                                 onclick="openDocument(${index})"
                             >
-                                📄 &nbsp; View details
+                                📄 &nbsp; Open tracking record
                             </button>
 
 
@@ -1159,6 +1248,7 @@ function renderDocuments() {
                 </tr>
 
             `).join('');
+
     }
 
 
@@ -1173,8 +1263,10 @@ function renderDocuments() {
     document.getElementById('pendingCount')
         .textContent =
         documents.filter(
-            doc => doc.status === 'Awaiting action'
+            doc =>
+                doc.status === 'Awaiting action'
         ).length;
+
 }
 
 
@@ -1197,7 +1289,10 @@ function toggleMenu(event,index) {
             `menu-${index}`
         );
 
-    menu.classList.toggle('open');
+    if (menu) {
+        menu.classList.toggle('open');
+    }
+
 }
 
 
@@ -1253,7 +1348,8 @@ function applyFilters() {
                 doc.origin,
                 doc.destination,
                 doc.action,
-                doc.status
+                doc.status,
+                doc.registeredBy
             ]
             .join(' ')
             .toLowerCase();
@@ -1291,6 +1387,7 @@ function applyFilters() {
                 .localeCompare(
                     String(b.ref || '')
                 );
+
         }
 
 
@@ -1300,57 +1397,27 @@ function applyFilters() {
                 .localeCompare(
                     String(b.title || '')
                 );
+
         }
 
 
         if (sort === 'oldest') {
 
-            return String(a.ref || '')
-                .localeCompare(
-                    String(b.ref || '')
-                );
+            return getDocumentDate(a) -
+                   getDocumentDate(b);
+
         }
 
 
-        return 0;
+        return getDocumentDate(b) -
+               getDocumentDate(a);
 
     });
 
 
     renderDocuments();
+
 }
-
-
-document
-    .getElementById('searchInput')
-    .addEventListener(
-        'input',
-        applyFilters
-    );
-
-
-document
-    .getElementById('statusFilter')
-    .addEventListener(
-        'change',
-        applyFilters
-    );
-
-
-document
-    .getElementById('departmentFilter')
-    .addEventListener(
-        'change',
-        applyFilters
-    );
-
-
-document
-    .getElementById('sortFilter')
-    .addEventListener(
-        'change',
-        applyFilters
-    );
 
 
 /* =====================================================
@@ -1370,7 +1437,12 @@ function loadDepartments() {
             documents
                 .map(doc => doc.destination)
                 .filter(Boolean)
-        )];
+        )]
+        .sort();
+
+
+    select.innerHTML =
+        '<option value="">All departments</option>';
 
 
     departments.forEach(department => {
@@ -1384,6 +1456,7 @@ function loadDepartments() {
         select.appendChild(option);
 
     });
+
 }
 
 
@@ -1410,14 +1483,13 @@ function resetFilters() {
     ).value = 'newest';
 
 
-    filteredDocuments = [...documents];
+    applyFilters();
 
-    renderDocuments();
 }
 
 
 /* =====================================================
-   VIEW DOCUMENT
+   VIEW
 ===================================================== */
 
 function viewDocument(index) {
@@ -1459,6 +1531,17 @@ function viewDocument(index) {
         </p>
 
         ${
+            doc.registeredBy
+            ? `
+                <p>
+                    <strong>Registered by</strong><br>
+                    ${escapeHtml(doc.registeredBy)}
+                </p>
+            `
+            : ''
+        }
+
+        ${
             doc.notes
             ? `
                 <p>
@@ -1475,6 +1558,7 @@ function viewDocument(index) {
     document
         .getElementById('viewModal')
         .classList.add('show');
+
 }
 
 
@@ -1483,6 +1567,7 @@ function closeViewModal() {
     document
         .getElementById('viewModal')
         .classList.remove('show');
+
 }
 
 
@@ -1497,11 +1582,12 @@ function openFullDocument() {
 
     window.location.href =
         'document-view.html';
+
 }
 
 
 /* =====================================================
-   OPEN DOCUMENT DETAILS
+   OPEN RECORD
 ===================================================== */
 
 function openDocument(index) {
@@ -1518,6 +1604,7 @@ function openDocument(index) {
 
     window.location.href =
         'document-view.html';
+
 }
 
 
@@ -1532,9 +1619,14 @@ function routeDocument(index) {
 
     if (!doc) return;
 
-    alert(
-        `Routing workflow for ${doc.ref} will open here.`
+    localStorage.setItem(
+        'ksucSelectedDocument',
+        JSON.stringify(doc)
     );
+
+    window.location.href =
+        'document-view.html#route';
+
 }
 
 
@@ -1556,6 +1648,7 @@ function takeAction(index) {
 
     window.location.href =
         'document-view.html#action';
+
 }
 
 
@@ -1570,9 +1663,14 @@ function viewHistory(index) {
 
     if (!doc) return;
 
-    showToast(
-        `Workflow history for ${doc.ref} will be displayed in the document page.`
+    localStorage.setItem(
+        'ksucSelectedDocument',
+        JSON.stringify(doc)
     );
+
+    window.location.href =
+        'document-view.html#history';
+
 }
 
 
@@ -1590,6 +1688,17 @@ function printDocument(index) {
     const printWindow =
         window.open('', '_blank');
 
+    if (!printWindow) {
+
+        showToast(
+            'Please allow pop-ups to print the document.'
+        );
+
+        return;
+
+    }
+
+
     printWindow.document.write(`
 
         <html>
@@ -1597,18 +1706,19 @@ function printDocument(index) {
         <head>
 
             <title>
-                ${escapeHtml(doc.ref)}
+                ${escapeHtml(doc.ref || 'KSUCflow')}
             </title>
 
             <style>
 
                 body {
-                    font-family: Arial;
+                    font-family: Arial, sans-serif;
                     padding: 40px;
                     color: #222;
                 }
 
                 h1 {
+                    color: #7D0000;
                     margin-bottom: 5px;
                 }
 
@@ -1617,8 +1727,8 @@ function printDocument(index) {
                 }
 
                 strong {
-                    display:block;
-                    margin-bottom:5px;
+                    display: block;
+                    margin-bottom: 5px;
                 }
 
             </style>
@@ -1632,7 +1742,7 @@ function printDocument(index) {
             </h1>
 
             <p>
-                ${escapeHtml(doc.ref)}
+                ${escapeHtml(doc.ref || '—')}
             </p>
 
             <hr>
@@ -1665,7 +1775,10 @@ function printDocument(index) {
 
     printWindow.document.close();
 
+    printWindow.focus();
+
     printWindow.print();
+
 }
 
 
@@ -1691,6 +1804,7 @@ function deleteDocument(index) {
     document
         .getElementById('deleteModal')
         .classList.add('show');
+
 }
 
 
@@ -1701,6 +1815,7 @@ function closeDeleteModal() {
         .classList.remove('show');
 
     documentToDelete = null;
+
 }
 
 
@@ -1727,6 +1842,7 @@ function confirmDelete() {
         closeDeleteModal();
 
         return;
+
     }
 
 
@@ -1734,11 +1850,14 @@ function confirmDelete() {
 
     saveDocuments();
 
+
     filteredDocuments =
         [...documents];
 
 
     closeDeleteModal();
+
+    loadDepartments();
 
     applyFilters();
 
@@ -1746,6 +1865,7 @@ function confirmDelete() {
     showToast(
         `Document ${ref} deleted successfully.`
     );
+
 }
 
 
@@ -1757,6 +1877,7 @@ function registerDocument() {
 
     window.location.href =
         'index.html#register';
+
 }
 
 
@@ -1768,6 +1889,32 @@ function goBack() {
 
     window.location.href =
         'index.html';
+
+}
+
+
+/* =====================================================
+   SIGN OUT
+===================================================== */
+
+function signOut() {
+
+    const confirmed =
+        confirm(
+            'Are you sure you want to sign out?'
+        );
+
+    if (!confirmed) {
+        return;
+    }
+
+    localStorage.removeItem(
+        'ksucSession'
+    );
+
+    window.location.href =
+        'login.html';
+
 }
 
 
@@ -1798,6 +1945,7 @@ function showToast(message) {
         toast.remove();
 
     },3000);
+
 }
 
 
@@ -1805,9 +1953,41 @@ function showToast(message) {
    INITIALIZE
 ===================================================== */
 
+document
+    .getElementById('searchInput')
+    .addEventListener(
+        'input',
+        applyFilters
+    );
+
+
+document
+    .getElementById('statusFilter')
+    .addEventListener(
+        'change',
+        applyFilters
+    );
+
+
+document
+    .getElementById('departmentFilter')
+    .addEventListener(
+        'change',
+        applyFilters
+    );
+
+
+document
+    .getElementById('sortFilter')
+    .addEventListener(
+        'change',
+        applyFilters
+    );
+
+
 loadDepartments();
 
-renderDocuments();
+applyFilters();
 
 </script>
 
