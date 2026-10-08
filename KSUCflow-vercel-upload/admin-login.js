@@ -82,15 +82,19 @@ adminLoginForm.addEventListener('submit', function (event) {
    * Save authenticated session
    */
 
-  localStorage.setItem(
-    'ksucSession',
-    JSON.stringify({
-      id: user.id,
-      name: user.name,
-      role: user.role,
-      department: user.department
-    })
-  );
+const session = {
+  id: user.id,
+  name: user.name,
+  role: user.role,
+  department: user.department
+};
+
+localStorage.setItem(
+  'ksucSession',
+  JSON.stringify(session)
+);
+
+window.location.replace('admin.html');
 
 
   /*
