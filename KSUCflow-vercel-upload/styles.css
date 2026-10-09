@@ -1126,3 +1126,143 @@ dialog::backdrop {
     max-height: calc(100vh - 18px);
   }
 }
+
+/* =========================================
+   KSUCFLOW — KSUC BRAND COLOUR OVERRIDE
+   Primary: #7D0000
+========================================= */
+
+:root {
+  --primary: #7D0000;
+  --primary-color: #7D0000;
+  --primary-dark: #570000;
+  --primary-light: #F5E8E8;
+  --accent: #7D0000;
+  --secondary: #7D0000;
+  --brand-maroon: #7D0000;
+  --brand-light: #F5E8E8;
+  --brand-dark: #570000;
+}
+
+/* Buttons and primary actions */
+button,
+.btn,
+.btn-primary,
+button.primary,
+input[type="submit"],
+input[type="button"],
+.button-primary {
+  accent-color: #7D0000;
+}
+
+.btn-primary,
+button.primary,
+.button-primary,
+input[type="submit"],
+#openModal,
+#quickRegisterBtn,
+#saveSettingsBtn {
+  background-color: #7D0000;
+  border-color: #7D0000;
+  color: #FFFFFF;
+}
+
+.btn-primary:hover,
+button.primary:hover,
+.button-primary:hover,
+input[type="submit"]:hover,
+#openModal:hover,
+#quickRegisterBtn:hover,
+#saveSettingsBtn:hover {
+  background-color: #570000;
+  border-color: #570000;
+  color: #FFFFFF;
+}
+
+/* Navigation and active menu items */
+.sidebar .active,
+.sidebar a.active,
+.sidebar button.active,
+.nav-link.active,
+.menu-item.active,
+.active-nav {
+  color: #FFFFFF;
+  background-color: #7D0000;
+}
+
+/* Links, icons and interactive accents */
+a {
+  accent-color: #7D0000;
+}
+
+a:not(.btn):not(.btn-primary):hover {
+  color: #7D0000;
+}
+
+.text-primary,
+.primary-text,
+.link-primary {
+  color: #7D0000;
+}
+
+/* Form controls and focus rings */
+input:focus,
+select:focus,
+textarea:focus,
+button:focus-visible,
+a:focus-visible {
+  outline-color: #7D0000;
+  --tw-ring-color: #7D0000;
+  border-color: #7D0000;
+}
+
+/* Checkboxes, radios and sliders */
+input[type="checkbox"],
+input[type="radio"],
+input[type="range"] {
+  accent-color: #7D0000;
+}
+
+/* Dashboard icons and statistic accents */
+.stat-icon,
+.card-icon,
+.quick-action-icon,
+.icon-primary {
+  color: #7D0000;
+}
+
+/* Keep completed statuses green and warnings amber.
+   Only remove blue from the theme, not meaningful statuses. */
+#recentDocuments .status-received {
+  background: #F5E8E8;
+  color: #7D0000;
+  border-color: #E8CDCD;
+}
+
+/* Notification badges */
+#notificationCount,
+#notificationBadge,
+.notification-count,
+.notification-badge {
+  background-color: #7D0000;
+  color: #FFFFFF;
+}
+
+/* Selected tabs and highlighted controls */
+.tab.active,
+.nav-tabs .active,
+[aria-selected="true"] {
+  color: #7D0000;
+  border-color: #7D0000;
+}
+
+/* Selection highlight */
+::selection {
+  background: #7D0000;
+  color: #FFFFFF;
+}
+
+/* Maroon scrollbars where supported */
+* {
+  scrollbar-color: #7D0000 #F3EEEE;
+}
