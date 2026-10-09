@@ -1,4 +1,8 @@
-const DEFAULTS = { title: 'KSUCflow', institution: 'KENYA SCIENCE UNIVERSITY COLLEGE', primary: '#376fd5' };
+const DEFAULTS = {
+  title: 'KSUCflow',
+  institution: 'KOITALEEL SAMOEI UNIVERSITY COLLEGE',
+  primary: '#7D0000'
+};
 const STARTER_USERS = [{id:1,name:'Newton Mwangi',email:'newton.mwangi@ksuc.ac.ke',department:'Registry',role:'Administrator',active:true,password:'ChangeMe123!'},{id:2,name:'James Kariuki',email:'james.kariuki@ksuc.ac.ke',department:'Finance',role:'Department Head',active:true,password:'ChangeMe123!'},{id:3,name:'Sarah Mwangi',email:'sarah.mwangi@ksuc.ac.ke',department:'Human Resources',role:'Staff',active:true,password:'ChangeMe123!'}];
 const byId = id => document.getElementById(id);
 const encode = value => String(value).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
