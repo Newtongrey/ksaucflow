@@ -1,81 +1,47 @@
-(function () {
+/* KSUCflow Supabase-backed session guard.
+   This is a client-side convenience gate; database RLS remains the actual data-access boundary. */
+(async function () {
+  const path = window.location.pathname.toLowerCase();
+  const isAdminPage = path.endsWith('admin.html');
+  const loginTarget = isAdminPage ? 'admin-login.html' : 'login.html';
 
-  let currentSession = null;
+  document.documentElement.style.visibility = 'hidden';
+
+  function redirect(target) {
+    window.location.replace(target);
+  }
 
   try {
+    if (!window.ksucSupabase || !window.ksucLoadProfile) {
+      throw new Error('KSUCflow authentication service is unavailable.');
+    }
 
-    currentSession = JSON.parse(
-      localStorage.getItem('ksucSession') || 'null'
-    );
+    const { data: sessionData, error: sessionError } = await window.ksucSupabase.auth.getSession();
+    if (sessionError) throw sessionError;
+    const authUser = sessionData.session && sessionData.session.user;
 
+    if (!authUser) {
+      localStorage.removeItem('ksucSession');
+      redirect(loginTarget);
+      return;
+    }
+
+    const profile = await window.ksucLoadProfile(authUser);
+    if (isAdminPage && profile.role !== 'Administrator') {
+      redirect('index.html');
+      return;
+    }
+    if (!isAdminPage && profile.role === 'Administrator') {
+      redirect('admin.html');
+      return;
+    }
+
+    localStorage.setItem('ksucSession', JSON.stringify(profile));
+    document.documentElement.style.visibility = 'visible';
   } catch (error) {
-
-    currentSession = null;
-
+    console.error('KSUCflow session verification failed:', error);
+    localStorage.removeItem('ksucSession');
+    try { await window.ksucSupabase?.auth.signOut(); } catch (_) {}
+    redirect(loginTarget);
   }
-
-
-  const path =
-    window.location.pathname.toLowerCase();
-
-
-  const isAdminPage =
-    path.endsWith('admin.html');
-
-
-  /*
-   * ADMIN PAGE
-   */
-
-  if (isAdminPage) {
-
-    /*
-     * No session → administrator login
-     */
-
-    if (!currentSession) {
-
-      window.location.replace('admin-login.html');
-
-      return;
-
-    }
-
-
-    /*
-     * Session exists but user is not
-     * an administrator.
-     */
-
-    if (currentSession.role !== 'Administrator') {
-
-      window.location.replace('index.html');
-
-      return;
-
-    }
-
-
-    /*
-     * Administrator is authenticated.
-     * Stay on admin.html.
-     */
-
-    return;
-
-  }
-
-
-  /*
-   * OTHER PROTECTED PAGES
-   */
-
-  if (!currentSession) {
-
-    window.location.replace('login.html');
-
-    return;
-
-  }
-
 })();
