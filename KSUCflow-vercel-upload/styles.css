@@ -1266,3 +1266,99 @@ input[type="range"] {
 * {
   scrollbar-color: #7D0000 #F3EEEE;
 }
+
+/* =========================================
+   KSUCflow — SIDEBAR & DASHBOARD HEADER
+   Official maroon: #7D0000
+========================================= */
+
+/* Main sidebar */
+.sidebar,
+aside.sidebar,
+#sidebar,
+.main-sidebar {
+  background: #7D0000 !important;
+  border-color: #7D0000 !important;
+  color: #FFFFFF !important;
+}
+
+/* Sidebar text, links and icons */
+.sidebar a,
+.sidebar button,
+.sidebar span,
+.sidebar p,
+.sidebar .nav-link,
+.sidebar .menu-item,
+#sidebar a,
+#sidebar button,
+.main-sidebar a {
+  color: #FFFFFF !important;
+}
+
+/* Sidebar hover and selected navigation */
+.sidebar a:hover,
+.sidebar button:hover,
+.sidebar .active,
+.sidebar a.active,
+.sidebar .nav-link.active,
+.sidebar .menu-item.active,
+#sidebar a:hover,
+#sidebar .active,
+.main-sidebar .active {
+  background: #570000 !important;
+  color: #FFFFFF !important;
+}
+
+/* Dashboard top bar / page heading */
+.topbar,
+.top-bar,
+.top-bar-container,
+.dashboard-header,
+.page-header,
+.main-header,
+.content-header,
+.header-bar,
+#topbar,
+#topBar,
+#dashboardHeader {
+  background: #7D0000 !important;
+  border-color: #7D0000 !important;
+  color: #FFFFFF !important;
+}
+
+/* Dashboard heading text */
+.topbar h1,
+.topbar h2,
+.top-bar h1,
+.top-bar h2,
+.dashboard-header h1,
+.dashboard-header h2,
+.page-header h1,
+.page-header h2,
+.main-header h1,
+.content-header h1,
+.header-bar h1 {
+  color: #FFFFFF !important;
+}
+
+/* Header icons and labels */
+.topbar > *,
+.top-bar > *,
+.dashboard-header > *,
+.page-header > *,
+.header-bar > * {
+  color: #FFFFFF !important;
+}
+
+/* Keep the header controls readable */
+.topbar button,
+.top-bar button,
+.dashboard-header button,
+.page-header button {
+  color: #FFFFFF !important;
+}
+
+/* Maroon scrollbar */
+* {
+  scrollbar-color: #7D0000 #F5E8E8;
+}
