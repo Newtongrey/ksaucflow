@@ -1,1999 +1,515 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <title>All Documents | KSUCflow</title>
 
 <style>
-* {
-    box-sizing: border-box;
-}
-
-:root {
-    --maroon: #7D0000;
-    --maroon-dark: #5D0000;
-    --maroon-light: #F8EEEE;
-    --ink: #26364e;
-    --muted: #748197;
-    --line: #e4e9ef;
-    --canvas: #f5f7fa;
-}
-
-body {
-    margin: 0;
-    font-family: Inter, Arial, sans-serif;
-    background: var(--canvas);
-    color: var(--ink);
-}
-
-button,
-input,
-select {
-    font: inherit;
-}
-
-button {
-    cursor: pointer;
-}
-
-/* =========================
-   TOP BAR
-========================= */
-
-.page {
-    min-height: 100vh;
-}
-
-.topbar {
-    height: 70px;
-    background: var(--maroon);
-    color: white;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0 32px;
-}
-
-.brand {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-}
-
-.brand-mark {
-    width: 38px;
-    height: 38px;
-    border-radius: 8px;
-    background: rgba(255,255,255,.15);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 800;
-}
-
-.brand strong {
-    font-size: 17px;
-}
-
-.brand small {
-    display: block;
-    color: #ead6d6;
-    font-size: 11px;
-    margin-top: 2px;
-}
-
-.top-actions {
-    display: flex;
-    gap: 10px;
-}
-
-.top-button {
-    border: 1px solid rgba(255,255,255,.22);
-    background: rgba(255,255,255,.08);
-    color: white;
-    padding: 9px 14px;
-    border-radius: 7px;
-}
-
-.top-button:hover {
-    background: rgba(255,255,255,.16);
-}
-
-/* =========================
-   CONTENT
-========================= */
-
-.content {
-    max-width: 1500px;
-    margin: auto;
-    padding: 32px;
-}
-
-.page-heading {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    margin-bottom: 25px;
-}
-
-.page-heading h1 {
-    margin: 0;
-    font-size: 27px;
-    color: var(--maroon);
-}
-
-.page-heading p {
-    margin: 7px 0 0;
-    color: var(--muted);
-    font-size: 13px;
-}
-
-.primary {
-    background: var(--maroon);
-    border: none;
-    color: white;
-    padding: 11px 17px;
-    border-radius: 7px;
-    font-weight: 600;
-}
-
-.primary:hover {
-    background: var(--maroon-dark);
-}
-
-/* =========================
-   FILTER BAR
-========================= */
-
-.toolbar {
-    background: white;
-    border: 1px solid var(--line);
-    border-radius: 10px;
-    padding: 15px;
-    margin-bottom: 18px;
-
-    display: flex;
-    gap: 10px;
-    align-items: center;
-    flex-wrap: wrap;
-}
-
-.search-box {
-    position: relative;
-    flex: 1;
-    min-width: 250px;
-}
-
-.search-box input {
-    width: 100%;
-    border: 1px solid #dce3eb;
-    border-radius: 7px;
-    padding: 11px 13px 11px 38px;
-    outline: none;
-}
-
-.search-box input:focus {
-    border-color: var(--maroon);
-    box-shadow: 0 0 0 3px rgba(125,0,0,.08);
-}
-
-.search-icon {
-    position: absolute;
-    left: 13px;
-    top: 10px;
-    color: #8996a8;
-}
-
-.filter-select {
-    border: 1px solid #dce3eb;
-    background: white;
-    border-radius: 7px;
-    padding: 10px 12px;
-    color: #526174;
-    min-width: 145px;
-    outline: none;
-}
-
-.filter-select:focus {
-    border-color: var(--maroon);
-}
-
-.filter-button {
-    border: 1px solid #dce3eb;
-    background: white;
-    color: #526174;
-    border-radius: 7px;
-    padding: 10px 14px;
-}
-
-.filter-button:hover {
-    background: var(--maroon-light);
-    color: var(--maroon);
-}
-
-/* =========================
-   SUMMARY
-========================= */
-
-.summary {
-    display: flex;
-    gap: 25px;
-    padding: 0 3px 16px;
-    color: #718096;
-    font-size: 12px;
-}
-
-.summary strong {
-    color: var(--maroon);
-}
-
-/* =========================
-   TABLE
-========================= */
-
-.table-card {
-    background: white;
-    border: 1px solid var(--line);
-    border-radius: 10px;
-    overflow: visible;
-}
-
-.table-wrapper {
-    overflow-x: auto;
-}
-
-table {
-    width: 100%;
-    border-collapse: collapse;
-    min-width: 1050px;
-}
-
-thead {
-    background: #faf7f7;
-}
-
-th {
-    text-align: left;
-    padding: 14px 16px;
-    color: #69778b;
-    font-size: 10px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: .04em;
-    border-bottom: 1px solid #e6ebf0;
-}
-
-td {
-    padding: 16px;
-    border-bottom: 1px solid #edf0f4;
-    font-size: 12px;
-    color: #526174;
-    vertical-align: middle;
-}
-
-tbody tr:hover {
-    background: #fffafa;
-}
-
-tbody tr:last-child td {
-    border-bottom: none;
-}
-
-.doc-title {
-    display: block;
-    color: #26364e;
-    font-weight: 600;
-    margin-bottom: 5px;
-    max-width: 330px;
-}
-
-.ref {
-    display: block;
-    font-size: 10px;
-    color: #8996a8;
-}
-
-/* =========================
-   STATUS
-========================= */
-
-.status,
-.tag {
-    display: inline-block;
-    padding: 5px 8px;
-    border-radius: 20px;
-    font-size: 10px;
-    font-weight: 600;
-    white-space: nowrap;
-}
-
-.status {
-    background: #eef3f8;
-    color: #637186;
-}
-
-.status.pending {
-    background: #fff4df;
-    color: #a36c09;
-}
-
-.status.transit {
-    background: var(--maroon-light);
-    color: var(--maroon);
-}
-
-.status.done {
-    background: #e8f6ef;
-    color: #287a55;
-}
-
-.status.returned {
-    background: #fff0f0;
-    color: #b13c3c;
-}
-
-.tag.action {
-    background: var(--maroon-light);
-    color: var(--maroon);
-}
-
-.tag.review {
-    background: #f2ecff;
-    color: #7654b6;
-}
-
-.tag.info {
-    background: #eaf7f4;
-    color: #3c8274;
-}
-
-/* =========================
-   ACTION MENU
-========================= */
-
-.action-cell {
-    position: relative;
-    width: 60px;
-}
-
-.action-button {
-    width: 34px;
-    height: 34px;
-    border: 1px solid #dce3eb;
-    background: white;
-    border-radius: 7px;
-    color: #59687b;
-    font-size: 18px;
-    line-height: 1;
-}
-
-.action-button:hover {
-    background: var(--maroon-light);
-    border-color: #d7baba;
-    color: var(--maroon);
-}
-
-.action-menu {
-    display: none;
-    position: absolute;
-    right: 12px;
-    top: 50px;
-    width: 200px;
-    background: white;
-    border: 1px solid #dfe5ec;
-    border-radius: 9px;
-    box-shadow: 0 12px 35px rgba(20,40,70,.16);
-    z-index: 100;
-    padding: 6px;
-}
-
-.action-menu.open {
-    display: block;
-}
-
-.action-menu button {
-    width: 100%;
-    border: none;
-    background: transparent;
-    text-align: left;
-    padding: 9px 10px;
-    border-radius: 6px;
-    color: #435268;
-    font-size: 12px;
-}
-
-.action-menu button:hover {
-    background: var(--maroon-light);
-    color: var(--maroon);
-}
-
-.action-menu .danger {
-    color: #c0392b;
-}
-
-.menu-divider {
-    height: 1px;
-    background: #edf0f4;
-    margin: 5px 0;
-}
-
-/* =========================
-   EMPTY
-========================= */
-
-.empty {
-    text-align: center;
-    padding: 70px 20px;
-    color: #7c899a;
-}
-
-.empty-icon {
-    font-size: 38px;
-    margin-bottom: 10px;
-}
-
-.empty h3 {
-    color: #35445a;
-    margin: 0 0 6px;
-}
-
-.empty p {
-    margin: 0;
-    font-size: 12px;
-}
-
-/* =========================
-   MODAL
-========================= */
-
-.modal-backdrop {
-    display: none;
-    position: fixed;
-    inset: 0;
-    background: rgba(18,31,51,.45);
-    z-index: 1000;
-    align-items: center;
-    justify-content: center;
-    padding: 20px;
-}
-
-.modal-backdrop.show {
-    display: flex;
-}
-
-.modal {
-    background: white;
-    width: min(500px,100%);
-    border-radius: 12px;
-    box-shadow: 0 25px 70px rgba(0,0,0,.2);
-    overflow: hidden;
-}
-
-.modal-header {
-    padding: 20px;
-    border-bottom: 1px solid #e9edf2;
-    display: flex;
-    justify-content: space-between;
-}
-
-.modal-header h2 {
-    margin: 0;
-    font-size: 17px;
-    color: #26364e;
-}
-
-.close {
-    border: none;
-    background: transparent;
-    font-size: 22px;
-    color: #8490a0;
-}
-
-.modal-body {
-    padding: 20px;
-}
-
-.modal-body p {
-    color: #68768a;
-    font-size: 13px;
-    line-height: 1.6;
-}
-
-.modal-footer {
-    padding: 15px 20px;
-    background: #fafbfd;
-    display: flex;
-    justify-content: flex-end;
-    gap: 8px;
-}
-
-.secondary {
-    border: 1px solid #dce3eb;
-    background: white;
-    color: #526174;
-    padding: 9px 14px;
-    border-radius: 7px;
-}
-
-.secondary:hover {
-    background: var(--maroon-light);
-    color: var(--maroon);
-}
-
-.danger-button {
-    border: none;
-    background: #c0392b;
-    color: white;
-    padding: 9px 14px;
-    border-radius: 7px;
-}
-
-/* =========================
-   TOAST
-========================= */
-
-#toastContainer {
-    position: fixed;
-    right: 22px;
-    top: 22px;
-    z-index: 3000;
-}
-
-.toast {
-    background: white;
-    border-left: 4px solid var(--maroon);
-    border-top: 1px solid #e0e6ed;
-    border-right: 1px solid #e0e6ed;
-    border-bottom: 1px solid #e0e6ed;
-    box-shadow: 0 12px 35px rgba(20,40,70,.15);
-    border-radius: 9px;
-    padding: 13px 16px;
-    min-width: 280px;
-    margin-bottom: 10px;
-    font-size: 12px;
-    animation: toastIn .2s ease;
-}
-
-@keyframes toastIn {
-    from {
-        opacity: 0;
-        transform: translateY(-8px);
-    }
-
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-/* =========================
-   MOBILE
-========================= */
-
-@media(max-width:700px) {
-
-    .topbar {
-        padding: 0 15px;
-    }
-
-    .top-actions {
-        display: none;
-    }
-
-    .content {
-        padding: 20px 12px;
-    }
-
-    .page-heading {
-        display: block;
-    }
-
-    .page-heading .primary {
-        margin-top: 15px;
-    }
-
-    .toolbar {
-        display: block;
-    }
-
-    .search-box,
-    .filter-select,
-    .filter-button {
-        width: 100%;
-        margin-bottom: 8px;
-    }
-
-    .summary {
-        flex-wrap: wrap;
-        gap: 12px;
-    }
+*{box-sizing:border-box}
+:root{
+--maroon:#7D0000;--maroon-dark:#5D0000;--maroon-light:#F8EEEE;
+--ink:#26364e;--muted:#748197;--line:#e4e9ef;--canvas:#f5f7fa
+}
+body{margin:0;font-family:Inter,Arial,sans-serif;background:var(--canvas);color:var(--ink)}
+button,input,select{font:inherit}
+button{cursor:pointer}
+.page{min-height:100vh}
+.topbar{min-height:70px;background:var(--maroon);color:white;display:flex;align-items:center;justify-content:space-between;padding:12px 32px;gap:15px}
+.brand{display:flex;align-items:center;gap:12px}
+.brand-mark{width:38px;height:38px;border-radius:8px;background:rgba(255,255,255,.15);display:flex;align-items:center;justify-content:center;font-weight:800}
+.brand strong{font-size:17px}
+.brand small{display:block;color:#ead6d6;font-size:11px;margin-top:2px}
+.top-actions{display:flex;gap:10px}
+.top-button{border:1px solid rgba(255,255,255,.22);background:rgba(255,255,255,.08);color:white;padding:9px 14px;border-radius:7px}
+.top-button:hover{background:rgba(255,255,255,.16)}
+.content{max-width:1500px;margin:auto;padding:32px}
+.page-heading{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:25px;gap:15px}
+.page-heading h1{margin:0;font-size:27px;color:var(--maroon)}
+.page-heading p{margin:7px 0 0;color:var(--muted);font-size:13px}
+.primary{background:var(--maroon);border:none;color:white;padding:11px 17px;border-radius:7px;font-weight:600}
+.primary:hover{background:var(--maroon-dark)}
+.toolbar{background:white;border:1px solid var(--line);border-radius:10px;padding:15px;margin-bottom:18px;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.search-box{position:relative;flex:1;min-width:250px}
+.search-box input{width:100%;border:1px solid #dce3eb;border-radius:7px;padding:11px 13px 11px 38px;outline:none}
+.search-box input:focus{border-color:var(--maroon);box-shadow:0 0 0 3px rgba(125,0,0,.08)}
+.search-icon{position:absolute;left:13px;top:10px;color:#8996a8}
+.filter-select{border:1px solid #dce3eb;background:white;border-radius:7px;padding:10px 12px;color:#526174;min-width:145px;outline:none}
+.filter-select:focus{border-color:var(--maroon)}
+.filter-button{border:1px solid #dce3eb;background:white;color:#526174;border-radius:7px;padding:10px 14px}
+.filter-button:hover{background:var(--maroon-light);color:var(--maroon)}
+.summary{display:flex;gap:25px;padding:0 3px 16px;color:#718096;font-size:12px;flex-wrap:wrap}
+.summary strong{color:var(--maroon)}
+.table-card{background:white;border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.table-wrapper{overflow-x:auto}
+table{width:100%;border-collapse:collapse;min-width:1050px}
+thead{background:#faf7f7}
+th{text-align:left;padding:14px 16px;color:#69778b;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;border-bottom:1px solid #e6ebf0}
+td{padding:16px;border-bottom:1px solid #edf0f4;font-size:12px;color:#526174;vertical-align:middle}
+tbody tr:hover{background:#fffafa}
+tbody tr:last-child td{border-bottom:none}
+.doc-title{display:block;color:#26364e;font-weight:600;margin-bottom:5px;max-width:330px}
+.ref{display:block;font-size:10px;color:#8996a8}
+.status,.tag{display:inline-block;padding:5px 8px;border-radius:20px;font-size:10px;font-weight:600;white-space:nowrap}
+.status{background:#eef3f8;color:#637186}
+.status.pending{background:#fff4df;color:#a36c09}
+.status.transit{background:var(--maroon-light);color:var(--maroon)}
+.status.done{background:#e8f6ef;color:#287a55}
+.status.returned{background:#fff0f0;color:#b13c3c}
+.tag.action{background:var(--maroon-light);color:var(--maroon)}
+.tag.review{background:#f2ecff;color:#7654b6}
+.tag.info{background:#eaf7f4;color:#3c8274}
+.action-cell{position:relative;width:60px}
+.action-button{width:34px;height:34px;border:1px solid #dce3eb;background:white;border-radius:7px;color:#59687b;font-size:18px}
+.action-button:hover{background:var(--maroon-light);border-color:#d7baba;color:var(--maroon)}
+.action-menu{display:none;position:absolute;right:12px;top:50px;width:200px;background:white;border:1px solid #dfe5ec;border-radius:9px;box-shadow:0 12px 35px rgba(20,40,70,.16);z-index:100;padding:6px}
+.action-menu.open{display:block}
+.action-menu button{width:100%;border:none;background:transparent;text-align:left;padding:9px 10px;border-radius:6px;color:#435268;font-size:12px}
+.action-menu button:hover{background:var(--maroon-light);color:var(--maroon)}
+.action-menu .danger{color:#c0392b}
+.menu-divider{height:1px;background:#edf0f4;margin:5px 0}
+.empty{text-align:center;padding:70px 20px;color:#7c899a}
+.empty-icon{font-size:38px;margin-bottom:10px}
+.empty h3{color:#35445a;margin:0 0 6px}
+.empty p{margin:0;font-size:12px}
+.modal-backdrop{display:none;position:fixed;inset:0;background:rgba(18,31,51,.45);z-index:1000;align-items:center;justify-content:center;padding:20px}
+.modal-backdrop.show{display:flex}
+.modal{background:white;width:min(500px,100%);border-radius:12px;box-shadow:0 25px 70px rgba(0,0,0,.2);overflow:hidden}
+.modal-header{padding:20px;border-bottom:1px solid #e9edf2;display:flex;justify-content:space-between;align-items:center}
+.modal-header h2{margin:0;font-size:17px;color:#26364e}
+.close{border:none;background:transparent;font-size:22px;color:#8490a0}
+.modal-body{padding:20px}
+.modal-body p{color:#68768a;font-size:13px;line-height:1.6}
+.modal-footer{padding:15px 20px;background:#fafbfd;display:flex;justify-content:flex-end;gap:8px}
+.secondary{border:1px solid #dce3eb;background:white;color:#526174;padding:9px 14px;border-radius:7px}
+.secondary:hover{background:var(--maroon-light);color:var(--maroon)}
+.danger-button{border:none;background:#c0392b;color:white;padding:9px 14px;border-radius:7px}
+#toastContainer{position:fixed;right:22px;top:22px;z-index:3000}
+.toast{background:white;border-left:4px solid var(--maroon);border-top:1px solid #e0e6ed;border-right:1px solid #e0e6ed;border-bottom:1px solid #e0e6ed;box-shadow:0 12px 35px rgba(20,40,70,.15);border-radius:9px;padding:13px 16px;min-width:280px;margin-bottom:10px;font-size:12px}
+@media(max-width:700px){
+.topbar{padding:12px 15px}.top-actions{display:flex;flex-wrap:wrap}.top-button{padding:8px;font-size:12px}
+.content{padding:20px 12px}.page-heading{display:block}.page-heading .primary{margin-top:15px}
+.toolbar{display:block}.search-box,.filter-select,.filter-button{width:100%;margin-bottom:8px;min-width:0}
+.summary{gap:12px}
 }
 </style>
 </head>
 
 <body>
-
 <div class="page">
-
 <header class="topbar">
-
-    <div class="brand">
-
-        <div class="brand-mark">K</div>
-
-        <div>
-            <strong>KSUCflow</strong>
-            <small>Document Management Portal</small>
-        </div>
-
-    </div>
-
-    <div class="top-actions">
-
-        <button class="top-button" onclick="goBack()">
-            ← Dashboard
-        </button>
-
-        <button class="top-button" onclick="signOut()">
-            Sign out
-        </button>
-
-    </div>
-
+  <div class="brand">
+    <div class="brand-mark">K</div>
+    <div><strong>KSUCflow</strong><small>Document Management Portal</small></div>
+  </div>
+  <div class="top-actions">
+    <button class="top-button" onclick="goBack()">← Dashboard</button>
+    <button class="top-button" onclick="signOut()">Sign out</button>
+  </div>
 </header>
 
-
 <main class="content">
-
-    <div class="page-heading">
-
-        <div>
-            <h1>All Documents</h1>
-
-            <p>
-                Search, track and manage documents moving through the institution.
-            </p>
-        </div>
-
-        <button
-            class="primary"
-            onclick="registerDocument()"
-        >
-            + Register Document
-        </button>
-
+  <div class="page-heading">
+    <div>
+      <h1>All Documents</h1>
+      <p>Search, track and manage documents moving through the institution.</p>
     </div>
+    <button class="primary" onclick="registerDocument()">+ Register Document</button>
+  </div>
 
-
-    <div class="toolbar">
-
-        <div class="search-box">
-
-            <span class="search-icon">⌕</span>
-
-            <input
-                id="searchInput"
-                type="search"
-                placeholder="Search reference, subject, department..."
-            >
-
-        </div>
-
-
-        <select id="statusFilter" class="filter-select">
-
-            <option value="">All statuses</option>
-
-            <option value="Awaiting action">
-                Awaiting action
-            </option>
-
-            <option value="Received">
-                Received
-            </option>
-
-            <option value="In transit">
-                In transit
-            </option>
-
-            <option value="Approved">
-                Approved
-            </option>
-
-            <option value="Returned for changes">
-                Returned
-            </option>
-
-            <option value="Completed">
-                Completed
-            </option>
-
-            <option value="Not approved">
-                Not approved
-            </option>
-
-        </select>
-
-
-        <select id="departmentFilter" class="filter-select">
-
-            <option value="">
-                All departments
-            </option>
-
-        </select>
-
-
-        <select id="sortFilter" class="filter-select">
-
-            <option value="newest">
-                Newest first
-            </option>
-
-            <option value="oldest">
-                Oldest first
-            </option>
-
-            <option value="reference">
-                Reference
-            </option>
-
-            <option value="subject">
-                Subject
-            </option>
-
-        </select>
-
-
-        <button
-            class="filter-button"
-            onclick="resetFilters()"
-        >
-            Reset
-        </button>
-
+  <div class="toolbar">
+    <div class="search-box">
+      <span class="search-icon">⌕</span>
+      <input id="searchInput" type="search" placeholder="Search reference, subject, department...">
     </div>
+    <select id="statusFilter" class="filter-select">
+      <option value="">All statuses</option>
+      <option value="Awaiting action">Awaiting action</option>
+      <option value="Received">Received</option>
+      <option value="In transit">In transit</option>
+      <option value="Approved">Approved</option>
+      <option value="Returned for changes">Returned</option>
+      <option value="Completed">Completed</option>
+      <option value="Not approved">Not approved</option>
+    </select>
+    <select id="departmentFilter" class="filter-select">
+      <option value="">All departments</option>
+    </select>
+    <select id="sortFilter" class="filter-select">
+      <option value="newest">Newest first</option>
+      <option value="oldest">Oldest first</option>
+      <option value="reference">Reference</option>
+      <option value="subject">Subject</option>
+    </select>
+    <button class="filter-button" onclick="resetFilters()">Reset</button>
+  </div>
 
+  <div class="summary">
+    <span>Showing <strong id="showingCount">0</strong></span>
+    <span>Total <strong id="totalCount">0</strong></span>
+    <span>Awaiting action <strong id="pendingCount">0</strong></span>
+  </div>
 
-    <div class="summary">
-
-        <span>
-            Showing <strong id="showingCount">0</strong>
-        </span>
-
-        <span>
-            Total <strong id="totalCount">0</strong>
-        </span>
-
-        <span>
-            Awaiting action <strong id="pendingCount">0</strong>
-        </span>
-
+  <div class="table-card">
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Document</th><th>Origin</th><th>Current Department</th>
+            <th>Action</th><th>Status</th><th>Last Updated</th><th></th>
+          </tr>
+        </thead>
+        <tbody id="documentTable"></tbody>
+      </table>
     </div>
-
-
-    <div class="table-card">
-
-        <div class="table-wrapper">
-
-            <table>
-
-                <thead>
-
-                    <tr>
-
-                        <th>Document</th>
-                        <th>Origin</th>
-                        <th>Current Department</th>
-                        <th>Action</th>
-                        <th>Status</th>
-                        <th>Last Updated</th>
-                        <th></th>
-
-                    </tr>
-
-                </thead>
-
-                <tbody id="documentTable"></tbody>
-
-            </table>
-
-        </div>
-
-    </div>
-
+  </div>
 </main>
-
 </div>
-
-
-<!-- DELETE MODAL -->
 
 <div id="deleteModal" class="modal-backdrop">
-
-    <div class="modal">
-
-        <div class="modal-header">
-
-            <h2>Delete Document</h2>
-
-            <button
-                class="close"
-                onclick="closeDeleteModal()"
-            >
-                ×
-            </button>
-
-        </div>
-
-        <div class="modal-body">
-
-            <p>
-                Are you sure you want to permanently delete this document?
-            </p>
-
-            <p id="deleteDocumentName"></p>
-
-            <p>
-                <strong>This action cannot be undone.</strong>
-            </p>
-
-        </div>
-
-        <div class="modal-footer">
-
-            <button
-                class="secondary"
-                onclick="closeDeleteModal()"
-            >
-                Cancel
-            </button>
-
-            <button
-                class="danger-button"
-                onclick="confirmDelete()"
-            >
-                Delete Document
-            </button>
-
-        </div>
-
+  <div class="modal">
+    <div class="modal-header"><h2>Delete Document</h2><button class="close" onclick="closeDeleteModal()">×</button></div>
+    <div class="modal-body">
+      <p>Are you sure you want to permanently delete this document?</p>
+      <p id="deleteDocumentName"></p>
+      <p><strong>This action cannot be undone.</strong></p>
     </div>
-
+    <div class="modal-footer">
+      <button class="secondary" onclick="closeDeleteModal()">Cancel</button>
+      <button class="danger-button" onclick="confirmDelete()">Delete Document</button>
+    </div>
+  </div>
 </div>
-
-
-<!-- VIEW MODAL -->
 
 <div id="viewModal" class="modal-backdrop">
-
-    <div class="modal">
-
-        <div class="modal-header">
-
-            <h2>Quick Document View</h2>
-
-            <button
-                class="close"
-                onclick="closeViewModal()"
-            >
-                ×
-            </button>
-
-        </div>
-
-        <div id="viewBody" class="modal-body"></div>
-
-        <div class="modal-footer">
-
-            <button
-                class="secondary"
-                onclick="closeViewModal()"
-            >
-                Close
-            </button>
-
-            <button
-                class="primary"
-                onclick="openFullDocument()"
-            >
-                Open Tracking Record
-            </button>
-
-        </div>
-
+  <div class="modal">
+    <div class="modal-header"><h2>Quick Document View</h2><button class="close" onclick="closeViewModal()">×</button></div>
+    <div id="viewBody" class="modal-body"></div>
+    <div class="modal-footer">
+      <button class="secondary" onclick="closeViewModal()">Close</button>
+      <button class="primary" onclick="openFullDocument()">Open Tracking Record</button>
     </div>
-
+  </div>
 </div>
-
 
 <div id="toastContainer"></div>
 
-
 <script>
+'use strict';
 
-/* =====================================================
-   DATA
-===================================================== */
-
-let documents =
-    JSON.parse(
-        localStorage.getItem('ksucDocuments') || '[]'
-    );
-
-if (!Array.isArray(documents)) {
-    documents = [];
+let documents = [];
+try {
+  const stored = JSON.parse(localStorage.getItem('ksucDocuments') || '[]');
+  documents = Array.isArray(stored) ? stored : [];
+} catch (error) {
+  documents = [];
 }
 
 let filteredDocuments = [...documents];
-
 let selectedDocument = null;
 let documentToDelete = null;
 
-
-/* =====================================================
-   HELPERS
-===================================================== */
-
 function escapeHtml(value) {
-
-    return String(value ?? '')
-        .replace(/[&<>"']/g, char => ({
-            '&':'&amp;',
-            '<':'&lt;',
-            '>':'&gt;',
-            '"':'&quot;',
-            "'":'&#039;'
-        }[char]));
-
+  return String(value ?? '').replace(/[&<>"']/g, char => ({
+    '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#039;'
+  }[char]));
 }
-
 
 function saveDocuments() {
-
-    localStorage.setItem(
-        'ksucDocuments',
-        JSON.stringify(documents)
-    );
-
+  localStorage.setItem('ksucDocuments', JSON.stringify(documents));
 }
 
-
-function getCurrentUser() {
-
-    try {
-
-        return JSON.parse(
-            localStorage.getItem('ksucSession') || 'null'
-        );
-
-    } catch (error) {
-
-        return null;
-
-    }
-
+function formatDate(doc) {
+  const value = doc.updatedAt || doc.createdAt;
+  if (!value) return '—';
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return '—';
+  return date.toLocaleDateString('en-GB', {day:'2-digit', month:'short', year:'numeric'});
 }
 
-
-function formatDate(document) {
-
-    const value =
-        document.updatedAt ||
-        document.createdAt;
-
-    if (!value) {
-        return '—';
-    }
-
-    const date = new Date(value);
-
-    if (Number.isNaN(date.getTime())) {
-        return '—';
-    }
-
-    return date.toLocaleDateString(
-        'en-GB',
-        {
-            day:'2-digit',
-            month:'short',
-            year:'numeric'
-        }
-    );
-
+function getDocumentDate(doc) {
+  const date = new Date(doc.updatedAt || doc.createdAt);
+  return Number.isNaN(date.getTime()) ? 0 : date.getTime();
 }
-
-
-function getDocumentDate(document) {
-
-    const value =
-        document.updatedAt ||
-        document.createdAt;
-
-    const date = new Date(value);
-
-    if (Number.isNaN(date.getTime())) {
-        return 0;
-    }
-
-    return date.getTime();
-
-}
-
-
-/* =====================================================
-   STATUS CLASS
-===================================================== */
 
 function statusClass(status) {
-
-    if (status === 'Awaiting action') {
-        return 'pending';
-    }
-
-    if (
-        status === 'In transit' ||
-        status === 'Received'
-    ) {
-        return 'transit';
-    }
-
-    if (
-        status === 'Approved' ||
-        status === 'Completed'
-    ) {
-        return 'done';
-    }
-
-    if (
-        status === 'Returned for changes' ||
-        status === 'Not approved'
-    ) {
-        return 'returned';
-    }
-
-    return '';
-
+  if (status === 'Awaiting action') return 'pending';
+  if (status === 'In transit' || status === 'Received') return 'transit';
+  if (status === 'Approved' || status === 'Completed') return 'done';
+  if (status === 'Returned for changes' || status === 'Not approved') return 'returned';
+  return '';
 }
-
-
-/* =====================================================
-   RENDER
-===================================================== */
 
 function renderDocuments() {
+  const table = document.getElementById('documentTable');
 
-    const table =
-        document.getElementById('documentTable');
+  if (!filteredDocuments.length) {
+    table.innerHTML = `<tr><td colspan="7"><div class="empty">
+      <div class="empty-icon">📂</div><h3>No documents found</h3>
+      <p>Try changing your search or filters.</p></div></td></tr>`;
+  } else {
+    table.innerHTML = filteredDocuments.map((doc, index) => `
+      <tr>
+        <td><span class="doc-title">${escapeHtml(doc.title || 'Untitled document')}</span>
+        <span class="ref">${escapeHtml(doc.ref || 'No reference')}</span></td>
+        <td>${escapeHtml(doc.origin || '—')}</td>
+        <td>${escapeHtml(doc.destination || '—')}</td>
+        <td><span class="tag ${escapeHtml(doc.kind || 'action')}">${escapeHtml(doc.action || 'For action')}</span></td>
+        <td><span class="status ${statusClass(doc.status)}">${escapeHtml(doc.status || 'Registered')}</span></td>
+        <td>${formatDate(doc)}</td>
+        <td class="action-cell">
+          <button class="action-button" onclick="toggleMenu(event,${index})" aria-label="Document actions">⋮</button>
+          <div id="menu-${index}" class="action-menu">
+            <button onclick="viewDocument(${index})">👁 &nbsp; Quick view</button>
+            <button onclick="openDocument(${index})">📄 &nbsp; Open tracking record</button>
+            <button onclick="routeDocument(${index})">➡ &nbsp; Forward / Route</button>
+            ${doc.status === 'Awaiting action' ? `<button onclick="takeAction(${index})">✓ &nbsp; Take action</button>` : ''}
+            <button onclick="viewHistory(${index})">🕘 &nbsp; View history</button>
+            <button onclick="printDocument(${index})">🖨 &nbsp; Print</button>
+            <div class="menu-divider"></div>
+            <button class="danger" onclick="deleteDocument(${index})">🗑 &nbsp; Delete</button>
+          </div>
+        </td>
+      </tr>`).join('');
+  }
 
-    if (!filteredDocuments.length) {
-
-        table.innerHTML = `
-            <tr>
-                <td colspan="7">
-                    <div class="empty">
-
-                        <div class="empty-icon">
-                            📂
-                        </div>
-
-                        <h3>No documents found</h3>
-
-                        <p>
-                            Try changing your search or filters.
-                        </p>
-
-                    </div>
-                </td>
-            </tr>
-        `;
-
-    } else {
-
-        table.innerHTML =
-            filteredDocuments.map((doc,index) => `
-
-                <tr>
-
-                    <td>
-
-                        <span class="doc-title">
-                            ${escapeHtml(
-                                doc.title ||
-                                'Untitled document'
-                            )}
-                        </span>
-
-                        <span class="ref">
-                            ${escapeHtml(
-                                doc.ref ||
-                                'No reference'
-                            )}
-                        </span>
-
-                    </td>
-
-
-                    <td>
-                        ${escapeHtml(
-                            doc.origin || '—'
-                        )}
-                    </td>
-
-
-                    <td>
-                        ${escapeHtml(
-                            doc.destination || '—'
-                        )}
-                    </td>
-
-
-                    <td>
-
-                        <span class="tag ${
-                            doc.kind || 'action'
-                        }">
-
-                            ${escapeHtml(
-                                doc.action ||
-                                'For action'
-                            )}
-
-                        </span>
-
-                    </td>
-
-
-                    <td>
-
-                        <span class="status ${
-                            statusClass(doc.status)
-                        }">
-
-                            ${escapeHtml(
-                                doc.status ||
-                                'Registered'
-                            )}
-
-                        </span>
-
-                    </td>
-
-
-                    <td>
-                        ${formatDate(doc)}
-                    </td>
-
-
-                    <td class="action-cell">
-
-                        <button
-                            class="action-button"
-                            onclick="toggleMenu(event, ${index})"
-                            aria-label="Document actions"
-                        >
-                            ⋮
-                        </button>
-
-
-                        <div
-                            id="menu-${index}"
-                            class="action-menu"
-                        >
-
-                            <button
-                                onclick="viewDocument(${index})"
-                            >
-                                👁 &nbsp; Quick view
-                            </button>
-
-
-                            <button
-                                onclick="openDocument(${index})"
-                            >
-                                📄 &nbsp; Open tracking record
-                            </button>
-
-
-                            <button
-                                onclick="routeDocument(${index})"
-                            >
-                                ➡ &nbsp; Forward / Route
-                            </button>
-
-
-                            ${
-                                doc.status === 'Awaiting action'
-                                ? `
-                                <button
-                                    onclick="takeAction(${index})"
-                                >
-                                    ✓ &nbsp; Take action
-                                </button>
-                                `
-                                : ''
-                            }
-
-
-                            <button
-                                onclick="viewHistory(${index})"
-                            >
-                                🕘 &nbsp; View history
-                            </button>
-
-
-                            <button
-                                onclick="printDocument(${index})"
-                            >
-                                🖨 &nbsp; Print
-                            </button>
-
-
-                            <div class="menu-divider"></div>
-
-
-                            <button
-                                class="danger"
-                                onclick="deleteDocument(${index})"
-                            >
-                                🗑 &nbsp; Delete
-                            </button>
-
-                        </div>
-
-                    </td>
-
-                </tr>
-
-            `).join('');
-
-    }
-
-
-    document.getElementById('showingCount')
-        .textContent =
-        filteredDocuments.length;
-
-    document.getElementById('totalCount')
-        .textContent =
-        documents.length;
-
-    document.getElementById('pendingCount')
-        .textContent =
-        documents.filter(
-            doc =>
-                doc.status === 'Awaiting action'
-        ).length;
-
+  document.getElementById('showingCount').textContent = filteredDocuments.length;
+  document.getElementById('totalCount').textContent = documents.length;
+  document.getElementById('pendingCount').textContent =
+    documents.filter(doc => doc.status === 'Awaiting action').length;
 }
 
-
-/* =====================================================
-   MENUS
-===================================================== */
-
-function toggleMenu(event,index) {
-
-    event.stopPropagation();
-
-    document
-        .querySelectorAll('.action-menu')
-        .forEach(menu =>
-            menu.classList.remove('open')
-        );
-
-    const menu =
-        document.getElementById(
-            `menu-${index}`
-        );
-
-    if (menu) {
-        menu.classList.toggle('open');
-    }
-
+function toggleMenu(event, index) {
+  event.stopPropagation();
+  document.querySelectorAll('.action-menu').forEach(menu => menu.classList.remove('open'));
+  document.getElementById(`menu-${index}`)?.classList.toggle('open');
 }
-
 
 document.addEventListener('click', () => {
-
-    document
-        .querySelectorAll('.action-menu')
-        .forEach(menu =>
-            menu.classList.remove('open')
-        );
-
+  document.querySelectorAll('.action-menu').forEach(menu => menu.classList.remove('open'));
 });
 
-
-/* =====================================================
-   SEARCH + FILTER
-===================================================== */
-
 function applyFilters() {
+  const search = document.getElementById('searchInput').value.toLowerCase().trim();
+  const status = document.getElementById('statusFilter').value;
+  const department = document.getElementById('departmentFilter').value;
+  const sort = document.getElementById('sortFilter').value;
 
-    const search =
-        document.getElementById(
-            'searchInput'
-        ).value
-        .toLowerCase()
-        .trim();
+  filteredDocuments = documents.filter(doc => {
+    const searchable = [doc.ref, doc.title, doc.origin, doc.destination,
+      doc.action, doc.status, doc.registeredBy].join(' ').toLowerCase();
+    return (!search || searchable.includes(search)) &&
+      (!status || doc.status === status) &&
+      (!department || doc.destination === department);
+  });
 
+  filteredDocuments.sort((a, b) => {
+    if (sort === 'reference') return String(a.ref || '').localeCompare(String(b.ref || ''));
+    if (sort === 'subject') return String(a.title || '').localeCompare(String(b.title || ''));
+    if (sort === 'oldest') return getDocumentDate(a) - getDocumentDate(b);
+    return getDocumentDate(b) - getDocumentDate(a);
+  });
 
-    const status =
-        document.getElementById(
-            'statusFilter'
-        ).value;
-
-
-    const department =
-        document.getElementById(
-            'departmentFilter'
-        ).value;
-
-
-    const sort =
-        document.getElementById(
-            'sortFilter'
-        ).value;
-
-
-    filteredDocuments =
-        documents.filter(doc => {
-
-            const searchable = [
-                doc.ref,
-                doc.title,
-                doc.origin,
-                doc.destination,
-                doc.action,
-                doc.status,
-                doc.registeredBy
-            ]
-            .join(' ')
-            .toLowerCase();
-
-
-            const matchesSearch =
-                !search ||
-                searchable.includes(search);
-
-
-            const matchesStatus =
-                !status ||
-                doc.status === status;
-
-
-            const matchesDepartment =
-                !department ||
-                doc.destination === department;
-
-
-            return (
-                matchesSearch &&
-                matchesStatus &&
-                matchesDepartment
-            );
-
-        });
-
-
-    filteredDocuments.sort((a,b) => {
-
-        if (sort === 'reference') {
-
-            return String(a.ref || '')
-                .localeCompare(
-                    String(b.ref || '')
-                );
-
-        }
-
-
-        if (sort === 'subject') {
-
-            return String(a.title || '')
-                .localeCompare(
-                    String(b.title || '')
-                );
-
-        }
-
-
-        if (sort === 'oldest') {
-
-            return getDocumentDate(a) -
-                   getDocumentDate(b);
-
-        }
-
-
-        return getDocumentDate(b) -
-               getDocumentDate(a);
-
-    });
-
-
-    renderDocuments();
-
+  renderDocuments();
 }
-
-
-/* =====================================================
-   DEPARTMENTS
-===================================================== */
 
 function loadDepartments() {
+  const select = document.getElementById('departmentFilter');
+  const selected = select.value;
+  const departments = [...new Set(documents.map(doc => doc.destination).filter(Boolean))].sort();
 
-    const select =
-        document.getElementById(
-            'departmentFilter'
-        );
-
-
-    const departments =
-        [...new Set(
-            documents
-                .map(doc => doc.destination)
-                .filter(Boolean)
-        )]
-        .sort();
-
-
-    select.innerHTML =
-        '<option value="">All departments</option>';
-
-
-    departments.forEach(department => {
-
-        const option =
-            document.createElement('option');
-
-        option.value = department;
-        option.textContent = department;
-
-        select.appendChild(option);
-
-    });
-
+  select.innerHTML = '<option value="">All departments</option>';
+  departments.forEach(department => {
+    const option = document.createElement('option');
+    option.value = department;
+    option.textContent = department;
+    select.appendChild(option);
+  });
+  if (departments.includes(selected)) select.value = selected;
 }
-
-
-/* =====================================================
-   RESET
-===================================================== */
 
 function resetFilters() {
-
-    document.getElementById(
-        'searchInput'
-    ).value = '';
-
-    document.getElementById(
-        'statusFilter'
-    ).value = '';
-
-    document.getElementById(
-        'departmentFilter'
-    ).value = '';
-
-    document.getElementById(
-        'sortFilter'
-    ).value = 'newest';
-
-
-    applyFilters();
-
+  document.getElementById('searchInput').value = '';
+  document.getElementById('statusFilter').value = '';
+  document.getElementById('departmentFilter').value = '';
+  document.getElementById('sortFilter').value = 'newest';
+  applyFilters();
 }
-
-
-/* =====================================================
-   VIEW
-===================================================== */
 
 function viewDocument(index) {
+  const doc = filteredDocuments[index];
+  if (!doc) return;
+  selectedDocument = doc;
 
-    const doc =
-        filteredDocuments[index];
-
-    if (!doc) return;
-
-    selectedDocument = doc;
-
-    document.getElementById(
-        'viewBody'
-    ).innerHTML = `
-
-        <p>
-            <strong>Reference</strong><br>
-            ${escapeHtml(doc.ref || '—')}
-        </p>
-
-        <p>
-            <strong>Subject</strong><br>
-            ${escapeHtml(doc.title || '—')}
-        </p>
-
-        <p>
-            <strong>Origin</strong><br>
-            ${escapeHtml(doc.origin || '—')}
-        </p>
-
-        <p>
-            <strong>Current department</strong><br>
-            ${escapeHtml(doc.destination || '—')}
-        </p>
-
-        <p>
-            <strong>Status</strong><br>
-            ${escapeHtml(doc.status || 'Registered')}
-        </p>
-
-        ${
-            doc.registeredBy
-            ? `
-                <p>
-                    <strong>Registered by</strong><br>
-                    ${escapeHtml(doc.registeredBy)}
-                </p>
-            `
-            : ''
-        }
-
-        ${
-            doc.notes
-            ? `
-                <p>
-                    <strong>Notes</strong><br>
-                    ${escapeHtml(doc.notes)}
-                </p>
-            `
-            : ''
-        }
-
-    `;
-
-
-    document
-        .getElementById('viewModal')
-        .classList.add('show');
-
+  document.getElementById('viewBody').innerHTML = `
+    <p><strong>Reference</strong><br>${escapeHtml(doc.ref || '—')}</p>
+    <p><strong>Subject</strong><br>${escapeHtml(doc.title || '—')}</p>
+    <p><strong>Origin</strong><br>${escapeHtml(doc.origin || '—')}</p>
+    <p><strong>Current department</strong><br>${escapeHtml(doc.destination || '—')}</p>
+    <p><strong>Status</strong><br>${escapeHtml(doc.status || 'Registered')}</p>
+    ${doc.registeredBy ? `<p><strong>Registered by</strong><br>${escapeHtml(doc.registeredBy)}</p>` : ''}
+    ${doc.notes ? `<p><strong>Notes</strong><br>${escapeHtml(doc.notes)}</p>` : ''}`;
+  document.getElementById('viewModal').classList.add('show');
 }
-
 
 function closeViewModal() {
-
-    document
-        .getElementById('viewModal')
-        .classList.remove('show');
-
+  document.getElementById('viewModal').classList.remove('show');
 }
-
 
 function openFullDocument() {
-
-    if (!selectedDocument) return;
-
-    localStorage.setItem(
-        'ksucSelectedDocument',
-        JSON.stringify(selectedDocument)
-    );
-
-    window.location.href =
-        'document-view.html';
-
+  if (!selectedDocument) return;
+  localStorage.setItem('ksucSelectedDocument', JSON.stringify(selectedDocument));
+  window.location.href = 'document-view.html';
 }
-
-
-/* =====================================================
-   OPEN RECORD
-===================================================== */
 
 function openDocument(index) {
-
-    const doc =
-        filteredDocuments[index];
-
-    if (!doc) return;
-
-    localStorage.setItem(
-        'ksucSelectedDocument',
-        JSON.stringify(doc)
-    );
-
-    window.location.href =
-        'document-view.html';
-
+  const doc = filteredDocuments[index];
+  if (!doc) return;
+  localStorage.setItem('ksucSelectedDocument', JSON.stringify(doc));
+  window.location.href = 'document-view.html';
 }
-
-
-/* =====================================================
-   ROUTE
-===================================================== */
 
 function routeDocument(index) {
-
-    const doc =
-        filteredDocuments[index];
-
-    if (!doc) return;
-
-    localStorage.setItem(
-        'ksucSelectedDocument',
-        JSON.stringify(doc)
-    );
-
-    window.location.href =
-        'document-view.html#route';
-
+  const doc = filteredDocuments[index];
+  if (!doc) return;
+  localStorage.setItem('ksucSelectedDocument', JSON.stringify(doc));
+  window.location.href = 'document-view.html#route';
 }
-
-
-/* =====================================================
-   TAKE ACTION
-===================================================== */
 
 function takeAction(index) {
-
-    const doc =
-        filteredDocuments[index];
-
-    if (!doc) return;
-
-    localStorage.setItem(
-        'ksucSelectedDocument',
-        JSON.stringify(doc)
-    );
-
-    window.location.href =
-        'document-view.html#action';
-
+  const doc = filteredDocuments[index];
+  if (!doc) return;
+  localStorage.setItem('ksucSelectedDocument', JSON.stringify(doc));
+  window.location.href = 'document-view.html#action';
 }
-
-
-/* =====================================================
-   HISTORY
-===================================================== */
 
 function viewHistory(index) {
-
-    const doc =
-        filteredDocuments[index];
-
-    if (!doc) return;
-
-    localStorage.setItem(
-        'ksucSelectedDocument',
-        JSON.stringify(doc)
-    );
-
-    window.location.href =
-        'document-view.html#history';
-
+  const doc = filteredDocuments[index];
+  if (!doc) return;
+  localStorage.setItem('ksucSelectedDocument', JSON.stringify(doc));
+  window.location.href = 'document-view.html#history';
 }
 
-
-/* =====================================================
-   PRINT
-===================================================== */
-
 function printDocument(index) {
+  const doc = filteredDocuments[index];
+  if (!doc) return;
 
-    const doc =
-        filteredDocuments[index];
+  const printWindow = window.open('', '_blank');
+  if (!printWindow) {
+    showToast('Please allow pop-ups to print the document.');
+    return;
+  }
 
-    if (!doc) return;
+  const fields = [
+    ['Reference', doc.ref || '—'],
+    ['Subject', doc.title || '—'],
+    ['Origin', doc.origin || '—'],
+    ['Current Department', doc.destination || '—'],
+    ['Action', doc.action || '—'],
+    ['Status', doc.status || '—'],
+    ['Registered By', doc.registeredBy || '—'],
+    ['Notes', doc.notes || '—']
+  ];
 
-    const printWindow =
-        window.open('', '_blank');
+  printWindow.document.open();
+  printWindow.document.write(`<!DOCTYPE html><html lang="en"><head>
+    <meta charset="UTF-8"><title>${escapeHtml(doc.ref || 'KSUCflow')}</title>
+    <style>
+      body{font-family:Arial,sans-serif;padding:40px;color:#222}
+      h1{color:#7D0000;margin-bottom:5px}
+      .field{margin:20px 0}
+      strong{display:block;margin-bottom:5px}
+    </style></head><body>
+    <h1>KSUCflow Document Record</h1>
+    <p>${escapeHtml(doc.ref || '—')}</p><hr>
+    ${fields.map(([label, value]) => `<div class="field"><strong>${escapeHtml(label)}</strong>${escapeHtml(value)}</div>`).join('')}
+    </body></html>`);
+  printWindow.document.close();
+  printWindow.focus();
+  printWindow.print();
+}
 
-    if (!printWindow) {
+function deleteDocument(index) {
+  const doc = filteredDocuments[index];
+  if (!doc) return;
+  documentToDelete = doc;
+  document.getElementById('deleteDocumentName').textContent =
+    `${doc.ref || 'No reference'} — ${doc.title || 'Untitled document'}`;
+  document.getElementById('deleteModal').classList.add('show');
+}
 
-        showToast(
-            'Please allow pop-ups to print the document.'
-        );
+function closeDeleteModal() {
+  document.getElementById('deleteModal').classList.remove('show');
+  documentToDelete = null;
+}
 
-        return;
+function confirmDelete() {
+  if (!documentToDelete) return;
+  const ref = documentToDelete.ref;
+  const index = documents.findIndex(doc => doc === documentToDelete ||
+    (ref && doc.ref === ref));
 
+  if (index === -1) {
+    showToast('Document could not be found.');
+    closeDeleteModal();
+    return;
+  }
+
+  documents.splice(index, 1);
+  saveDocuments();
+  closeDeleteModal();
+  loadDepartments();
+  applyFilters();
+  showToast(`Document ${ref || ''} deleted successfully.`);
+}
+
+function registerDocument() {
+  window.location.href = 'index.html#register';
+}
+
+function goBack() {
+  window.location.href = 'index.html';
+}
+
+async function signOut() {
+  if (!confirm('Are you sure you want to sign out?')) return;
+
+  try {
+    if (window.ksucSupabase) {
+      const { error } = await window.ksucSupabase.auth.signOut();
+      if (error) console.error('Supabase sign-out failed:', error);
     }
+  } catch (error) {
+    console.error('Sign-out error:', error);
+  } finally {
+    localStorage.removeItem('ksucSession');
+    window.location.href = 'login.html';
+  }
+}
 
+function showToast(message) {
+  const container = document.getElementById('toastContainer');
+  const toast = document.createElement('div');
+  toast.className = 'toast';
+  toast.textContent = message;
+  container.appendChild(toast);
+  setTimeout(() => toast.remove(), 3000);
+}
 
-    printWindow.document.write(`
+document.getElementById('searchInput').addEventListener('input', applyFilters);
+document.getElementById('statusFilter').addEventListener('change', applyFilters);
+document.getElementById('departmentFilter').addEventListener('change', applyFilters);
+document.getElementById('sortFilter').addEventListener('change', applyFilters);
 
-        <html>
+loadDepartments();
+applyFilters();
+</script>
 
-        <head>
-
-            <title>
-                ${escapeHtml(doc.ref || 'KSUCflow')}
-            </title>
-
-            <style>
-
-                body {
-                    font-family: Arial, sans-serif;
-                    padding: 40px;
-                    color: #222;
-                }
-
-                h1 {
-                    color: #7D0000;
-                    margin-bottom: 5px;
-                }
-
-                .field {
-                    margin: 20px 0;
-                }
-
-                strong {
-                    display: block;
-                    margin-bottom: 5px;
-                }
-
-            </style>
-
-        </head>
-
-        <body>
-
-            <h1>
-                KSUCflow Document Record
-            </h1>
-
-            <p>
-                ${escapeHtml(doc.ref || '—')}
-            </p>
-
-            <hr>
-
-            <div class="field">
-                <strong>Subject</strong>
-                ${escapeHtml(doc.title || '—')}
-            </div>
-
-            <div class="field">
-                <strong>Origin</strong>
-                ${escapeHtml(doc.origin || '—')}
-            </div>
-
-            <div class="field">
-                <strong>Current Department</strong>
-                ${escapeHtml(doc.destination || '—')}
-            </div>
-
-            <div class="field">
-                <strong>Status</strong>
-                ${escapeHtml(doc.status || '—')}
-            </div>
-
-        <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<!-- Authentication scripts must load on the main page, not in the print window. -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="supabase-config.js"></script>
 <script src="supabase-client.js"></script>
 <script src="auth-guard.js"></script>
-</body>
-
-        </html>
-
-    `);
-
-    printWindow.document.close();
-
-    printWindow.focus();
-
-    printWindow.print();
-
-}
-
-
-/* =====================================================
-   DELETE
-===================================================== */
-
-function deleteDocument(index) {
-
-    const doc =
-        filteredDocuments[index];
-
-    if (!doc) return;
-
-    documentToDelete = doc;
-
-    document.getElementById(
-        'deleteDocumentName'
-    ).textContent =
-        `${doc.ref} — ${doc.title}`;
-
-
-    document
-        .getElementById('deleteModal')
-        .classList.add('show');
-
-}
-
-
-function closeDeleteModal() {
-
-    document
-        .getElementById('deleteModal')
-        .classList.remove('show');
-
-    documentToDelete = null;
-
-}
-
-
-function confirmDelete() {
-
-    if (!documentToDelete) return;
-
-    const ref =
-        documentToDelete.ref;
-
-
-    const index =
-        documents.findIndex(
-            doc => doc.ref === ref
-        );
-
-
-    if (index === -1) {
-
-        showToast(
-            'Document could not be found.'
-        );
-
-        closeDeleteModal();
-
-        return;
-
-    }
-
-
-    documents.splice(index,1);
-
-    saveDocuments();
-
-
-    filteredDocuments =
-        [...documents];
-
-
-    closeDeleteModal();
-
-    loadDepartments();
-
-    applyFilters();
-
-
-    showToast(
-        `Document ${ref} deleted successfully.`
-    );
-
-}
-
-
-/* =====================================================
-   REGISTER
-===================================================== */
-
-function registerDocument() {
-
-    window.location.href =
-        'index.html#register';
-
-}
-
-
-/* =====================================================
-   DASHBOARD
-===================================================== */
-
-function goBack() {
-
-    window.location.href =
-        'index.html';
-
-}
-
-
-/* =====================================================
-   SIGN OUT
-===================================================== */
-
-function signOut() {
-
-    const confirmed =
-        confirm(
-            'Are you sure you want to sign out?'
-        );
-
-    if (!confirmed) {
-        return;
-    }
-
-    localStorage.removeItem(
-        'ksucSession'
-    );
-
-    window.location.href =
-        'login.html';
-
-}
-
-
-/* =====================================================
-   TOAST
-===================================================== */
-
-function showToast(message) {
-
-    const container =
-        document.getElementById(
-            'toastContainer'
-        );
-
-
-    const toast =
-        document.createElement('div');
-
-    toast.className = 'toast';
-
-    toast.textContent = message;
-
-    container.appendChild(toast);
-
-
-    setTimeout(() => {
-
-        toast.remove();
-
-    },3000);
-
-}
-
-
-/* =====================================================
-   INITIALIZE
-===================================================== */
-
-document
-    .getElementById('searchInput')
-    .addEventListener(
-        'input',
-        applyFilters
-    );
-
-
-document
-    .getElementById('statusFilter')
-    .addEventListener(
-        'change',
-        applyFilters
-    );
-
-
-document
-    .getElementById('departmentFilter')
-    .addEventListener(
-        'change',
-        applyFilters
-    );
-
-
-document
-    .getElementById('sortFilter')
-    .addEventListener(
-        'change',
-        applyFilters
-    );
-
-
-loadDepartments();
-
-applyFilters();
-
-</script>
-
 </body>
 </html>
