@@ -614,9 +614,10 @@ function injectDashboardPolish() {
     }
 
     #recentDocuments .status-received {
-      background: #e9f3ff;
-      color: #205c9b;
-    }
+  background: #F5E8E8;
+  color: #7D0000;
+  border-color: #E8CDCD;
+}
 
     #recentDocuments .status-approved,
     #recentDocuments .status-completed {
