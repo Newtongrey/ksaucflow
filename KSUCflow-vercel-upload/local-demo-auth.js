@@ -53,7 +53,14 @@
   readUsers();
 
   const page = (location.pathname.split('/').pop() || 'index.html').toLowerCase();
-  const session = getSession();
+  let session = getSession();
+  if (!['login.html', 'admin-login.html'].includes(page) && session) {
+    const account = readUsers().find(item => String(item.id) === String(session.id) && item.active !== false);
+    if (!account || normalizeRole(account.role) !== normalizeRole(session.role)) {
+      localStorage.removeItem(SESSION_KEY);
+      session = null;
+    }
+  }
   if (page === 'login.html' || page === 'admin-login.html') {
     const formId = page === 'admin-login.html' ? 'adminLoginForm' : 'loginForm';
     const errorId = page === 'admin-login.html' ? 'adminLoginError' : 'error';
@@ -85,8 +92,14 @@
       // Keep the login form available for switching accounts; no automatic redirect.
     }
   } else if (page === 'admin.html') {
-    if (!session || normalizeRole(session.role) !== 'Administrator') location.replace('admin-login.html');
+    if (!session || normalizeRole(session.role) !== 'Administrator') {
+      location.replace('admin-login.html');
+      return;
+    }
   } else if (['index.html', 'documents.html', 'document-view.html'].includes(page)) {
-    if (!session) location.replace('login.html');
+    if (!session) {
+      location.replace('login.html');
+      return;
+    }
   }
 })();
