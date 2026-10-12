@@ -129,3 +129,38 @@ tbody tr:hover{background:#fffafa}
   .reports-panel .report-controls > div { align-items: stretch; }
   .reports-panel .report-controls button { width: 100%; }
 }
+
+
+/* Account management controls */
+.admin-inline-select {
+  max-width: 190px;
+  min-width: 125px;
+  padding: 8px 9px;
+  border: 1px solid #dfe5ec;
+  border-radius: 7px;
+  background: #fff;
+  color: #465468;
+  font-size: 11px;
+}
+.admin-inline-select:focus {
+  outline: 2px solid rgba(125,0,0,.12);
+  border-color: var(--brand);
+}
+.admin-row-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  min-width: 230px;
+}
+.admin-row-actions button[data-deactivate-profile] {
+  color: #9c3030;
+  border-color: #efd2d2;
+}
+.admin-row-actions button:disabled { opacity: .55; cursor: wait; }
+#inviteUserForm input, #inviteUserForm select { min-width: 0; }
+@media (max-width: 760px) {
+  #inviteUserForm { grid-template-columns: 1fr !important; }
+  #inviteUserForm > div { grid-column: auto !important; }
+  .admin-inline-select { max-width: 100%; width: 100%; }
+  .admin-row-actions { min-width: 210px; }
+}
