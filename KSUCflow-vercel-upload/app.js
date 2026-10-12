@@ -890,17 +890,17 @@ function renderActivity() {
   }
 
   container.innerHTML = activity.map(item => `
-    <div class="activity-item">
-      <div class="activity-dot"></div>
+    <article class="activity-item">
+      <div class="activity-dot" aria-hidden="true">↗</div>
       <div class="activity-content">
-        <strong>${escapeHtml(item.action)}</strong>
-        <span>${escapeHtml(item.detail)}</span>
-        <small>
-          ${formatDate(item.date)}
-          ${item.user ? ` • ${escapeHtml(item.user)}` : ''}
-        </small>
+        <strong>${escapeHtml(item.action || 'Activity recorded')}</strong>
+        <span>${escapeHtml(item.detail || '')}</span>
+        <div class="activity-meta">
+          <time>${escapeHtml(formatDate(item.date))}</time>
+          ${item.user ? `<span class="activity-user">${escapeHtml(item.user)}</span>` : ''}
+        </div>
       </div>
-    </div>
+    </article>
   `).join('');
 }
 
@@ -1388,21 +1388,42 @@ function saveSettings(settings) {
   localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
 }
 
+function profileStorageKey(user = getCurrentUser()) {
+  const identity = user?.id || user?.authUserId || user?.email || 'guest';
+  return 'ksucProfile_' + String(identity).replace(/[^a-zA-Z0-9_.@-]/g, '_');
+}
+
+function loadProfilePreferences(user = getCurrentUser()) {
+  try {
+    return JSON.parse(localStorage.getItem(profileStorageKey(user)) || '{}') || {};
+  } catch {
+    return {};
+  }
+}
+
+function renderProfileAvatar(element, name, photo) {
+  if (!element) return;
+  element.textContent = photo ? '' : (String(name || 'U').trim().charAt(0).toUpperCase() || 'U');
+  element.style.backgroundImage = photo ? 'url("' + photo + '")' : '';
+  element.style.backgroundSize = photo ? 'cover' : '';
+  element.style.backgroundPosition = photo ? 'center' : '';
+  element.style.backgroundRepeat = photo ? 'no-repeat' : '';
+  element.setAttribute('aria-label', photo ? (name + ' profile photo') : (name + ' initials'));
+}
+
 function updateUserInterface() {
   const user = getCurrentUser();
   const settings = loadSettings();
-
-  const name = user?.name || 'User';
+  const preferences = loadProfilePreferences(user);
+  const name = preferences.name || user?.name || 'User';
   const role = user?.role || 'Staff';
   const avatar = name.trim().charAt(0).toUpperCase();
 
   const fields = {
     currentUserName: name,
     currentUserRole: role,
-    userAvatar: avatar,
     userName: name,
     userRole: role,
-    avatar,
     greetingName: name,
     institutionName: settings.institution,
     appName: settings.systemName,
@@ -1411,6 +1432,123 @@ function updateUserInterface() {
 
   Object.entries(fields).forEach(([id, value]) => {
     if (byId(id)) byId(id).textContent = value;
+  });
+  renderProfileAvatar(byId('userAvatar'), name, preferences.photo || '');
+  renderProfileAvatar(byId('avatar'), name, preferences.photo || '');
+}
+
+/* =========================================================
+   STAFF PROFILE
+========================================================= */
+let profilePhotoDraft = null;
+let profilePhotoRemoved = false;
+
+function openProfileEditor() {
+  const user = getCurrentUser() || {};
+  const preferences = loadProfilePreferences(user);
+  const name = preferences.name || user.name || '';
+  byId('profileDisplayName').value = name;
+  byId('profileJobTitle').value = preferences.jobTitle || '';
+  byId('profilePhone').value = preferences.phone || '';
+  profilePhotoDraft = preferences.photo || '';
+  profilePhotoRemoved = false;
+  renderProfileAvatar(byId('profilePhotoPreview'), name, profilePhotoDraft);
+  openDialog('profileModal');
+}
+
+function resizeProfileImage(file) {
+  return new Promise((resolve, reject) => {
+    if (!file || !/^image\/(png|jpeg|webp)$/i.test(file.type)) {
+      reject(new Error('Choose a JPG, PNG or WebP image.'));
+      return;
+    }
+    if (file.size > 8 * 1024 * 1024) {
+      reject(new Error('Choose an image smaller than 8 MB.'));
+      return;
+    }
+    const reader = new FileReader();
+    reader.onerror = () => reject(new Error('The selected image could not be read.'));
+    reader.onload = () => {
+      const image = new Image();
+      image.onerror = () => reject(new Error('The selected file is not a valid image.'));
+      image.onload = () => {
+        const scale = Math.min(1, 512 / Math.max(image.width, image.height));
+        const canvas = document.createElement('canvas');
+        canvas.width = Math.max(1, Math.round(image.width * scale));
+        canvas.height = Math.max(1, Math.round(image.height * scale));
+        const context = canvas.getContext('2d');
+        context.drawImage(image, 0, 0, canvas.width, canvas.height);
+        resolve(canvas.toDataURL('image/jpeg', 0.78));
+      };
+      image.src = reader.result;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+async function saveStaffProfile(event) {
+  event.preventDefault();
+  const user = getCurrentUser() || {};
+  const name = byId('profileDisplayName').value.trim();
+  if (!name) {
+    showToast('Please enter your display name.', 'error');
+    return;
+  }
+  const button = byId('saveProfileBtn');
+  const oldLabel = button.textContent;
+  button.disabled = true;
+  button.textContent = 'Saving…';
+  const photo = profilePhotoRemoved ? '' : (profilePhotoDraft || '');
+  const preferences = {
+    name,
+    jobTitle: byId('profileJobTitle').value.trim(),
+    phone: byId('profilePhone').value.trim(),
+    photo
+  };
+  try {
+    // Sync the display name to the known profiles.full_name column when permitted.
+    if (window.ksucSupabase && (user.authUserId || user.id)) {
+      const { error } = await window.ksucSupabase
+        .from('profiles')
+        .update({ full_name: name })
+        .eq('id', user.authUserId || user.id);
+      if (error) console.warn('Profile name could not be synced to Supabase:', error.message);
+    }
+    user.name = name;
+    localStorage.setItem(SESSION_KEY, JSON.stringify(user));
+    localStorage.setItem(profileStorageKey(user), JSON.stringify(preferences));
+    updateUserInterface();
+    closeDialog('profileModal');
+    showToast('Profile saved. Your photo and optional details are stored in this browser.');
+  } catch (error) {
+    console.error('Unable to save profile:', error);
+    showToast('Profile could not be saved. Please try again.', 'error');
+  } finally {
+    button.disabled = false;
+    button.textContent = oldLabel;
+  }
+}
+
+function setupProfileEditor() {
+  byId('profileForm')?.addEventListener('submit', saveStaffProfile);
+  byId('closeProfileModal')?.addEventListener('click', () => closeDialog('profileModal'));
+  byId('cancelProfileBtn')?.addEventListener('click', () => closeDialog('profileModal'));
+  byId('removeProfilePhotoBtn')?.addEventListener('click', () => {
+    profilePhotoDraft = '';
+    profilePhotoRemoved = true;
+    renderProfileAvatar(byId('profilePhotoPreview'), byId('profileDisplayName').value, '');
+  });
+  byId('profilePhotoInput')?.addEventListener('change', async event => {
+    const file = event.target.files && event.target.files[0];
+    if (!file) return;
+    try {
+      profilePhotoDraft = await resizeProfileImage(file);
+      profilePhotoRemoved = false;
+      renderProfileAvatar(byId('profilePhotoPreview'), byId('profileDisplayName').value, profilePhotoDraft);
+    } catch (error) {
+      showToast(error.message || 'Unable to use that photo.', 'error');
+      event.target.value = '';
+    }
   });
 }
 
@@ -1555,7 +1693,7 @@ function setupNavigation() {
 
   byId('userSettingsBtn')?.addEventListener('click', () => {
     closeDialog('userModal');
-    openDialog('customizerModal');
+    openProfileEditor();
   });
 
   [
@@ -1669,6 +1807,7 @@ function migrateDocuments() {
 ========================================================= */
 
 function initializeApp() {
+  setupProfileEditor();
   injectDashboardPolish();
 
   loadDocuments();
@@ -1708,4 +1847,11 @@ function initializeApp() {
   window.addEventListener('focus', renderDashboard);
 }
 
-document.addEventListener('DOMContentLoaded', initializeApp);
+document.addEventListener('DOMContentLoaded', async function () {
+  // Wait for Supabase session/profile verification before loading protected data.
+  if (window.ksucAuthReady) {
+    const profile = await window.ksucAuthReady;
+    if (!profile) return;
+  }
+  initializeApp();
+});
