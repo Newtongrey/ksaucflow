@@ -260,7 +260,7 @@ function reportDateValue(row, type) {
 function csvCell(value) {
   let text = String(value == null ? '' : value);
   // Prevent spreadsheet formula execution when a CSV is opened in Excel.
-  if (/^[=+@\\-\t\r]/.test(text)) text = "'" + text;
+  if (/^[=+\-@\t\r]/.test(text)) text = "'" + text;
   return '"' + text.replace(/"/g, '""') + '"';
 }
 
