@@ -195,6 +195,12 @@ tbody tr:last-child td{border-bottom:none}
 
 <div id="toastContainer"></div>
 
+<!-- Supabase session guard for this protected page. -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase-config.js"></script>
+<script src="supabase-client.js"></script>
+<script src="auth-guard.js"></script>
+
 <script>
 'use strict';
 
@@ -502,14 +508,18 @@ document.getElementById('statusFilter').addEventListener('change', applyFilters)
 document.getElementById('departmentFilter').addEventListener('change', applyFilters);
 document.getElementById('sortFilter').addEventListener('change', applyFilters);
 
-loadDepartments();
-applyFilters();
+if (window.ksucAuthReady) {
+  window.ksucAuthReady.then(function (profile) {
+    if (profile) {
+      loadDepartments();
+      applyFilters();
+    }
+  });
+} else {
+  loadDepartments();
+  applyFilters();
+}
 </script>
 
-<!-- Authentication scripts must load on the main page, not in the print window. -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="supabase-config.js"></script>
-<script src="supabase-client.js"></script>
-<script src="auth-guard.js"></script>
 </body>
 </html>

@@ -1708,4 +1708,11 @@ function initializeApp() {
   window.addEventListener('focus', renderDashboard);
 }
 
-document.addEventListener('DOMContentLoaded', initializeApp);
+document.addEventListener('DOMContentLoaded', async function () {
+  // Wait for Supabase session/profile verification before loading protected data.
+  if (window.ksucAuthReady) {
+    const profile = await window.ksucAuthReady;
+    if (!profile) return;
+  }
+  initializeApp();
+});

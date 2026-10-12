@@ -24,13 +24,27 @@ loginForm.addEventListener('submit', async function (event) {
       loginError.textContent = 'Administrators must sign in through the Admin Portal.';
       return;
     }
+    const sessionResult = await window.ksucSupabase.auth.getSession();
+    if (sessionResult.error) throw sessionResult.error;
+    const persistedUser = sessionResult.data && sessionResult.data.session && sessionResult.data.session.user;
+    if (!persistedUser || persistedUser.id !== data.user.id) {
+      throw new Error('The sign-in succeeded but the browser did not retain the session. Allow site storage for this deployment, then try again.');
+    }
+
     localStorage.setItem('ksucSession', JSON.stringify(sessionUser));
-    window.location.replace('index.html');
+    window.location.replace(new URL('/index.html', window.location.origin).href);
   } catch (error) {
     console.error('KSUCflow staff sign-in failed:', error);
-    loginError.textContent = error.message && /profile is assigned/i.test(error.message)
-      ? error.message
-      : 'Unable to sign in. Check your email and password, and confirm your account has been activated by the administrator.';
+    const message = error && error.message ? error.message : '';
+    if (/invalid login credentials/i.test(message)) {
+      loginError.textContent = 'The email or password is incorrect.';
+    } else if (/profile is assigned|no KSUCflow profile/i.test(message)) {
+      loginError.textContent = message;
+    } else if (/permission|row-level security|policy|profiles/i.test(message)) {
+      loginError.textContent = 'Sign-in succeeded, but KSUCflow could not read your profile. Contact the administrator to check profile access. Details: ' + message;
+    } else {
+      loginError.textContent = message || 'Unable to sign in. Check your email and password, and confirm your account has been activated by the administrator.';
+    }
   } finally {
     loginButton.disabled = false;
     loginButton.textContent = originalLabel;
