@@ -7,6 +7,8 @@
  * The service-role key is server-only and must NEVER be placed in frontend files.
  */
 const allowedRoles = new Set(['Staff', 'Department Head', 'Administrator']);
+const isAdminRole = value => ['administrator', 'admin', 'system_admin', 'super_admin']
+  .includes(String(value || '').trim().toLowerCase().replace(/[\\s-]+/g, '_'));
 
 function reply(res, status, body) {
   res.status(status).setHeader('Cache-Control', 'no-store');
@@ -76,7 +78,7 @@ module.exports = async function handler(req, res) {
       { method: 'GET' }
     );
     if (!Array.isArray(ownProfiles) || !ownProfiles.length ||
-        String(ownProfiles[0].role || '').toLowerCase() !== 'administrator') {
+        !isAdminRole(ownProfiles[0].role)) {
       return reply(res, 403, { error: 'Only a verified KSUCflow administrator may manage accounts.' });
     }
 
@@ -128,7 +130,7 @@ module.exports = async function handler(req, res) {
       if (id === authUser.id && role !== 'Administrator') return reply(res, 409, { error: 'You cannot remove administrator privileges from your own active session.' });
       const target = await supabaseRequest(base + '/rest/v1/profiles?select=id,role&id=eq.' + encodeURIComponent(id), serviceKey, { method: 'GET' });
       if (!Array.isArray(target) || !target.length) return reply(res, 404, { error: 'Profile not found.' });
-      if (String(target[0].role || '').toLowerCase() === 'administrator' && role !== 'Administrator') {
+      if (isAdminRole(target[0].role) && role !== 'Administrator') {
         const admins = await supabaseRequest(base + '/rest/v1/profiles?select=id&role=eq.Administrator', serviceKey, { method: 'GET' });
         if (Array.isArray(admins) && admins.length <= 1) return reply(res, 409, { error: 'The last administrator cannot be demoted.' });
       }
