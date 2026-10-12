@@ -1,187 +1,71 @@
+'use strict';
+
 const adminLoginForm = document.getElementById('adminLoginForm');
 const adminEmail = document.getElementById('adminEmail');
 const adminPassword = document.getElementById('adminPassword');
 const adminLoginError = document.getElementById('adminLoginError');
 const showAdminPassword = document.getElementById('showAdminPassword');
+const adminSubmit = adminLoginForm.querySelector('button[type="submit"]');
 
+adminLoginForm.addEventListener('submit', async function (event) {
+  event.preventDefault();
+  adminLoginError.textContent = '';
 
-function getUsers() {
+  if (!window.ksucSupabase || typeof window.ksucLoadProfile !== 'function') {
+    adminLoginError.textContent = 'The sign-in service is not ready. Refresh the page; if the problem continues, contact ICT.';
+    return;
+  }
+
+  const originalLabel = adminSubmit.textContent;
+  adminSubmit.disabled = true;
+  adminSubmit.textContent = 'Verifying account…';
 
   try {
+    const result = await window.ksucSupabase.auth.signInWithPassword({
+      email: adminEmail.value.trim().toLowerCase(),
+      password: adminPassword.value
+    });
+    if (result.error) throw result.error;
 
-    const savedUsers = JSON.parse(
-      localStorage.getItem('routeflowUsers') || 'null'
-    );
-
-    /*
-     * If users already exist in localStorage,
-     * use them.
-     */
-
-    if (Array.isArray(savedUsers)) {
-      return savedUsers;
+    const sessionUser = await window.ksucLoadProfile(result.data.user);
+    if (sessionUser.role !== 'Administrator') {
+      await window.ksucSupabase.auth.signOut();
+      adminLoginError.textContent = 'This account does not have administrator privileges. Use the Staff Portal instead.';
+      return;
     }
 
+    // Verify that Supabase has persisted the session before navigating.
+    const sessionResult = await window.ksucSupabase.auth.getSession();
+    if (sessionResult.error) throw sessionResult.error;
+    const persistedUser = sessionResult.data && sessionResult.data.session && sessionResult.data.session.user;
+    if (!persistedUser || persistedUser.id !== result.data.user.id) {
+      throw new Error('The sign-in succeeded but the browser did not retain the session. Allow site storage for this deployment, then try again.');
+    }
+
+    localStorage.setItem('ksucSession', JSON.stringify(sessionUser));
+
+    // Keep the user on the exact deployment currently serving this login page.
+    window.location.replace(new URL('/admin.html', window.location.origin).href);
   } catch (error) {
-
-    console.warn('Unable to read saved users.');
-
-  }
-
-  /*
-   * No users found.
-   * This should normally not happen because
-   * login.js initializes the user list.
-   */
-
-  return [];
-
-}
-
-
-/*
- * ADMINISTRATOR LOGIN
- */
-
-adminLoginForm.addEventListener(
-  'submit',
-  function (event) {
-
-    event.preventDefault();
-
-    adminLoginError.textContent = '';
-
-    const email =
-      adminEmail.value
-        .trim()
-        .toLowerCase();
-
-    const password =
-      adminPassword.value;
-
-
-    /*
-     * Find matching account
-     */
-
-    const user = getUsers().find(item =>
-      item.email &&
-      item.email.toLowerCase() === email &&
-      item.password === password
-    );
-
-
-    /*
-     * Invalid credentials
-     */
-
-    if (!user) {
-
-      adminLoginError.textContent =
-        'The administrator email or password is incorrect.';
-
-      return;
-
-    }
-
-
-    /*
-     * Disabled account
-     */
-
-    if (!user.active) {
-
-      adminLoginError.textContent =
-        'This administrator account has been disabled.';
-
-      return;
-
-    }
-
-
-    /*
-     * Role protection
-     */
-
-    if (user.role !== 'Administrator') {
-
-      adminLoginError.textContent =
-        'This account does not have administrator privileges.';
-
-      return;
-
-    }
-
-
-    /*
-     * Create administrator session
-     */
-
-    const session = {
-      id: user.id,
-      name: user.name,
-      role: user.role,
-      department: user.department
-    };
-
-
-    localStorage.setItem(
-      'ksucSession',
-      JSON.stringify(session)
-    );
-
-
-    /*
-     * Confirm session before redirecting.
-     * This helps prevent redirecting before
-     * the browser has stored the session.
-     */
-
-    const savedSession =
-      localStorage.getItem('ksucSession');
-
-
-    if (!savedSession) {
-
-      adminLoginError.textContent =
-        'Unable to create your login session. Please try again.';
-
-      return;
-
-    }
-
-
-    /*
-     * Enter administration portal
-     */
-
-    window.location.replace('admin.html');
-
-  }
-);
-
-
-/*
- * SHOW / HIDE PASSWORD
- */
-
-showAdminPassword.addEventListener(
-  'click',
-  function () {
-
-    if (adminPassword.type === 'password') {
-
-      adminPassword.type = 'text';
-
-      showAdminPassword.textContent = 'Hide';
-
+    console.error('KSUCflow administrator sign-in failed:', error);
+    const message = error && error.message ? error.message : '';
+    if (/invalid login credentials/i.test(message)) {
+      adminLoginError.textContent = 'The email or password is incorrect.';
+    } else if (/profile is assigned|no KSUCflow profile/i.test(message)) {
+      adminLoginError.textContent = message;
+    } else if (/permission|row-level security|policy|profiles/i.test(message)) {
+      adminLoginError.textContent = 'Your sign-in worked, but KSUCflow could not read your administrator profile. Check the profiles table access policy. Details: ' + message;
     } else {
-
-      adminPassword.type = 'password';
-
-      showAdminPassword.textContent = 'Show';
-
+      adminLoginError.textContent = message || 'Unable to sign in. Check your credentials and confirm your administrator profile is active.';
     }
-
+  } finally {
+    adminSubmit.disabled = false;
+    adminSubmit.textContent = originalLabel;
   }
-);
+});
+
+showAdminPassword.addEventListener('click', function () {
+  const showing = adminPassword.type === 'password';
+  adminPassword.type = showing ? 'text' : 'password';
+  showAdminPassword.textContent = showing ? 'Hide' : 'Show';
+});
