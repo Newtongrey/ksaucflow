@@ -277,3 +277,6 @@ input:focus {
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { scroll-behavior: auto !important; transition: none !important; }
 }
+
+/* KSUCflow unified type scale */
+body, button, input, select, textarea, h1, h2, h3, h4, label { font-family: "DM Sans", Arial, Helvetica, sans-serif !important; }
