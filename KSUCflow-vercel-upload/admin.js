@@ -260,7 +260,7 @@ function reportDateValue(row, type) {
 function csvCell(value) {
   let text = String(value == null ? '' : value);
   // Prevent spreadsheet formula execution when a CSV is opened in Excel.
-  if (/^[=+@\\-\\t\\r]/.test(text)) text = "'" + text;
+  if (/^[=+@\\-\t\r]/.test(text)) text = "'" + text;
   return '"' + text.replace(/"/g, '""') + '"';
 }
 
@@ -359,7 +359,7 @@ function exportReportCsv() {
     currentReportColumns.map(col => csvCell(col[1])).join(','),
     ...currentReportRows.map(row => currentReportColumns.map(col => csvCell(row[col[0]])).join(','))
   ];
-  const blob = new Blob(['\\uFEFF' + lines.join('\\r\\n')], { type: 'text/csv;charset=utf-8;' });
+  const blob = new Blob(['\uFEFF' + lines.join('\r\n')], { type: 'text/csv;charset=utf-8;' });
   const url = URL.createObjectURL(blob);
   const anchor = document.createElement('a');
   const date = new Date().toISOString().slice(0, 10);
