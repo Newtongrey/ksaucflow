@@ -49,6 +49,45 @@
         <article class="metric-card"><span class="metric-icon icon-slate">▤</span><div><p>Documents on this browser</p><strong id="documentTotal">—</strong><small>Local records; not yet shared across users</small></div></article>
       </section>
 
+      <section class="panel reports-panel" aria-labelledby="reportsTitle" style="margin:0 0 22px">
+        <div class="panel-heading">
+          <div>
+            <p class="section-label">REPORTS & EXPORTS</p>
+            <h2 id="reportsTitle">Administrative reports</h2>
+            <p class="muted">Generate a date-filtered snapshot and export it for review.</p>
+          </div>
+          <button class="button button-secondary" id="refreshReports" type="button">Refresh reports</button>
+        </div>
+        <div class="report-controls" style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;padding:16px 20px;border-bottom:1px solid #edf0f4">
+          <label style="display:block;color:#536174;font-size:11px;font-weight:700">Report type
+            <select id="reportType" style="display:block;width:100%;margin-top:6px;padding:10px;border:1px solid #dfe5ec;border-radius:7px;background:#fff;color:#202b3c">
+              <option value="documents">Document register (this browser)</option>
+              <option value="profiles">User profile directory</option>
+              <option value="activity">Activity log (this browser)</option>
+            </select>
+          </label>
+          <label style="display:block;color:#536174;font-size:11px;font-weight:700">From date
+            <input id="reportFrom" type="date" style="display:block;width:100%;margin-top:6px;padding:9px;border:1px solid #dfe5ec;border-radius:7px">
+          </label>
+          <label style="display:block;color:#536174;font-size:11px;font-weight:700">To date
+            <input id="reportTo" type="date" style="display:block;width:100%;margin-top:6px;padding:9px;border:1px solid #dfe5ec;border-radius:7px">
+          </label>
+          <div style="display:flex;align-items:end">
+            <button class="button button-primary button-full" id="exportReport" type="button">Export CSV</button>
+          </div>
+        </div>
+        <div id="reportSummary" style="padding:16px 20px;color:#4d5a6c;font-size:12px;line-height:1.7" role="status" aria-live="polite">
+          Loading report data…
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead id="reportHead"><tr><th>Report</th><th>Details</th></tr></thead>
+            <tbody id="reportRows"><tr><td colspan="2" class="table-message">Preparing report…</td></tr></tbody>
+          </table>
+        </div>
+        <footer class="table-footer"><span>CSV export · UTF-8</span><span>Document and activity reports currently reflect this browser only, not a shared institutional register.</span></footer>
+      </section>
+
       <section class="content-grid">
         <section class="panel directory-panel">
           <div class="panel-heading">
