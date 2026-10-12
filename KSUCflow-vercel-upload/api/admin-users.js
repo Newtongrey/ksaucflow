@@ -102,7 +102,8 @@ module.exports = async function handler(req, res) {
         if (!Array.isArray(admins) || admins.length === 0) return reply(res, 409, { error: 'Could not verify existing administrator accounts.' });
       }
 
-      const invited = await supabaseRequest(base + '/auth/v1/invite', serviceKey, {
+      const redirectTo = new URL('/password-reset.html', origin || ('https://' + host)).href;
+      const invited = await supabaseRequest(base + '/auth/v1/invite?redirect_to=' + encodeURIComponent(redirectTo), serviceKey, {
         method: 'POST',
         body: JSON.stringify({ email, data: { full_name: fullName, role, department_id: departmentId } })
       });
