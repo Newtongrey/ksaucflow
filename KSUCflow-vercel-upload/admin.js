@@ -230,6 +230,148 @@ async function signOut() {
   }
 }
 
+
+/* =========================================================
+   REPORTS & CSV EXPORT
+   Profile data comes from Supabase. Documents and activity
+   remain browser-local until the shared workflow migration.
+========================================================= */
+let currentReportRows = [];
+let currentReportColumns = [];
+
+function readLocalArray(key) {
+  try {
+    const value = JSON.parse(localStorage.getItem(key) || '[]');
+    return Array.isArray(value) ? value : [];
+  } catch (_) {
+    return [];
+  }
+}
+
+function reportDateValue(row, type) {
+  const value = type === 'profiles'
+    ? row.created_at
+    : (type === 'activity' ? (row.date || row.createdAt) : row.createdAt);
+  if (!value) return null;
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? null : date;
+}
+
+function csvCell(value) {
+  let text = String(value == null ? '' : value);
+  // Prevent spreadsheet formula execution when a CSV is opened in Excel.
+  if (/^[=+@\\-\\t\\r]/.test(text)) text = "'" + text;
+  return '"' + text.replace(/"/g, '""') + '"';
+}
+
+function renderReport() {
+  const type = byId('reportType').value;
+  const fromValue = byId('reportFrom').value;
+  const toValue = byId('reportTo').value;
+  const fromDate = fromValue ? new Date(fromValue + 'T00:00:00') : null;
+  const toDate = toValue ? new Date(toValue + 'T23:59:59.999') : null;
+  let rows = [];
+  let columns = [];
+
+  if (type === 'profiles') {
+    rows = profiles.map(profile => {
+      const department = departments.find(item => String(item.id) === String(profile.department_id));
+      return {
+        name: profile.full_name || profile.name || 'Unnamed profile',
+        profile_id: profile.id || '',
+        email: profile.email || '',
+        department: department ? department.name : 'Unassigned',
+        role: roleName(profile.role),
+        created_at: profile.created_at || ''
+      };
+    });
+    columns = [
+      ['name', 'Name'], ['profile_id', 'Profile ID'], ['email', 'Email'],
+      ['department', 'Department'], ['role', 'Role'], ['created_at', 'Created']
+    ];
+  } else if (type === 'activity') {
+    rows = readLocalArray('ksucActivity').map(item => ({
+      date: item.date || '', action: item.action || '',
+      detail: item.detail || '', user: item.user || '',
+      department: item.department || '', type: item.type || ''
+    }));
+    columns = [
+      ['date', 'Date'], ['action', 'Action'], ['detail', 'Detail'],
+      ['user', 'User'], ['department', 'Department'], ['type', 'Type']
+    ];
+  } else {
+    rows = readLocalArray('ksucDocuments').map(item => ({
+      ref: item.ref || '', title: item.title || item.subject || '',
+      origin: item.origin || '', destination: item.destination || '',
+      current_office: item.currentOffice || '', status: item.status || '',
+      registered_by: item.registeredBy || '', created_at: item.createdAt || '',
+      attachment: item.attachmentName || ''
+    }));
+    columns = [
+      ['ref', 'Reference'], ['title', 'Subject'], ['origin', 'Origin'],
+      ['destination', 'Destination'], ['current_office', 'Current office'],
+      ['status', 'Status'], ['registered_by', 'Registered by'],
+      ['created_at', 'Created'], ['attachment', 'Attachment']
+    ];
+  }
+
+  const dateKey = type === 'profiles' ? 'created_at' : (type === 'activity' ? 'date' : 'created_at');
+  if (fromDate || toDate) {
+    rows = rows.filter(row => {
+      const raw = row[dateKey];
+      if (!raw) return false;
+      const date = new Date(raw);
+      if (Number.isNaN(date.getTime())) return false;
+      return (!fromDate || date >= fromDate) && (!toDate || date <= toDate);
+    });
+  }
+
+  currentReportRows = rows;
+  currentReportColumns = columns;
+  const head = byId('reportHead');
+  const body = byId('reportRows');
+  head.innerHTML = '<tr>' + columns.map(col => '<th>' + escapeHtml(col[1]) + '</th>').join('') + '</tr>';
+
+  if (!rows.length) {
+    body.innerHTML = '<tr><td colspan="' + columns.length + '" class="table-message">No records match this report and date range.</td></tr>';
+  } else {
+    const preview = rows.slice(0, 25);
+    body.innerHTML = preview.map(row => '<tr>' + columns.map(col =>
+      '<td>' + escapeHtml(row[col[0]] || '—') + '</td>'
+    ).join('') + '</tr>').join('');
+    if (rows.length > preview.length) {
+      body.insertAdjacentHTML('beforeend', '<tr><td class="table-message" colspan="' + columns.length + '">Showing first 25 of ' + rows.length + ' records. Export CSV for the complete result.</td></tr>');
+    }
+  }
+
+  const label = type === 'profiles' ? 'Supabase user profiles'
+    : (type === 'activity' ? 'browser-local activity entries' : 'browser-local document records');
+  byId('reportSummary').textContent = rows.length + ' records in ' + label +
+    (fromValue || toValue ? ' for the selected date range.' : '.');
+}
+
+function exportReportCsv() {
+  if (!currentReportColumns.length) {
+    showToast('There are no report columns to export.');
+    return;
+  }
+  const lines = [
+    currentReportColumns.map(col => csvCell(col[1])).join(','),
+    ...currentReportRows.map(row => currentReportColumns.map(col => csvCell(row[col[0]])).join(','))
+  ];
+  const blob = new Blob(['\\uFEFF' + lines.join('\\r\\n')], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const anchor = document.createElement('a');
+  const date = new Date().toISOString().slice(0, 10);
+  anchor.href = url;
+  anchor.download = 'KSUCflow-' + byId('reportType').value + '-report-' + date + '.csv';
+  document.body.appendChild(anchor);
+  anchor.click();
+  anchor.remove();
+  URL.revokeObjectURL(url);
+  showToast('CSV report exported.');
+}
+
 async function initialiseAdmin() {
   applySettings(getSettings());
   setCheck('auth', 'Verifying administrator session…', null);
@@ -254,8 +396,17 @@ async function initialiseAdmin() {
     .trim().split(/\s+/).slice(0, 2).map(function (part) { return part.charAt(0); }).join('').toUpperCase();
   setCheck('auth', 'Signed in as an administrator.', 'ok');
   await loadDirectory();
+  renderReport();
 }
 
+byId('reportType').addEventListener('change', renderReport);
+byId('reportFrom').addEventListener('change', renderReport);
+byId('reportTo').addEventListener('change', renderReport);
+byId('refreshReports').addEventListener('click', async function () {
+  await loadDirectory();
+  renderReport();
+});
+byId('exportReport').addEventListener('click', exportReportCsv);
 byId('profileSearch').addEventListener('input', renderProfileDirectory);
 byId('departmentFilter').addEventListener('change', renderProfileDirectory);
 byId('roleFilter').addEventListener('change', renderProfileDirectory);
