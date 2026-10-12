@@ -113,3 +113,19 @@ tbody tr:hover{background:#fffafa}
 @media(max-width:1120px){.content-grid{grid-template-columns:1fr}.side-column{grid-template-columns:repeat(2,minmax(0,1fr));align-items:start}.guidance-panel{grid-column:1/-1}.metrics{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:760px){.topbar{align-items:flex-start;padding:14px 16px}.topbar-right{align-items:flex-end;flex-direction:column;gap:10px}.signed-in{gap:8px}.signed-in small{max-width:140px}.page{padding:25px 15px}.page-heading{align-items:flex-start;flex-direction:column}.heading-actions{width:100%}.heading-actions .button{flex:1}.filters{grid-template-columns:1fr}.side-column{grid-template-columns:1fr}.guidance-panel{grid-column:auto}.panel-heading{padding:18px}.table-footer{padding:12px 15px}.brand-copy small{max-width:220px;line-height:1.4}}
 @media(max-width:420px){.brand-mark{flex-basis:36px;width:36px;height:36px}.brand-copy strong{font-size:17px}.brand-copy small{font-size:8px;letter-spacing:.7px}.signed-in .avatar{display:none}.button{padding:9px 10px;font-size:11px}.metrics{gap:10px}.metric-card{padding:14px;gap:9px}.metric-icon{flex-basis:32px;width:32px;height:32px}.metric-card strong{font-size:24px}}
+
+
+/* Reports panel */
+.reports-panel .report-controls label { min-width: 0; }
+.reports-panel .report-controls input:focus,
+.reports-panel .report-controls select:focus {
+  outline: 2px solid rgba(125,0,0,.12);
+  border-color: var(--brand);
+}
+.reports-panel .table-wrap { max-height: 420px; }
+.reports-panel td { overflow-wrap: anywhere; }
+@media (max-width: 760px) {
+  .reports-panel .report-controls { grid-template-columns: 1fr !important; }
+  .reports-panel .report-controls > div { align-items: stretch; }
+  .reports-panel .report-controls button { width: 100%; }
+}
