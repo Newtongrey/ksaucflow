@@ -36,6 +36,11 @@ async function supabaseRequest(url, key, options = {}) {
   return data;
 }
 
+async function listAdministrators(base, serviceKey) {
+  const rows = await supabaseRequest(base + '/rest/v1/profiles?select=id,role', serviceKey, { method: 'GET' });
+  return Array.isArray(rows) ? rows.filter(row => isAdminRole(row.role)) : [];
+}
+
 module.exports = async function handler(req, res) {
   if (req.method !== 'POST') {
     res.setHeader('Allow', 'POST');
@@ -93,7 +98,7 @@ module.exports = async function handler(req, res) {
       if (!fullName) return reply(res, 400, { error: 'Full name is required.' });
       if (!allowedRoles.has(role)) return reply(res, 400, { error: 'Invalid account role.' });
       if (role === 'Administrator') {
-        const admins = await supabaseRequest(base + '/rest/v1/profiles?select=id&role=eq.Administrator', serviceKey, { method: 'GET' });
+        const admins = await listAdministrators(base, serviceKey);
         if (!Array.isArray(admins) || admins.length === 0) return reply(res, 409, { error: 'Could not verify existing administrator accounts.' });
       }
 
@@ -131,7 +136,7 @@ module.exports = async function handler(req, res) {
       const target = await supabaseRequest(base + '/rest/v1/profiles?select=id,role&id=eq.' + encodeURIComponent(id), serviceKey, { method: 'GET' });
       if (!Array.isArray(target) || !target.length) return reply(res, 404, { error: 'Profile not found.' });
       if (isAdminRole(target[0].role) && role !== 'Administrator') {
-        const admins = await supabaseRequest(base + '/rest/v1/profiles?select=id&role=eq.Administrator', serviceKey, { method: 'GET' });
+        const admins = await listAdministrators(base, serviceKey);
         if (Array.isArray(admins) && admins.length <= 1) return reply(res, 409, { error: 'The last administrator cannot be demoted.' });
       }
       await supabaseRequest(base + '/rest/v1/profiles?id=eq.' + encodeURIComponent(id), serviceKey, {
@@ -149,7 +154,7 @@ module.exports = async function handler(req, res) {
       const target = await supabaseRequest(base + '/rest/v1/profiles?select=id,role&id=eq.' + encodeURIComponent(id), serviceKey, { method: 'GET' });
       if (!Array.isArray(target) || !target.length) return reply(res, 404, { error: 'Profile not found.' });
       if (String(target[0].role || '').toLowerCase() === 'administrator') {
-        const admins = await supabaseRequest(base + '/rest/v1/profiles?select=id&role=eq.Administrator', serviceKey, { method: 'GET' });
+        const admins = await listAdministrators(base, serviceKey);
         if (Array.isArray(admins) && admins.length <= 1) return reply(res, 409, { error: 'The last administrator cannot be deactivated.' });
       }
       await supabaseRequest(base + '/auth/v1/admin/users/' + encodeURIComponent(id), serviceKey, {
