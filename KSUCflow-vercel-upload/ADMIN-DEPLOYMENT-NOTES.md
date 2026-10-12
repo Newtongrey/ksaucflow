@@ -17,7 +17,7 @@ Open **Vercel → ksaucflow → Settings → Environment Variables** and add the
 
 Use the correct Vercel secret/environment variable field for the service-role key. Never put it in `supabase-config.js`, HTML, JavaScript committed to GitHub, or a client-side environment variable. Do not paste it into chat. After saving the variables, redeploy the feature preview.
 
-The existing browser configuration uses a publishable key. The API uses the server-only service-role key only after validating the caller's bearer token and checking that the caller's database profile has the Administrator role.
+The existing browser configuration uses a publishable key. The API uses the server-only service-role key only after validating the caller's bearer token and checking that the caller's database profile has the Administrator role. Set the Supabase Auth **Site URL** to the production origin `https://ksaucflow.vercel.app` and add these exact recovery redirect URLs under **Redirect URLs**: `https://ksaucflow.vercel.app/password-reset.html` and `https://ksaucflow-git-feature-supabase-pilot-client-ggg-353a.vercel.app/password-reset.html`. Add the localhost password-reset URL only if you intentionally test locally. Invitations and password resets use `password-reset.html`.
 
 ## Database expectations
 
