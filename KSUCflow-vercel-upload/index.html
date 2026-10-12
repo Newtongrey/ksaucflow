@@ -707,6 +707,45 @@
   </dialog>
 
 
+
+  <!-- STAFF PROFILE EDITOR -->
+  <dialog id="profileModal" class="modal small-modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <div>
+          <h2>My Profile</h2>
+          <p>Personalise how your name and photo appear in KSUCflow.</p>
+        </div>
+        <button type="button" class="modal-close" id="closeProfileModal" aria-label="Close profile editor">×</button>
+      </div>
+      <form id="profileForm" class="profile-form">
+        <div class="profile-photo-editor">
+          <div class="profile-photo-preview" id="profilePhotoPreview">U</div>
+          <div class="profile-photo-controls">
+            <label for="profilePhotoInput">Profile photo</label>
+            <input id="profilePhotoInput" type="file" accept="image/png,image/jpeg,image/webp">
+            <small class="field-help">JPG, PNG or WebP. The image is resized before saving and stored in this browser.</small>
+            <button type="button" class="btn secondary" id="removeProfilePhotoBtn">Remove photo</button>
+          </div>
+        </div>
+        <label>Display name
+          <input id="profileDisplayName" type="text" maxlength="100" required autocomplete="name">
+        </label>
+        <label>Job title (optional)
+          <input id="profileJobTitle" type="text" maxlength="100" placeholder="e.g. ICT Officer">
+        </label>
+        <label>Phone number (optional)
+          <input id="profilePhone" type="tel" maxlength="30" autocomplete="tel" placeholder="e.g. 07xx xxx xxx">
+        </label>
+        <p class="field-help">Your role and department are managed by the administrator and cannot be changed here.</p>
+        <div class="modal-actions profile-actions">
+          <button type="button" class="btn secondary" id="cancelProfileBtn">Cancel</button>
+          <button type="submit" class="btn primary" id="saveProfileBtn">Save Profile</button>
+        </div>
+      </form>
+    </div>
+  </dialog>
+
   <!-- =====================================================
        NOTIFICATION MODAL
   ====================================================== -->
@@ -781,6 +820,9 @@
 
 
   <!-- SCRIPTS -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase-config.js"></script>
+<script src="supabase-client.js"></script>
 <script src="auth-guard.js"></script>
 <script src="app.js"></script>
 
