@@ -1,205 +1,59 @@
-const DEFAULT_USERS = [
+'use strict';
+const loginForm = document.getElementById('loginForm');
+const loginError = document.getElementById('error');
+const loginButton = loginForm.querySelector('button[type="submit"]');
 
-  {
-    id: 1,
-    name: 'Newton Mwangi',
-    email: 'newton.mwangi@ksuc.ac.ke',
-    department: 'Registry',
-    role: 'Administrator',
-    active: true,
-    password: 'ChangeMe123!'
-  },
-
-  {
-    id: 2,
-    name: 'James Kariuki',
-    email: 'james.kariuki@ksuc.ac.ke',
-    department: 'Finance',
-    role: 'Department Head',
-    active: true,
-    password: 'ChangeMe123!'
-  },
-
-  {
-    id: 3,
-    name: 'Sarah Mwangi',
-    email: 'sarah.mwangi@ksuc.ac.ke',
-    department: 'Human Resources',
-    role: 'Staff',
-    active: true,
-    password: 'ChangeMe123!'
-  },
-
-  {
-    id: 4,
-    name: 'Brian Otieno',
-    email: 'brian.otieno@ksuc.ac.ke',
-    department: 'Academic Affairs',
-    role: 'Staff',
-    active: false,
-    password: 'ChangeMe123!'
+loginForm.addEventListener('submit', async function (event) {
+  event.preventDefault();
+  loginError.textContent = '';
+  if (!window.ksucSupabase) {
+    loginError.textContent = 'The sign-in service is not ready. Refresh the page or contact ICT.';
+    return;
   }
-
-];
-
-
-function users() {
-
+  const email = document.getElementById('email').value.trim().toLowerCase();
+  const password = document.getElementById('password').value;
+  const originalLabel = loginButton.textContent;
+  loginButton.disabled = true;
+  loginButton.textContent = 'Signing in…';
   try {
-
-    const saved =
-      JSON.parse(
-        localStorage.getItem('routeflowUsers') || 'null'
-      );
-
-    if (saved && Array.isArray(saved)) {
-      return saved;
+    const { data, error } = await window.ksucSupabase.auth.signInWithPassword({ email, password });
+    if (error) throw error;
+    const sessionUser = await window.ksucLoadProfile(data.user);
+    if (sessionUser.role === 'Administrator') {
+      await window.ksucSupabase.auth.signOut();
+      loginError.textContent = 'Administrators must sign in through the Admin Portal.';
+      return;
+    }
+    const sessionResult = await window.ksucSupabase.auth.getSession();
+    if (sessionResult.error) throw sessionResult.error;
+    const persistedUser = sessionResult.data && sessionResult.data.session && sessionResult.data.session.user;
+    if (!persistedUser || persistedUser.id !== data.user.id) {
+      throw new Error('The sign-in succeeded but the browser did not retain the session. Allow site storage for this deployment, then try again.');
     }
 
+    localStorage.setItem('ksucSession', JSON.stringify(sessionUser));
+    window.location.replace(new URL('/index.html', window.location.origin).href);
   } catch (error) {
-
-    console.warn('Unable to read saved users.');
-
-  }
-
-
-  localStorage.setItem(
-    'routeflowUsers',
-    JSON.stringify(DEFAULT_USERS)
-  );
-
-  return DEFAULT_USERS;
-
-}
-
-
-/*
- * STAFF LOGIN
- */
-
-document
-  .querySelector('#loginForm')
-  .addEventListener('submit', function (event) {
-
-    event.preventDefault();
-
-    const email =
-      document
-        .querySelector('#email')
-        .value
-        .trim()
-        .toLowerCase();
-
-    const password =
-      document
-        .querySelector('#password')
-        .value;
-
-    const error =
-      document.querySelector('#error');
-
-
-    error.textContent = '';
-
-
-    const user = users().find(item =>
-      item.email &&
-      item.email.toLowerCase() === email &&
-      item.password === password
-    );
-
-
-    /*
-     * Invalid credentials
-     */
-
-    if (!user) {
-
-      error.textContent =
-        'The email address or password is incorrect.';
-
-      return;
-
-    }
-
-
-    /*
-     * Disabled account
-     */
-
-    if (!user.active) {
-
-      error.textContent =
-        'This account has been disabled. Contact an administrator.';
-
-      return;
-
-    }
-
-
-    /*
-     * Administrators must use the
-     * dedicated administrator portal.
-     */
-
-    if (user.role === 'Administrator') {
-
-      error.textContent =
-        'Administrators must sign in through the Admin Portal.';
-
-      return;
-
-    }
-
-
-    /*
-     * Create staff session
-     */
-
-    localStorage.setItem(
-      'ksucSession',
-      JSON.stringify({
-        id: user.id,
-        name: user.name,
-        role: user.role,
-        department: user.department
-      })
-    );
-
-
-    /*
-     * Open staff dashboard
-     */
-
-    window.location.href = 'index.html';
-
-  });
-
-
-/*
- * SHOW / HIDE PASSWORD
- */
-
-document
-  .querySelector('#showPassword')
-  .addEventListener('click', function (event) {
-
-    const field =
-      document.querySelector('#password');
-
-
-    if (field.type === 'password') {
-
-      field.type = 'text';
-
-      event.target.textContent = 'Hide';
-
+    console.error('KSUCflow staff sign-in failed:', error);
+    const message = error && error.message ? error.message : '';
+    if (/invalid login credentials/i.test(message)) {
+      loginError.textContent = 'The email or password is incorrect.';
+    } else if (/profile is assigned|no KSUCflow profile/i.test(message)) {
+      loginError.textContent = message;
+    } else if (/permission|row-level security|policy|profiles/i.test(message)) {
+      loginError.textContent = 'Sign-in succeeded, but KSUCflow could not read your profile. Contact the administrator to check profile access. Details: ' + message;
     } else {
-
-      field.type = 'password';
-
-      event.target.textContent = 'Show';
-
+      loginError.textContent = message || 'Unable to sign in. Check your email and password, and confirm your account has been activated by the administrator.';
     }
+  } finally {
+    loginButton.disabled = false;
+    loginButton.textContent = originalLabel;
+  }
+});
 
-  });
+document.getElementById('showPassword').addEventListener('click', function (event) {
+  const field = document.getElementById('password');
+  const showing = field.type === 'password';
+  field.type = showing ? 'text' : 'password';
+  event.currentTarget.textContent = showing ? 'Hide' : 'Show';
+});
