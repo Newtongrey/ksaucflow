@@ -508,8 +508,17 @@ document.getElementById('statusFilter').addEventListener('change', applyFilters)
 document.getElementById('departmentFilter').addEventListener('change', applyFilters);
 document.getElementById('sortFilter').addEventListener('change', applyFilters);
 
-loadDepartments();
-applyFilters();
+if (window.ksucAuthReady) {
+  window.ksucAuthReady.then(function (profile) {
+    if (profile) {
+      loadDepartments();
+      applyFilters();
+    }
+  });
+} else {
+  loadDepartments();
+  applyFilters();
+}
 </script>
 
 </body>
