@@ -117,13 +117,23 @@ function renderProfileDirectory() {
         ? String(profile.id).slice(0, 8) + '…' + String(profile.id).slice(-4)
         : String(profile.id || '—');
 
+      const departmentOptions = '<option value="">Unassigned</option>' + departments.map(function (item) {
+        return '<option value="' + escapeHtml(item.id) + '"' +
+          (String(item.id) === String(profile.department_id || '') ? ' selected' : '') + '>' +
+          escapeHtml(item.name) + '</option>';
+      }).join('');
+      const roleOptions = ['Staff', 'Department Head', 'Administrator'].map(function (item) {
+        return '<option value="' + item + '"' + (role === item ? ' selected' : '') + '>' + item + '</option>';
+      }).join('');
       return '<tr>' +
         '<td><div class="profile-name"><span class="profile-avatar">' + escapeHtml(initials) + '</span><span><strong>' +
         escapeHtml(name) + '</strong><small title="' + escapeHtml(profile.id || '') + '">' + escapeHtml(shortId) + '</small></span></div></td>' +
-        '<td>' + escapeHtml(departmentName) + '</td>' +
-        '<td><span class="role-pill ' + roleClass + '">' + escapeHtml(role) + '</span></td>' +
+        '<td><select class="admin-inline-select" aria-label="Department for ' + escapeHtml(name) + '" data-department-for="' + escapeHtml(profile.id || '') + '">' + departmentOptions + '</select></td>' +
+        '<td><select class="admin-inline-select" aria-label="Role for ' + escapeHtml(name) + '" data-role-for="' + escapeHtml(profile.id || '') + '">' + roleOptions + '</select></td>' +
         '<td>' + escapeHtml(displayDate(profile.created_at)) + '</td>' +
-        '<td><button class="copy-button" type="button" data-copy-id="' + escapeHtml(profile.id || '') + '">Copy ID</button></td>' +
+        '<td><div class="admin-row-actions"><button class="copy-button" type="button" data-save-profile="' + escapeHtml(profile.id || '') + '">Save access</button>' +
+        '<button class="copy-button" type="button" data-deactivate-profile="' + escapeHtml(profile.id || '') + '">Deactivate</button>' +
+        '<button class="copy-button" type="button" data-copy-id="' + escapeHtml(profile.id || '') + '">Copy ID</button></div></td>' +
         '</tr>';
     }).join('');
   }
@@ -153,6 +163,17 @@ function renderDepartmentFilter() {
   }).join('');
   if (departments.some(function (department) { return String(department.id) === selected; })) {
     select.value = selected;
+  }
+
+  const inviteSelect = byId('inviteDepartment');
+  if (inviteSelect) {
+    const inviteSelected = inviteSelect.value;
+    inviteSelect.innerHTML = '<option value="">Select department</option>' + departments.map(function (department) {
+      return '<option value="' + escapeHtml(department.id) + '">' + escapeHtml(department.name) + '</option>';
+    }).join('');
+    if (departments.some(function (department) { return String(department.id) === inviteSelected; })) {
+      inviteSelect.value = inviteSelected;
+    }
   }
 }
 
@@ -372,6 +393,94 @@ function exportReportCsv() {
   showToast('CSV report exported.');
 }
 
+
+async function callAdminApi(payload) {
+  const sessionResult = await window.ksucSupabase.auth.getSession();
+  if (sessionResult.error) throw sessionResult.error;
+  const token = sessionResult.data && sessionResult.data.session && sessionResult.data.session.access_token;
+  if (!token) throw new Error('Your administrator session has expired. Sign in again.');
+  const response = await fetch('/api/admin-users', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+    body: JSON.stringify(payload)
+  });
+  let result = {};
+  try { result = await response.json(); } catch (_) {}
+  if (!response.ok) throw new Error(result.error || 'The account management request failed.');
+  return result;
+}
+
+async function inviteUser(event) {
+  event.preventDefault();
+  const submit = byId('inviteUserSubmit');
+  const feedback = byId('inviteFeedback');
+  const payload = {
+    action: 'invite',
+    full_name: byId('inviteFullName').value.trim(),
+    email: byId('inviteEmail').value.trim(),
+    department_id: byId('inviteDepartment').value || null,
+    role: byId('inviteRole').value
+  };
+  submit.disabled = true;
+  submit.textContent = 'Sending invitation…';
+  feedback.textContent = '';
+  try {
+    const result = await callAdminApi(payload);
+    feedback.textContent = result.message || 'Invitation sent.';
+    byId('inviteUserForm').reset();
+    await loadDirectory();
+    renderReport();
+  } catch (error) {
+    feedback.textContent = error.message || 'Could not send invitation.';
+    feedback.style.color = '#9c3030';
+  } finally {
+    submit.disabled = false;
+    submit.textContent = 'Send staff invitation';
+  }
+}
+
+async function saveProfileAccess(id) {
+  const roleControl = document.querySelector('[data-role-for="' + CSS.escape(id) + '"]');
+  const departmentControl = document.querySelector('[data-department-for="' + CSS.escape(id) + '"]');
+  const profile = profiles.find(item => String(item.id) === String(id));
+  if (!roleControl || !departmentControl || !profile) return;
+  const button = document.querySelector('[data-save-profile="' + CSS.escape(id) + '"]');
+  button.disabled = true;
+  try {
+    const result = await callAdminApi({
+      action: 'update-profile',
+      user_id: id,
+      full_name: profile.full_name || profile.name || 'KSUCflow user',
+      role: roleControl.value,
+      department_id: departmentControl.value || null
+    });
+    showToast(result.message || 'Profile updated.');
+    await loadDirectory();
+    renderReport();
+  } catch (error) {
+    showToast(error.message || 'Could not update profile.');
+  } finally {
+    if (button) button.disabled = false;
+  }
+}
+
+async function deactivateProfile(id) {
+  const profile = profiles.find(item => String(item.id) === String(id));
+  if (!profile) return;
+  const name = profile.full_name || profile.name || 'this account';
+  if (!window.confirm('Deactivate sign-in access for ' + name + '? The profile and document history will be retained.')) return;
+  const button = document.querySelector('[data-deactivate-profile="' + CSS.escape(id) + '"]');
+  if (button) button.disabled = true;
+  try {
+    const result = await callAdminApi({ action: 'deactivate', user_id: id });
+    showToast(result.message || 'Account deactivated.');
+  } catch (error) {
+    showToast(error.message || 'Could not deactivate account.');
+  } finally {
+    if (button) button.disabled = false;
+  }
+}
+
 async function initialiseAdmin() {
   applySettings(getSettings());
   setCheck('auth', 'Verifying administrator session…', null);
@@ -407,6 +516,13 @@ byId('refreshReports').addEventListener('click', async function () {
   renderReport();
 });
 byId('exportReport').addEventListener('click', exportReportCsv);
+byId('inviteUserForm').addEventListener('submit', inviteUser);
+byId('userRows').addEventListener('click', async function (event) {
+  const saveButton = event.target.closest('[data-save-profile]');
+  if (saveButton) return saveProfileAccess(saveButton.getAttribute('data-save-profile'));
+  const deactivateButton = event.target.closest('[data-deactivate-profile]');
+  if (deactivateButton) return deactivateProfile(deactivateButton.getAttribute('data-deactivate-profile'));
+});
 byId('profileSearch').addEventListener('input', renderProfileDirectory);
 byId('departmentFilter').addEventListener('change', renderProfileDirectory);
 byId('roleFilter').addEventListener('change', renderProfileDirectory);
