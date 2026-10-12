@@ -38,8 +38,32 @@
       status.className = 'notice notice-error';
       status.textContent = message;
     } else {
-      console.error('KSUCflow authentication:', message);
-      window.alert(message);
+      // Protected pages without a dedicated error panel receive a safe fallback
+      // screen instead of exposing the page after profile verification failed.
+      console.error('KSUCflow authentication verification failed:', message);
+      const overlay = document.createElement('main');
+      overlay.id = 'ksucAuthFailureOverlay';
+      overlay.style.cssText = 'position:fixed;inset:0;z-index:2147483000;display:grid;place-items:center;padding:24px;background:#f5f7fa;font-family:Arial,sans-serif;color:#202b3c';
+      const card = document.createElement('section');
+      card.style.cssText = 'width:min(520px,100%);padding:30px;background:#fff;border:1px solid #e5eaf0;border-radius:14px;box-shadow:0 16px 50px rgba(0,0,0,.1)';
+      const heading = document.createElement('h1');
+      heading.textContent = 'KSUCflow could not verify your session';
+      heading.style.cssText = 'font-size:23px;margin:0 0 12px;color:#7D0000';
+      const details = document.createElement('p');
+      details.textContent = message;
+      details.style.cssText = 'font-size:13px;line-height:1.7;color:#657286;overflow-wrap:anywhere';
+      const retry = document.createElement('button');
+      retry.type = 'button';
+      retry.textContent = 'Try again';
+      retry.style.cssText = 'padding:10px 14px;margin:8px 8px 0 0;border:0;border-radius:7px;background:#7D0000;color:#fff;font-weight:700;cursor:pointer';
+      retry.addEventListener('click', function () { window.location.reload(); });
+      const login = document.createElement('a');
+      login.href = new URL('/' + loginPage, window.location.origin).href;
+      login.textContent = 'Return to sign in';
+      login.style.cssText = 'display:inline-block;padding:10px 14px;margin-top:8px;border:1px solid #dce3eb;border-radius:7px;color:#7D0000;text-decoration:none;font-weight:700;font-size:13px';
+      card.append(heading, details, retry, login);
+      overlay.appendChild(card);
+      document.body.appendChild(overlay);
     }
   }
 
