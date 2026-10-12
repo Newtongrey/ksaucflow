@@ -89,7 +89,20 @@
       </section>
 
       <section class="content-grid">
-        <section class="panel directory-panel">
+        <section class="panel" style="margin-bottom:20px">
+        <div class="panel-heading">
+          <div><p class="section-label">ACCOUNT MANAGEMENT</p><h2>Invite a staff member</h2><p class="muted">Send an invitation and assign the initial department and role.</p></div>
+        </div>
+        <form id="inviteUserForm" class="settings-form" style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;align-items:end">
+          <label>Full name<input id="inviteFullName" type="text" maxlength="120" autocomplete="name" required placeholder="Staff member's full name"></label>
+          <label>Email address<input id="inviteEmail" type="email" maxlength="254" autocomplete="email" required placeholder="name@ksuc.ac.ke"></label>
+          <label>Department<select id="inviteDepartment" required style="display:block;width:100%;margin-top:6px;padding:10px 11px;border:1px solid #dfe5ec;border-radius:7px;background:#fff;color:#202b3c"><option value="">Loading departments…</option></select></label>
+          <label>Role<select id="inviteRole" required style="display:block;width:100%;margin-top:6px;padding:10px 11px;border:1px solid #dfe5ec;border-radius:7px;background:#fff;color:#202b3c"><option>Staff</option><option>Department Head</option><option>Administrator</option></select></label>
+          <div style="grid-column:span 2"><button class="button button-primary" id="inviteUserSubmit" type="submit">Send staff invitation</button><p class="form-feedback" id="inviteFeedback" role="status" aria-live="polite"></p></div>
+        </form>
+      </section>
+
+      <section class="panel directory-panel">
           <div class="panel-heading">
             <div><p class="section-label">ACCESS DIRECTORY</p><h2>User profiles</h2><p class="muted">Live profile records from the KSUCflow database.</p></div>
             <span class="live-chip"><span></span> Supabase</span>
@@ -101,7 +114,7 @@
           </div>
           <div class="table-wrap">
             <table>
-              <thead><tr><th>PROFILE</th><th>DEPARTMENT</th><th>ROLE</th><th>CREATED</th><th><span class="sr-only">Actions</span></th></tr></thead>
+              <thead><tr><th>PROFILE</th><th>DEPARTMENT</th><th>ROLE</th><th>CREATED</th><th>ACCESS CONTROLS</th></tr></thead>
               <tbody id="userRows"><tr><td colspan="5" class="table-message">Loading directory…</td></tr></tbody>
             </table>
           </div>
