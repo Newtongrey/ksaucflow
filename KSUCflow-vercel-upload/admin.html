@@ -1,613 +1,168 @@
 <!doctype html>
 <html lang="en">
-
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#7D0000">
   <title>KSUCflow | Administration</title>
-
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-
-  <link
-    href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap"
-    rel="stylesheet"
-  >
-
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="admin.css">
 </head>
-
 <body>
-
-  <!-- TOP BAR -->
-
-  <header class="topbar">
-
-    <a class="brand" href="index.html">
-
-      <span class="brand-mark" id="mark">K</span>
-
-      <span class="brand-text">
-
-        <strong id="brandName">KSUCflow</strong>
-
-        <small>ADMINISTRATION</small>
-
-      </span>
-
-    </a>
-
-
-    <div class="admin-profile">
-
-      <div class="avatar" id="adminAvatar">
-        NM
-      </div>
-
-      <div class="admin-details">
-
-        <strong id="adminName">
-          Administrator
-        </strong>
-
-        <small id="adminRole">
-          System Administrator
-        </small>
-
-      </div>
-
-      <button
-        id="signOut"
-        class="sign-out"
-        type="button"
-      >
-        Sign out
-      </button>
-
-    </div>
-
-  </header>
-
-
-  <!-- PAGE -->
-
-  <main class="admin-main">
-
-    <!-- PAGE HEADER -->
-
-    <section class="page-header">
-
-      <div>
-
-        <p class="eyebrow">
-          SYSTEM ADMINISTRATION
-        </p>
-
-        <h1>
-          Control centre
-        </h1>
-
-        <p class="page-description">
-          Manage users, access rights and the KSUCflow
-          document workflow system.
-        </p>
-
-      </div>
-
-
-      <a
-        href="index.html"
-        class="return-button"
-      >
-        ← Document Portal
+  <div class="app-shell" id="adminShell">
+    <header class="topbar">
+      <a class="brand" href="index.html" aria-label="KSUCflow dashboard">
+        <span class="brand-mark" id="mark">K</span>
+        <span class="brand-copy"><strong id="brandName">KSUCflow</strong><small>KOITALEEL SAMOEI UNIVERSITY COLLEGE</small></span>
       </a>
-
-    </section>
-
-
-    <!-- METRICS -->
-
-    <section class="metrics">
-
-      <article class="metric-card">
-
-        <div class="metric-icon">
-          U
+      <div class="topbar-right">
+        <div class="signed-in">
+          <span class="avatar" id="adminAvatar">A</span>
+          <span><strong id="adminName">Administrator</strong><small id="adminRole">System administrator</small></span>
         </div>
+        <button class="button button-outline-light" id="signOut" type="button">Sign out</button>
+      </div>
+    </header>
 
+    <main class="page">
+      <section class="page-heading">
         <div>
-
-          <p>Total users</p>
-
-          <strong id="totalUsers">
-            0
-          </strong>
-
+          <p class="eyebrow">SYSTEM ADMINISTRATION</p>
+          <h1>Control centre</h1>
+          <p class="subtitle">A clear view of KSUCflow access profiles, portal settings and system readiness.</p>
         </div>
-
-      </article>
-
-
-      <article class="metric-card">
-
-        <div class="metric-icon green">
-          ✓
+        <div class="heading-actions">
+          <button class="button button-secondary" id="refreshProfiles" type="button">↻ Refresh directory</button>
+          <a class="button button-primary" href="index.html">Open document portal ↗</a>
         </div>
-
-        <div>
-
-          <p>Active accounts</p>
-
-          <strong id="activeUsers">
-            0
-          </strong>
-
-        </div>
-
-      </article>
-
-
-      <article class="metric-card">
-
-        <div class="metric-icon gold">
-          A
-        </div>
-
-        <div>
-
-          <p>Administrators</p>
-
-          <strong id="adminUsers">
-            0
-          </strong>
-
-        </div>
-
-      </article>
-
-
-      <article class="metric-card">
-
-        <div class="metric-icon purple">
-          D
-        </div>
-
-        <div>
-
-          <p>Documents registered</p>
-
-          <strong id="documentTotal">
-            —
-          </strong>
-
-        </div>
-
-      </article>
-
-    </section>
-
-
-    <!-- MAIN CONTENT -->
-
-    <section class="admin-grid">
-
-
-      <!-- USER MANAGEMENT -->
-
-      <section class="panel users-panel">
-
-        <div class="panel-header">
-
-          <div>
-
-            <p class="section-label">
-              MANAGEMENT
-            </p>
-
-            <h2>
-              User management
-            </h2>
-
-            <p>
-              Manage KSUCflow accounts, roles and access.
-            </p>
-
-          </div>
-
-          <button
-            class="primary-button"
-            id="addUser"
-            type="button"
-          >
-            + Add user
-          </button>
-
-        </div>
-
-
-        <div class="table-container">
-
-          <table>
-
-            <thead>
-
-              <tr>
-
-                <th>
-                  USER
-                </th>
-
-                <th>
-                  DEPARTMENT
-                </th>
-
-                <th>
-                  ROLE
-                </th>
-
-                <th>
-                  STATUS
-                </th>
-
-                <th>
-                  ACTIONS
-                </th>
-
-              </tr>
-
-            </thead>
-
-            <tbody id="userRows"></tbody>
-
-          </table>
-
-        </div>
-
       </section>
 
+      <div class="notice" id="authStatus" role="status" aria-live="polite" hidden></div>
+      <div class="notice notice-error" id="directoryError" role="alert" hidden></div>
 
-      <!-- RIGHT COLUMN -->
+      <section class="metrics" aria-label="Administration summary">
+        <article class="metric-card"><span class="metric-icon">◎</span><div><p>Profiles in directory</p><strong id="totalUsers">—</strong><small>Loaded from Supabase</small></div></article>
+        <article class="metric-card"><span class="metric-icon icon-green">↗</span><div><p>Staff and department heads</p><strong id="activeUsers">—</strong><small>Non-administrator profiles</small></div></article>
+        <article class="metric-card"><span class="metric-icon icon-gold">◆</span><div><p>Administrators</p><strong id="adminUsers">—</strong><small>Profiles with admin role</small></div></article>
+        <article class="metric-card"><span class="metric-icon icon-slate">▤</span><div><p>Documents on this browser</p><strong id="documentTotal">—</strong><small>Local records; not yet shared across users</small></div></article>
+      </section>
 
-      <aside class="right-column">
-
-
-        <!-- ADMIN PRIVILEGES -->
-
-        <section class="panel">
-
-          <div class="panel-header compact">
-
-            <div>
-
-              <p class="section-label">
-                ACCESS
-              </p>
-
-              <h2>
-                Administrator privileges
-              </h2>
-
-              <p>
-                Your current authority
-              </p>
-
-            </div>
-
+      <section class="panel reports-panel" aria-labelledby="reportsTitle" style="margin:0 0 22px">
+        <div class="panel-heading">
+          <div>
+            <p class="section-label">REPORTS & EXPORTS</p>
+            <h2 id="reportsTitle">Administrative reports</h2>
+            <p class="muted">Generate a date-filtered snapshot and export it for review.</p>
           </div>
-
-
-          <ul class="privileges">
-
-            <li>
-              <span>✓</span>
-              Create and manage user accounts
-            </li>
-
-            <li>
-              <span>✓</span>
-              Assign roles and departments
-            </li>
-
-            <li>
-              <span>✓</span>
-              Enable or disable accounts
-            </li>
-
-            <li>
-              <span>✓</span>
-              Reset temporary passwords
-            </li>
-
-            <li>
-              <span>✓</span>
-              Manage portal settings
-            </li>
-
-            <li>
-              <span>✓</span>
-              Review document activity
-            </li>
-
-          </ul>
-
-        </section>
-
-
-        <!-- SETTINGS -->
-
-        <section class="panel settings-panel">
-
-          <div class="panel-header compact">
-
-            <div>
-
-              <p class="section-label">
-                SYSTEM
-              </p>
-
-              <h2>
-                Portal settings
-              </h2>
-
-              <p>
-                Identity and appearance
-              </p>
-
-            </div>
-
-          </div>
-
-
-          <div class="settings-form">
-
-            <label>
-
-              Application name
-
-              <input
-                id="appName"
-                type="text"
-              >
-
-            </label>
-
-
-            <label>
-
-              Institution name
-
-              <input
-                id="institution"
-                type="text"
-              >
-
-            </label>
-
-
-            <label>
-
-              Primary colour
-
-              <input
-                id="primaryColor"
-                type="color"
-              >
-
-            </label>
-
-
-            <button
-              class="primary-button full"
-              id="saveSettings"
-              type="button"
-            >
-              Save portal settings
-            </button>
-
-
-            <button
-              class="reset-button"
-              id="resetSettings"
-              type="button"
-            >
-              Restore defaults
-            </button>
-
-          </div>
-
-        </section>
-
-
-        <!-- QUICK LINKS -->
-
-        <section class="panel quick-panel">
-
-          <div class="panel-header compact">
-
-            <div>
-
-              <p class="section-label">
-                KSUC FLOW
-              </p>
-
-              <h2>
-                Administration
-              </h2>
-
-            </div>
-
-          </div>
-
-
-          <div class="quick-links">
-
-            <a href="index.html">
-              <span>Documents</span>
-              <small>Open document portal →</small>
-            </a>
-
-            <a href="admin.html">
-              <span>User management</span>
-              <small>Manage system accounts →</small>
-            </a>
-
-          </div>
-
-        </section>
-
-      </aside>
-
-    </section>
-
-  </main>
-
-
-  <!-- ADD USER DIALOG -->
-
-  <dialog id="userDialog">
-
-    <form
-      method="dialog"
-      id="userForm"
-    >
-
-      <div class="dialog-header">
-
-        <div>
-
-          <p class="section-label">
-            NEW ACCOUNT
-          </p>
-
-          <h2>
-            Create user
-          </h2>
-
+          <button class="button button-secondary" id="refreshReports" type="button">Refresh reports</button>
         </div>
+        <div class="report-controls" style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;padding:16px 20px;border-bottom:1px solid #edf0f4">
+          <label style="display:block;color:#536174;font-size:11px;font-weight:700">Report type
+            <select id="reportType" style="display:block;width:100%;margin-top:6px;padding:10px;border:1px solid #dfe5ec;border-radius:7px;background:#fff;color:#202b3c">
+              <option value="documents">Document register (this browser)</option>
+              <option value="profiles">User profile directory</option>
+              <option value="activity">Activity log (this browser)</option>
+            </select>
+          </label>
+          <label style="display:block;color:#536174;font-size:11px;font-weight:700">From date
+            <input id="reportFrom" type="date" style="display:block;width:100%;margin-top:6px;padding:9px;border:1px solid #dfe5ec;border-radius:7px">
+          </label>
+          <label style="display:block;color:#536174;font-size:11px;font-weight:700">To date
+            <input id="reportTo" type="date" style="display:block;width:100%;margin-top:6px;padding:9px;border:1px solid #dfe5ec;border-radius:7px">
+          </label>
+          <div style="display:flex;align-items:end">
+            <button class="button button-primary button-full" id="exportReport" type="button">Export CSV</button>
+          </div>
+        </div>
+        <div id="reportSummary" style="padding:16px 20px;color:#4d5a6c;font-size:12px;line-height:1.7" role="status" aria-live="polite">
+          Loading report data…
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead id="reportHead"><tr><th>Report</th><th>Details</th></tr></thead>
+            <tbody id="reportRows"><tr><td colspan="2" class="table-message">Preparing report…</td></tr></tbody>
+          </table>
+        </div>
+        <footer class="table-footer"><span>CSV export · UTF-8</span><span>Document and activity reports currently reflect this browser only, not a shared institutional register.</span></footer>
+      </section>
 
+      <section class="content-grid">
+        <section class="panel" style="margin-bottom:20px">
+        <div class="panel-heading">
+          <div><p class="section-label">ACCOUNT MANAGEMENT</p><h2>Invite a staff member</h2><p class="muted">Send an invitation and assign the initial department and role.</p></div>
+        </div>
+        <form id="inviteUserForm" class="settings-form" style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;align-items:end">
+          <label>Full name<input id="inviteFullName" type="text" maxlength="120" autocomplete="name" required placeholder="Staff member's full name"></label>
+          <label>Email address<input id="inviteEmail" type="email" maxlength="254" autocomplete="email" required placeholder="name@ksuc.ac.ke"></label>
+          <label>Department<select id="inviteDepartment" required style="display:block;width:100%;margin-top:6px;padding:10px 11px;border:1px solid #dfe5ec;border-radius:7px;background:#fff;color:#202b3c"><option value="">Loading departments…</option></select></label>
+          <label>Role<select id="inviteRole" required style="display:block;width:100%;margin-top:6px;padding:10px 11px;border:1px solid #dfe5ec;border-radius:7px;background:#fff;color:#202b3c"><option>Staff</option><option>Department Head</option><option>Administrator</option></select></label>
+          <div style="grid-column:span 2"><button class="button button-primary" id="inviteUserSubmit" type="submit">Send staff invitation</button><p class="form-feedback" id="inviteFeedback" role="status" aria-live="polite"></p></div>
+        </form>
+      </section>
 
-        <button
-          value="cancel"
-          class="dialog-close"
-          type="submit"
-        >
-          ×
-        </button>
+      <section class="panel directory-panel">
+          <div class="panel-heading">
+            <div><p class="section-label">ACCESS DIRECTORY</p><h2>User profiles</h2><p class="muted">Live profile records from the KSUCflow database.</p></div>
+            <span class="live-chip"><span></span> Supabase</span>
+          </div>
+          <div class="filters">
+            <label class="search-field"><span aria-hidden="true">⌕</span><input id="profileSearch" type="search" placeholder="Search name or profile ID" autocomplete="off"></label>
+            <select id="departmentFilter" aria-label="Filter by department"><option value="">All departments</option></select>
+            <select id="roleFilter" aria-label="Filter by role"><option value="">All roles</option><option value="Administrator">Administrator</option><option value="Department Head">Department Head</option><option value="Staff">Staff</option></select>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>PROFILE</th><th>DEPARTMENT</th><th>ROLE</th><th>CREATED</th><th>ACCESS CONTROLS</th></tr></thead>
+              <tbody id="userRows"><tr><td colspan="5" class="table-message">Loading directory…</td></tr></tbody>
+            </table>
+          </div>
+          <footer class="table-footer"><span id="directoryCount">Waiting for Supabase…</span><span>Names and roles follow database permissions.</span></footer>
+        </section>
 
-      </div>
+        <aside class="side-column">
+          <section class="panel">
+            <div class="panel-heading"><div><p class="section-label">SYSTEM STATUS</p><h2>Connection checks</h2></div></div>
+            <div class="status-list">
+              <div class="status-row"><span class="status-dot" id="authDot"></span><div><strong>Authentication</strong><small id="authCheck">Checking session…</small></div></div>
+              <div class="status-row"><span class="status-dot" id="dbDot"></span><div><strong>Profile database</strong><small id="dbCheck">Waiting for query…</small></div></div>
+              <div class="status-row"><span class="status-dot status-dot-neutral" id="storageDot"></span><div><strong>Document storage</strong><small>Current portal records still use browser storage.</small></div></div>
+            </div>
+          </section>
 
+          <section class="panel settings-panel">
+            <div class="panel-heading"><div><p class="section-label">BRANDING</p><h2>Portal appearance</h2><p class="muted">These preferences are saved in this browser.</p></div></div>
+            <form id="settingsForm" class="settings-form">
+              <label>Application name<input id="appName" type="text" maxlength="50" required></label>
+              <label>Institution name<input id="institution" type="text" maxlength="120" required></label>
+              <label>Primary colour<span class="colour-control"><input id="primaryColor" type="color" value="#7D0000"><code id="colourValue">#7D0000</code></span></label>
+              <button class="button button-primary button-full" type="submit">Save appearance</button>
+              <button class="button button-quiet button-full" id="resetSettings" type="button">Restore defaults</button>
+              <p class="form-feedback" id="settingsFeedback" role="status" aria-live="polite"></p>
+            </form>
+          </section>
 
-      <div class="form-grid">
+          <section class="panel guidance-panel">
+            <div class="panel-heading"><div><p class="section-label">ADMIN GUIDANCE</p><h2>Account security</h2></div></div>
+            <p>New login accounts and password resets must be handled in Supabase Auth or through a trusted server-side admin function. This browser console never stores passwords or pretends to reset accounts.</p>
+            <p>Role, name and department changes are restricted by database policies. This directory is intentionally read-only until a secure administrative workflow is configured.</p>
+            <a href="https://supabase.com/dashboard" target="_blank" rel="noopener noreferrer">Open Supabase Dashboard ↗</a>
+          </section>
+        </aside>
+      </section>
+      <footer class="page-footer">KSUCflow · Koitaleel Samoei University College · ICT Department</footer>
+    </main>
+  </div>
 
-        <label>
+  <div class="auth-blocked" id="authBlocked" hidden>
+    <div class="auth-blocked-card"><span class="brand-mark">K</span><p class="eyebrow">KSUCFLOW SECURITY CHECK</p><h1>Administrator access could not be verified</h1><p id="authBlockedMessage">The system could not confirm your account. Your session has not been deleted.</p><a class="button button-primary" href="admin-login.html">Return to Admin login</a><button class="button button-secondary" id="retryAuth" type="button">Try again</button></div>
+  </div>
 
-          Full name
-
-          <input
-            required
-            id="name"
-            type="text"
-          >
-
-        </label>
-
-
-        <label>
-
-          Email address
-
-          <input
-            required
-            type="email"
-            id="email"
-          >
-
-        </label>
-
-
-        <label>
-
-          Department
-
-          <select id="department">
-
-            <option>Registry</option>
-            <option>Finance</option>
-            <option>Human Resources</option>
-            <option>Academic Affairs</option>
-            <option>Procurement</option>
-            <option>ICT</option>
-            <option>Planning</option>
-            <option>Admissions</option>
-            <option>Library</option>
-            <option>Examinations</option>
-
-          </select>
-
-        </label>
-
-
-        <label>
-
-          Role
-
-          <select id="role">
-
-            <option>Staff</option>
-            <option>Department Head</option>
-            <option>Administrator</option>
-
-          </select>
-
-        </label>
-
-
-        <label class="wide">
-
-          Temporary password
-
-          <input
-            required
-            minlength="8"
-            type="password"
-            id="password"
-            placeholder="At least 8 characters"
-          >
-
-        </label>
-
-      </div>
-
-
-      <div class="dialog-actions">
-
-        <button
-          value="cancel"
-          class="secondary-button"
-          type="submit"
-        >
-          Cancel
-        </button>
-
-        <button
-          class="primary-button"
-          value="default"
-          type="submit"
-        >
-          Create account
-        </button>
-
-      </div>
-
-    </form>
-
-  </dialog>
-
-
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase-config.js"></script>
+  <script src="supabase-client.js"></script>
   <script src="auth-guard.js"></script>
   <script src="admin.js"></script>
-
 </body>
-
 </html>
