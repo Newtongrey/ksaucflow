@@ -96,11 +96,8 @@
         return null;
       }
 
-      if (!isAdminPage && profile.role === 'Administrator') {
-        navigate('admin.html');
-        return null;
-      }
-
+      // Administrators may also open the document portal. Only the
+      // dedicated admin page is role-restricted; this avoids route ping-pong.
       localStorage.setItem('ksucSession', JSON.stringify(profile));
       document.documentElement.style.visibility = 'visible';
       return profile;
