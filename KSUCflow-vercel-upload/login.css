@@ -1,7 +1,7 @@
 :root {
-  --brand: #7D0000;
-  --brand-dark: #5D0000;
-  --brand-soft: #F8EEEE;
+  --brand: #8A1C3A;
+  --brand-dark: #5C1026;
+  --brand-soft: #F8E9EE;
   --ink: #202B3C;
   --muted: #718096;
   --line: #E5EAF0;
@@ -37,7 +37,7 @@ main {
   flex-direction: column;
   padding: 52px clamp(30px, 6vw, 92px);
   color: #fff;
-  background: linear-gradient(145deg, #5D0000 0%, #7D0000 56%, #941919 100%);
+  background: linear-gradient(145deg, #5C1026 0%, #8A1C3A 56%, #A32C4B 100%);
 }
 
 .intro::after {
@@ -173,7 +173,7 @@ input::placeholder { color: #9AA4B2; }
 
 input:focus {
   border-color: var(--brand);
-  box-shadow: 0 0 0 3px rgba(125,0,0,.10);
+  box-shadow: 0 0 0 3px rgba(138,28,58,.10);
 }
 
 .password { position: relative; }
@@ -209,12 +209,12 @@ input:focus {
 
 .submit:hover {
   background: var(--brand-dark);
-  box-shadow: 0 5px 14px rgba(125,0,0,.16);
+  box-shadow: 0 5px 14px rgba(138,28,58,.16);
 }
 
 .submit:active { transform: translateY(1px); }
 .submit:focus-visible, .password button:focus-visible, .admin-access a:focus-visible {
-  outline: 3px solid rgba(125,0,0,.25);
+  outline: 3px solid rgba(138,28,58,.25);
   outline-offset: 3px;
 }
 
