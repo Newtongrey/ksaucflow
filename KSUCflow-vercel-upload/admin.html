@@ -43,7 +43,7 @@
       <div class="notice notice-error" id="directoryError" role="alert" hidden></div>
 
       <section class="metrics" aria-label="Administration summary">
-        <article class="metric-card"><span class="metric-icon">◎</span><div><p>Profiles in directory</p><strong id="totalUsers">—</strong><small>Loaded from Supabase</small></div></article>
+        <article class="metric-card"><span class="metric-icon">◎</span><div><p>Accounts in this browser</p><strong id="totalUsers">—</strong><small>Saved in this browser</small></div></article>
         <article class="metric-card"><span class="metric-icon icon-green">↗</span><div><p>Staff and department heads</p><strong id="activeUsers">—</strong><small>Non-administrator profiles</small></div></article>
         <article class="metric-card"><span class="metric-icon icon-gold">◆</span><div><p>Administrators</p><strong id="adminUsers">—</strong><small>Profiles with admin role</small></div></article>
         <article class="metric-card"><span class="metric-icon icon-slate">▤</span><div><p>Documents on this browser</p><strong id="documentTotal">—</strong><small>Local records; not yet shared across users</small></div></article>
@@ -91,21 +91,21 @@
       <section class="content-grid">
         <section class="panel" style="margin-bottom:20px">
         <div class="panel-heading">
-          <div><p class="section-label">ACCOUNT MANAGEMENT</p><h2>Invite a staff member</h2><p class="muted">Send an invitation and assign the initial department and role.</p></div>
+          <div><p class="section-label">ACCOUNT MANAGEMENT</p><h2>Create a staff account</h2><p class="muted">Create a local account and assign its department and role.</p></div>
         </div>
         <form id="inviteUserForm" class="settings-form" style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;align-items:end">
           <label>Full name<input id="inviteFullName" type="text" maxlength="120" autocomplete="name" required placeholder="Staff member's full name"></label>
           <label>Email address<input id="inviteEmail" type="email" maxlength="254" autocomplete="email" required placeholder="name@ksuc.ac.ke"></label>
           <label>Department<select id="inviteDepartment" required style="display:block;width:100%;margin-top:6px;padding:10px 11px;border:1px solid #dfe5ec;border-radius:7px;background:#fff;color:#202b3c"><option value="">Loading departments…</option></select></label>
           <label>Role<select id="inviteRole" required style="display:block;width:100%;margin-top:6px;padding:10px 11px;border:1px solid #dfe5ec;border-radius:7px;background:#fff;color:#202b3c"><option>Staff</option><option>Department Head</option><option>Administrator</option></select></label>
-          <div style="grid-column:span 2"><button class="button button-primary" id="inviteUserSubmit" type="submit">Send staff invitation</button><p class="form-feedback" id="inviteFeedback" role="status" aria-live="polite"></p></div>
+          <div style="grid-column:span 2"><button class="button button-primary" id="inviteUserSubmit" type="submit">Create staff account</button><p class="form-feedback" id="inviteFeedback" role="status" aria-live="polite"></p></div>
         </form>
       </section>
 
       <section class="panel directory-panel">
           <div class="panel-heading">
-            <div><p class="section-label">ACCESS DIRECTORY</p><h2>User profiles</h2><p class="muted">Live profile records from the KSUCflow database.</p></div>
-            <span class="live-chip"><span></span> Supabase</span>
+            <div><p class="section-label">ACCESS DIRECTORY</p><h2>User profiles</h2><p class="muted">Accounts managed locally in this browser.</p></div>
+            <span class="live-chip"><span></span> Local storage</span>
           </div>
           <div class="filters">
             <label class="search-field"><span aria-hidden="true">⌕</span><input id="profileSearch" type="search" placeholder="Search name or profile ID" autocomplete="off"></label>
@@ -118,16 +118,16 @@
               <tbody id="userRows"><tr><td colspan="5" class="table-message">Loading directory…</td></tr></tbody>
             </table>
           </div>
-          <footer class="table-footer"><span id="directoryCount">Waiting for Supabase…</span><span>Names and roles follow database permissions.</span></footer>
+          <footer class="table-footer"><span id="directoryCount">Loading local accounts…</span><span>Account changes are saved in this browser only.</span></footer>
         </section>
 
         <aside class="side-column">
           <section class="panel">
-            <div class="panel-heading"><div><p class="section-label">SYSTEM STATUS</p><h2>Connection checks</h2></div></div>
+            <div class="panel-heading"><div><p class="section-label">LOCAL SYSTEM</p><h2>Storage status</h2></div></div>
             <div class="status-list">
-              <div class="status-row"><span class="status-dot" id="authDot"></span><div><strong>Authentication</strong><small id="authCheck">Checking session…</small></div></div>
-              <div class="status-row"><span class="status-dot" id="dbDot"></span><div><strong>Profile database</strong><small id="dbCheck">Waiting for query…</small></div></div>
-              <div class="status-row"><span class="status-dot status-dot-neutral" id="storageDot"></span><div><strong>Document storage</strong><small>Current portal records still use browser storage.</small></div></div>
+              <div class="status-row"><span class="status-dot" id="authDot"></span><div><strong>Administrator session</strong><small id="authCheck">Checking session…</small></div></div>
+              <div class="status-row"><span class="status-dot" id="dbDot"></span><div><strong>Account directory</strong><small id="dbCheck">Waiting for query…</small></div></div>
+              <div class="status-row"><span class="status-dot status-dot-neutral" id="storageDot"></span><div><strong>Document storage</strong><small>Documents are stored in this browser only.</small></div></div>
             </div>
           </section>
 
@@ -145,9 +145,9 @@
 
           <section class="panel guidance-panel">
             <div class="panel-heading"><div><p class="section-label">ADMIN GUIDANCE</p><h2>Account security</h2></div></div>
-            <p>New login accounts and password resets must be handled in Supabase Auth or through a trusted server-side admin function. This browser console never stores passwords or pretends to reset accounts.</p>
-            <p>Role, name and department changes are restricted by database policies. This directory is intentionally read-only until a secure administrative workflow is configured.</p>
-            <a href="https://supabase.com/dashboard" target="_blank" rel="noopener noreferrer">Open Supabase Dashboard ↗</a>
+            <p>This prototype stores account details and passwords in this browser. Create and manage staff accounts from this page. Do not use real or reused passwords.</p>
+            <p>Changes apply only to this browser and will not synchronize to other computers. A shared production system requires secure server-side authentication and storage.</p>
+            
           </section>
         </aside>
       </section>
@@ -156,7 +156,7 @@
   </div>
 
   <div class="auth-blocked" id="authBlocked" hidden>
-    <div class="auth-blocked-card"><span class="brand-mark">K</span><p class="eyebrow">KSUCFLOW SECURITY CHECK</p><h1>Administrator access could not be verified</h1><p id="authBlockedMessage">The system could not confirm your account. Your session has not been deleted.</p><a class="button button-primary" href="admin-login.html">Return to Admin login</a><button class="button button-secondary" id="retryAuth" type="button">Try again</button></div>
+    <div class="auth-blocked-card"><span class="brand-mark">K</span><p class="eyebrow">KSUCFLOW SECURITY CHECK</p><h1>Administrator access could not be verified</h1><p id="authBlockedMessage">Your administrator session could not be verified in this browser.</p><a class="button button-primary" href="admin-login.html">Return to Admin login</a><button class="button button-secondary" id="retryAuth" type="button">Try again</button></div>
   </div>
 
 <script src="auth-guard.js"></script>
