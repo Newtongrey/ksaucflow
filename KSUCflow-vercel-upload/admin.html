@@ -12,6 +12,22 @@
 </head>
 <body>
   <div class="app-shell" id="adminShell">
+    <aside class="admin-sidebar" aria-label="Administrator navigation">
+      <a class="sidebar-brand" href="index.html"><span class="brand-mark">K</span><span><strong>KSUCflow</strong><small>ADMIN CONSOLE</small></span></a>
+      <p class="sidebar-label">WORKSPACE</p>
+      <nav class="sidebar-nav">
+        <a class="sidebar-link active" href="#overview"><span>▦</span> Dashboard overview</a>
+        <a class="sidebar-link" href="#reports"><span>▤</span> Reports & exports</a>
+        <a class="sidebar-link" href="#accounts"><span>♙</span> Create account</a>
+        <a class="sidebar-link" href="#directory"><span>☷</span> User directory</a>
+        <a class="sidebar-link" href="#system"><span>⚙</span> System status</a>
+        <a class="sidebar-link" href="#appearance"><span>◐</span> Portal appearance</a>
+      </nav>
+      <div class="sidebar-bottom">
+        <span class="sidebar-status-dot"></span>
+        <span><strong>Browser prototype</strong><small>Local data storage</small></span>
+      </div>
+    </aside>
     <header class="topbar">
       <a class="brand" href="index.html" aria-label="KSUCflow dashboard">
         <span class="brand-mark" id="mark">K</span>
@@ -42,14 +58,26 @@
       <div class="notice" id="authStatus" role="status" aria-live="polite" hidden></div>
       <div class="notice notice-error" id="directoryError" role="alert" hidden></div>
 
-      <section class="metrics" aria-label="Administration summary">
+      <section class="metrics" id="overview" aria-label="Administration summary">
         <article class="metric-card"><span class="metric-icon">◎</span><div><p>Accounts in this browser</p><strong id="totalUsers">—</strong><small>Saved in this browser</small></div></article>
         <article class="metric-card"><span class="metric-icon icon-green">↗</span><div><p>Staff and department heads</p><strong id="activeUsers">—</strong><small>Non-administrator profiles</small></div></article>
         <article class="metric-card"><span class="metric-icon icon-gold">◆</span><div><p>Administrators</p><strong id="adminUsers">—</strong><small>Profiles with admin role</small></div></article>
         <article class="metric-card"><span class="metric-icon icon-slate">▤</span><div><p>Documents on this browser</p><strong id="documentTotal">—</strong><small>Local records; not yet shared across users</small></div></article>
       </section>
 
-      <section class="panel reports-panel" aria-labelledby="reportsTitle" style="margin:0 0 22px">
+      <section class="panel overview-panel" aria-labelledby="overviewTitle">
+        <div class="overview-intro">
+          <div><p class="section-label">SYSTEM OVERVIEW</p><h2 id="overviewTitle">Your administration at a glance</h2><p class="muted">Monitor access, records and key administration tasks from one workspace.</p></div>
+          <span class="overview-date" id="overviewDate">KSUCflow · Admin workspace</span>
+        </div>
+        <div class="overview-tiles">
+          <a class="overview-tile" href="#directory"><span class="overview-tile-icon">♙</span><span><strong>Manage accounts</strong><small>Review roles, departments and access</small></span><b>↗</b></a>
+          <a class="overview-tile" href="#reports"><span class="overview-tile-icon">▤</span><span><strong>Review reports</strong><small>Filter records and export CSV files</small></span><b>↗</b></a>
+          <a class="overview-tile" href="index.html"><span class="overview-tile-icon">▣</span><span><strong>Document portal</strong><small>Open document tracking workspace</small></span><b>↗</b></a>
+        </div>
+      </section>
+
+      <section id="reports" class="panel reports-panel" aria-labelledby="reportsTitle" style="margin:0 0 22px">
         <div class="panel-heading">
           <div>
             <p class="section-label">REPORTS & EXPORTS</p>
@@ -89,7 +117,7 @@
       </section>
 
       <section class="content-grid">
-        <section class="panel" style="margin-bottom:20px">
+        <section class="panel" id="accounts" style="margin-bottom:20px">
         <div class="panel-heading">
           <div><p class="section-label">ACCOUNT MANAGEMENT</p><h2>Create a staff account</h2><p class="muted">Create a local account and assign its department and role.</p></div>
         </div>
@@ -102,7 +130,7 @@
         </form>
       </section>
 
-      <section class="panel directory-panel">
+      <section class="panel directory-panel" id="directory">
           <div class="panel-heading">
             <div><p class="section-label">ACCESS DIRECTORY</p><h2>User profiles</h2><p class="muted">Accounts managed locally in this browser.</p></div>
             <span class="live-chip"><span></span> Local storage</span>
@@ -122,7 +150,7 @@
         </section>
 
         <aside class="side-column">
-          <section class="panel">
+          <section class="panel" id="system">
             <div class="panel-heading"><div><p class="section-label">LOCAL SYSTEM</p><h2>Storage status</h2></div></div>
             <div class="status-list">
               <div class="status-row"><span class="status-dot" id="authDot"></span><div><strong>Administrator session</strong><small id="authCheck">Checking session…</small></div></div>
@@ -131,12 +159,12 @@
             </div>
           </section>
 
-          <section class="panel settings-panel">
+          <section class="panel settings-panel" id="appearance">
             <div class="panel-heading"><div><p class="section-label">BRANDING</p><h2>Portal appearance</h2><p class="muted">These preferences are saved in this browser.</p></div></div>
             <form id="settingsForm" class="settings-form">
               <label>Application name<input id="appName" type="text" maxlength="50" required></label>
               <label>Institution name<input id="institution" type="text" maxlength="120" required></label>
-              <label>Primary colour<span class="colour-control"><input id="primaryColor" type="color" value="#8A1C3A"><code id="colourValue">#7D0000</code></span></label>
+              <label>Primary colour<span class="colour-control"><input id="primaryColor" type="color" value="#8A1C3A"><code id="colourValue">#8A1C3A</code></span></label>
               <button class="button button-primary button-full" type="submit">Save appearance</button>
               <button class="button button-quiet button-full" id="resetSettings" type="button">Restore defaults</button>
               <p class="form-feedback" id="settingsFeedback" role="status" aria-live="polite"></p>
