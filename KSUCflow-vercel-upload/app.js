@@ -1488,41 +1488,58 @@ function resizeProfileImage(file) {
 
 async function saveStaffProfile(event) {
   event.preventDefault();
+
   const user = getCurrentUser() || {};
   const name = byId('profileDisplayName').value.trim();
+
   if (!name) {
     showToast('Please enter your display name.', 'error');
     return;
   }
+
   const button = byId('saveProfileBtn');
   const oldLabel = button.textContent;
+
   button.disabled = true;
   button.textContent = 'Saving…';
-  const photo = profilePhotoRemoved ? '' : (profilePhotoDraft || '');
+
+  const photo = profilePhotoRemoved
+    ? ''
+    : (profilePhotoDraft || '');
+
   const preferences = {
     name,
     jobTitle: byId('profileJobTitle').value.trim(),
     phone: byId('profilePhone').value.trim(),
     photo
   };
+
   try {
-    // Sync the display name to the known profiles.full_name column when permitted.
-    if (window.ksucSupabase && (user.authUserId || user.id)) {
-      const { error } = await window.ksucSupabase
-        .from('profiles')
-        .update({ full_name: name })
-        .eq('id', user.authUserId || user.id);
-      if (error) console.warn('Profile name could not be synced to Supabase:', error.message);
-    }
     user.name = name;
-    localStorage.setItem(SESSION_KEY, JSON.stringify(user));
-    localStorage.setItem(profileStorageKey(user), JSON.stringify(preferences));
+
+    localStorage.setItem(
+      SESSION_KEY,
+      JSON.stringify(user)
+    );
+
+    localStorage.setItem(
+      profileStorageKey(user),
+      JSON.stringify(preferences)
+    );
+
     updateUserInterface();
     closeDialog('profileModal');
-    showToast('Profile saved. Your photo and optional details are stored in this browser.');
+
+    showToast(
+      'Profile saved. Your details are stored in this browser.'
+    );
   } catch (error) {
     console.error('Unable to save profile:', error);
-    showToast('Profile could not be saved. Please try again.', 'error');
+
+    showToast(
+      'Profile could not be saved. Please try again.',
+      'error'
+    );
   } finally {
     button.disabled = false;
     button.textContent = oldLabel;
@@ -1847,11 +1864,6 @@ function initializeApp() {
   window.addEventListener('focus', renderDashboard);
 }
 
-document.addEventListener('DOMContentLoaded', async function () {
-  // Wait for Supabase session/profile verification before loading protected data.
-  if (window.ksucAuthReady) {
-    const profile = await window.ksucAuthReady;
-    if (!profile) return;
-  }
+document.addEventListener('DOMContentLoaded', function () {
   initializeApp();
 });
