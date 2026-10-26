@@ -4,10 +4,10 @@
   --line: #e5eaf0;
   --paper: #ffffff;
   --canvas: #f5f7fa;
-  --navy: #7D0000;
-  --navy-light: #5d0000;
-  --blue: #7D0000;
-  --blue-dark: #5d0000;
+  --navy: #8A1C3A;
+  --navy-light: #5C1026;
+  --blue: #8A1C3A;
+  --blue-dark: #5C1026;
   --green: #1b9b74;
   --amber: #ed9d37;
   --red: #d9534f;
@@ -88,7 +88,7 @@ a {
   height: 38px;
   min-width: 38px;
   border-radius: 10px;
-  background: #7D0000;
+  background: #8A1C3A;
   color: #fff;
   display: grid;
   place-items: center;
@@ -164,7 +164,7 @@ a {
   min-width: 20px;
   padding: 2px 6px;
   border-radius: 20px;
-  background: #5d0000;
+  background: #5C1026;
   color: #fff;
   font-size: 10px;
   text-align: center;
@@ -319,7 +319,7 @@ a {
   border-radius: 9px;
   display: grid;
   place-items: center;
-  background: #f8eeee;
+  background: #F8E9EE;
   color: var(--blue);
   font-size: 20px;
   font-weight: 700;
@@ -400,7 +400,7 @@ a {
   height: 40px;
   min-width: 40px;
   border-radius: 9px;
-  background: #f8eeee;
+  background: #F8E9EE;
   color: var(--blue);
   display: grid;
   place-items: center;
@@ -538,8 +538,8 @@ a {
   padding: 5px 9px;
   font-size: 9px;
   font-weight: 700;
-  background: #f8eeee;
-  color: #7D0000;
+  background: #F8E9EE;
+  color: #8A1C3A;
 }
 
 
@@ -572,7 +572,7 @@ a {
   border-radius: 50%;
   display: grid;
   place-items: center;
-  background: #f8eeee;
+  background: #F8E9EE;
   color: var(--blue);
   font-size: 11px;
   font-weight: 700;
@@ -1129,19 +1129,19 @@ dialog::backdrop {
 
 /* =========================================
    KSUCFLOW — KSUC BRAND COLOUR OVERRIDE
-   Primary: #7D0000
+   Primary: #8A1C3A
 ========================================= */
 
 :root {
-  --primary: #7D0000;
-  --primary-color: #7D0000;
-  --primary-dark: #570000;
+  --primary: #8A1C3A;
+  --primary-color: #8A1C3A;
+  --primary-dark: #5C1026;
   --primary-light: #F5E8E8;
-  --accent: #7D0000;
-  --secondary: #7D0000;
-  --brand-maroon: #7D0000;
+  --accent: #8A1C3A;
+  --secondary: #8A1C3A;
+  --brand-maroon: #8A1C3A;
   --brand-light: #F5E8E8;
-  --brand-dark: #570000;
+  --brand-dark: #5C1026;
 }
 
 /* Buttons and primary actions */
@@ -1152,7 +1152,7 @@ button.primary,
 input[type="submit"],
 input[type="button"],
 .button-primary {
-  accent-color: #7D0000;
+  accent-color: #8A1C3A;
 }
 
 .btn-primary,
@@ -1162,8 +1162,8 @@ input[type="submit"],
 #openModal,
 #quickRegisterBtn,
 #saveSettingsBtn {
-  background-color: #7D0000;
-  border-color: #7D0000;
+  background-color: #8A1C3A;
+  border-color: #8A1C3A;
   color: #FFFFFF;
 }
 
@@ -1174,8 +1174,8 @@ input[type="submit"]:hover,
 #openModal:hover,
 #quickRegisterBtn:hover,
 #saveSettingsBtn:hover {
-  background-color: #570000;
-  border-color: #570000;
+  background-color: #5C1026;
+  border-color: #5C1026;
   color: #FFFFFF;
 }
 
@@ -1187,22 +1187,22 @@ input[type="submit"]:hover,
 .menu-item.active,
 .active-nav {
   color: #FFFFFF;
-  background-color: #7D0000;
+  background-color: #8A1C3A;
 }
 
 /* Links, icons and interactive accents */
 a {
-  accent-color: #7D0000;
+  accent-color: #8A1C3A;
 }
 
 a:not(.btn):not(.btn-primary):hover {
-  color: #7D0000;
+  color: #8A1C3A;
 }
 
 .text-primary,
 .primary-text,
 .link-primary {
-  color: #7D0000;
+  color: #8A1C3A;
 }
 
 /* Form controls and focus rings */
@@ -1211,16 +1211,16 @@ select:focus,
 textarea:focus,
 button:focus-visible,
 a:focus-visible {
-  outline-color: #7D0000;
-  --tw-ring-color: #7D0000;
-  border-color: #7D0000;
+  outline-color: #8A1C3A;
+  --tw-ring-color: #8A1C3A;
+  border-color: #8A1C3A;
 }
 
 /* Checkboxes, radios and sliders */
 input[type="checkbox"],
 input[type="radio"],
 input[type="range"] {
-  accent-color: #7D0000;
+  accent-color: #8A1C3A;
 }
 
 /* Dashboard icons and statistic accents */
@@ -1228,14 +1228,14 @@ input[type="range"] {
 .card-icon,
 .quick-action-icon,
 .icon-primary {
-  color: #7D0000;
+  color: #8A1C3A;
 }
 
 /* Keep completed statuses green and warnings amber.
    Only remove blue from the theme, not meaningful statuses. */
 #recentDocuments .status-received {
   background: #F5E8E8;
-  color: #7D0000;
+  color: #8A1C3A;
   border-color: #E8CDCD;
 }
 
@@ -1244,7 +1244,7 @@ input[type="range"] {
 #notificationBadge,
 .notification-count,
 .notification-badge {
-  background-color: #7D0000;
+  background-color: #8A1C3A;
   color: #FFFFFF;
 }
 
@@ -1252,24 +1252,24 @@ input[type="range"] {
 .tab.active,
 .nav-tabs .active,
 [aria-selected="true"] {
-  color: #7D0000;
-  border-color: #7D0000;
+  color: #8A1C3A;
+  border-color: #8A1C3A;
 }
 
 /* Selection highlight */
 ::selection {
-  background: #7D0000;
+  background: #8A1C3A;
   color: #FFFFFF;
 }
 
 /* Maroon scrollbars where supported */
 * {
-  scrollbar-color: #7D0000 #F3EEEE;
+  scrollbar-color: #8A1C3A #F3EEEE;
 }
 
 /* =========================================
    KSUCflow — SIDEBAR & DASHBOARD HEADER
-   Official maroon: #7D0000
+   Official maroon: #8A1C3A
 ========================================= */
 
 /* Main sidebar */
@@ -1277,8 +1277,8 @@ input[type="range"] {
 aside.sidebar,
 #sidebar,
 .main-sidebar {
-  background: #7D0000 !important;
-  border-color: #7D0000 !important;
+  background: #8A1C3A !important;
+  border-color: #8A1C3A !important;
   color: #FFFFFF !important;
 }
 
@@ -1305,7 +1305,7 @@ aside.sidebar,
 #sidebar a:hover,
 #sidebar .active,
 .main-sidebar .active {
-  background: #570000 !important;
+  background: #5C1026 !important;
   color: #FFFFFF !important;
 }
 
@@ -1321,8 +1321,8 @@ aside.sidebar,
 #topbar,
 #topBar,
 #dashboardHeader {
-  background: #7D0000 !important;
-  border-color: #7D0000 !important;
+  background: #8A1C3A !important;
+  border-color: #8A1C3A !important;
   color: #FFFFFF !important;
 }
 
@@ -1360,7 +1360,7 @@ aside.sidebar,
 
 /* Maroon scrollbar */
 * {
-  scrollbar-color: #7D0000 #F5E8E8;
+  scrollbar-color: #8A1C3A #F5E8E8;
 }
 
 
@@ -1381,7 +1381,7 @@ body, button, input, select, textarea, h1, h2, h3, h4, .topbar h1 {
 .profile-form { padding: 20px 24px 0; display: grid; gap: 15px; }
 .profile-form > label { display: block; color: #344054; font-size: 12px; font-weight: 700; }
 .profile-photo-editor { display: flex; align-items: center; gap: 16px; padding: 14px; border: 1px solid var(--line); border-radius: 10px; background: #fbf8f8; }
-.profile-photo-preview { width: 78px; height: 78px; min-width: 78px; display: grid; place-items: center; border-radius: 50%; background-color: #7D0000; color: #fff; font-size: 25px; font-weight: 800; }
+.profile-photo-preview { width: 78px; height: 78px; min-width: 78px; display: grid; place-items: center; border-radius: 50%; background-color: #8A1C3A; color: #fff; font-size: 25px; font-weight: 800; }
 .profile-photo-controls { flex: 1; min-width: 0; }
 .profile-photo-controls > label { display: block; font-size: 12px; font-weight: 700; }
 .profile-photo-controls input[type="file"] { margin: 7px 0; padding: 7px; font-size: 11px; }
@@ -1389,13 +1389,13 @@ body, button, input, select, textarea, h1, h2, h3, h4, .topbar h1 {
 .profile-actions { margin: 0 -24px; padding: 16px 24px 20px; }
 .activity-item { align-items: flex-start; gap: 13px; padding: 15px 20px; transition: background .18s ease; }
 .activity-item:hover { background: #fdf9f9; }
-.activity-dot { width: 34px; height: 34px; min-width: 34px; background: #f8eeee; color: #7D0000; font-size: 16px; border: 1px solid #f0dede; }
+.activity-dot { width: 34px; height: 34px; min-width: 34px; background: #F8E9EE; color: #8A1C3A; font-size: 16px; border: 1px solid #f0dede; }
 .activity-content { min-width: 0; flex: 1; display: grid; gap: 4px; }
 .activity-content strong { display: block; color: #263548; font-size: 12px; font-weight: 700; line-height: 1.4; }
 .activity-content > span { display: block; color: #526174; font-size: 12px; line-height: 1.5; overflow-wrap: anywhere; }
 .activity-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 7px; margin-top: 3px; }
 .activity-meta time, .activity-user { display: inline-flex; align-items: center; border-radius: 20px; padding: 3px 8px; background: #f4f6f8; color: #596579; font-size: 10px; line-height: 1.4; }
-.activity-user { background: #f8eeee; color: #7D0000; }
+.activity-user { background: #F8E9EE; color: #8A1C3A; }
 .activity-item small, .activity-row small { color: #596579; }
 @media (max-width: 600px) {
   .profile-form { padding: 17px 18px 0; }
