@@ -615,7 +615,7 @@ function injectDashboardPolish() {
 
     #recentDocuments .status-received {
   background: #F5E8E8;
-  color: #7D0000;
+  color: #8A1C3A;
   border-color: #E8CDCD;
 }
 
@@ -631,7 +631,7 @@ function injectDashboardPolish() {
     }
 
     #recentDocuments .attachment-indicator {
-      color: #7d0000;
+      color: #8A1C3A;
       font-size: 11px;
       font-weight: 700;
     }
@@ -651,7 +651,7 @@ function injectDashboardPolish() {
       padding: 6px 12px;
       border: 1px solid #ead9d9;
       border-radius: 8px;
-      color: #7d0000;
+      color: #8A1C3A;
       font-size: 12px;
       font-weight: 700;
       text-decoration: none;
@@ -659,7 +659,7 @@ function injectDashboardPolish() {
     }
 
     #recentDocuments .document-view-link:hover {
-      background: #7d0000;
+      background: #8A1C3A;
       color: #fff;
     }
 
@@ -734,7 +734,7 @@ function injectDashboardPolish() {
       height: 36px;
       border-radius: 10px;
       background: #f7eaea;
-      color: #7d0000;
+      color: #8A1C3A;
       font-weight: 800;
     }
 
@@ -758,7 +758,7 @@ function injectDashboardPolish() {
     }
 
     #notificationList .notification-copy small {
-      color: #7d0000;
+      color: #8A1C3A;
       font-size: 11px;
       font-weight: 700;
     }
@@ -769,7 +769,7 @@ function injectDashboardPolish() {
       height: 8px;
       margin-top: 6px;
       border-radius: 50%;
-      background: #7d0000;
+      background: #8A1C3A;
     }
 
     #toast {
