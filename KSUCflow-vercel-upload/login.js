@@ -1,59 +1,109 @@
-'use strict';
-const loginForm = document.getElementById('loginForm');
-const loginError = document.getElementById('error');
-const loginButton = loginForm.querySelector('button[type="submit"]');
 
-loginForm.addEventListener('submit', async function (event) {
-  event.preventDefault();
-  loginError.textContent = '';
-  if (!window.ksucSupabase) {
-    loginError.textContent = 'The sign-in service is not ready. Refresh the page or contact ICT.';
-    return;
+/* KSUCflow local staff login.
+   Prototype only: credentials are stored in this browser.
+*/
+(function () {
+  'use strict';
+
+  const form = document.getElementById('loginForm');
+  const emailInput = document.getElementById('email');
+  const passwordInput = document.getElementById('password');
+  const errorBox = document.getElementById('error');
+  const showPassword = document.getElementById('showPassword');
+
+  function showError(message) {
+    if (errorBox) {
+      errorBox.textContent = message;
+      errorBox.style.display = 'block';
+    } else {
+      alert(message);
+    }
   }
-  const email = document.getElementById('email').value.trim().toLowerCase();
-  const password = document.getElementById('password').value;
-  const originalLabel = loginButton.textContent;
-  loginButton.disabled = true;
-  loginButton.textContent = 'Signing in…';
-  try {
-    const { data, error } = await window.ksucSupabase.auth.signInWithPassword({ email, password });
-    if (error) throw error;
-    const sessionUser = await window.ksucLoadProfile(data.user);
-    if (sessionUser.role === 'Administrator') {
-      await window.ksucSupabase.auth.signOut();
-      loginError.textContent = 'Administrators must sign in through the Admin Portal.';
+
+  function hideError() {
+    if (errorBox) {
+      errorBox.textContent = '';
+      errorBox.style.display = 'none';
+    }
+  }
+
+  function readUsers() {
+    try {
+      const users = JSON.parse(
+        localStorage.getItem('ksucUsers') || '[]'
+      );
+      return Array.isArray(users) ? users : [];
+    } catch (error) {
+      return [];
+    }
+  }
+
+  if (showPassword && passwordInput) {
+    showPassword.addEventListener('change', function () {
+      passwordInput.type = this.checked ? 'text' : 'password';
+    });
+  }
+
+  if (!form) return;
+
+  form.addEventListener('submit', function (event) {
+    event.preventDefault();
+    hideError();
+
+    const email = String(emailInput.value || '')
+      .trim()
+      .toLowerCase();
+    const password = String(passwordInput.value || '');
+
+    if (!email || !password) {
+      showError('Enter your email address and password.');
       return;
     }
-    const sessionResult = await window.ksucSupabase.auth.getSession();
-    if (sessionResult.error) throw sessionResult.error;
-    const persistedUser = sessionResult.data && sessionResult.data.session && sessionResult.data.session.user;
-    if (!persistedUser || persistedUser.id !== data.user.id) {
-      throw new Error('The sign-in succeeded but the browser did not retain the session. Allow site storage for this deployment, then try again.');
+
+    const user = readUsers().find(function (item) {
+      return String(item.email || '').trim().toLowerCase() === email &&
+        item.active !== false &&
+        item.status !== 'inactive';
+    });
+
+    if (!user) {
+      showError(
+        'Account not found or inactive. Contact your administrator.'
+      );
+      return;
     }
 
-    localStorage.setItem('ksucSession', JSON.stringify(sessionUser));
-    window.location.replace(new URL('/index.html', window.location.origin).href);
-  } catch (error) {
-    console.error('KSUCflow staff sign-in failed:', error);
-    const message = error && error.message ? error.message : '';
-    if (/invalid login credentials/i.test(message)) {
-      loginError.textContent = 'The email or password is incorrect.';
-    } else if (/profile is assigned|no KSUCflow profile/i.test(message)) {
-      loginError.textContent = message;
-    } else if (/permission|row-level security|policy|profiles/i.test(message)) {
-      loginError.textContent = 'Sign-in succeeded, but KSUCflow could not read your profile. Contact the administrator to check profile access. Details: ' + message;
-    } else {
-      loginError.textContent = message || 'Unable to sign in. Check your email and password, and confirm your account has been activated by the administrator.';
+    // Supports the local prototype's plain-text password field.
+    // Do not use this method for a production system.
+    if (String(user.password || '') !== password) {
+      showError('Incorrect email or password.');
+      return;
     }
-  } finally {
-    loginButton.disabled = false;
-    loginButton.textContent = originalLabel;
-  }
-});
 
-document.getElementById('showPassword').addEventListener('click', function (event) {
-  const field = document.getElementById('password');
-  const showing = field.type === 'password';
-  field.type = showing ? 'text' : 'password';
-  event.currentTarget.textContent = showing ? 'Hide' : 'Show';
-});
+    const role = String(user.role || 'Staff');
+    const normalizedRole = role.toLowerCase();
+
+    if (
+      normalizedRole === 'admin' ||
+      normalizedRole === 'administrator' ||
+      normalizedRole === 'super admin'
+    ) {
+      showError(
+        'Please use the administrator login page for this account.'
+      );
+      return;
+    }
+
+    const session = {
+      id: user.id || user.email,
+      email: user.email,
+      name: user.name || user.full_name || user.email,
+      role: role,
+      department: user.department || '',
+      signedInAt: new Date().toISOString()
+    };
+
+    localStorage.setItem('ksucSession', JSON.stringify(session));
+    window.location.href = 'index.html';
+  });
+})();
