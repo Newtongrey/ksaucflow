@@ -630,10 +630,39 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   outline: 2px solid #8A1C3A;
   outline-offset: 2px;
 }
+
+
+/* Shared KSUCflow university portal shell */
+.ksuc-side-nav{position:fixed;inset:0 auto 0 0;width:255px;min-height:100vh;padding:24px 15px 18px;background:#8A1C3A;color:#f7e9ed;display:flex;flex-direction:column;z-index:1000;box-shadow:4px 0 20px rgba(40,12,23,.08)}
+.ksuc-side-brand{display:flex;align-items:center;gap:11px;padding:4px 9px 23px;border-bottom:1px solid rgba(255,255,255,.16);color:#fff;text-decoration:none}
+.ksuc-side-mark{display:grid;place-items:center;flex:0 0 40px;width:40px;height:40px;border-radius:10px;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.2);font:700 23px Georgia,serif}
+.ksuc-side-brand strong,.ksuc-side-brand small{display:block}.ksuc-side-brand strong{font-size:17px;letter-spacing:-.3px}.ksuc-side-brand small{margin-top:4px;font-size:9px;letter-spacing:1.1px;color:#f0cfd8}
+.ksuc-side-label{margin:25px 10px 9px;color:#e8bac7;font-size:9px;font-weight:700;letter-spacing:1.4px}
+.ksuc-side-nav nav{display:grid;gap:5px}
+.ksuc-side-link{display:flex;align-items:center;gap:12px;width:100%;min-height:43px;padding:11px 12px;border:0;border-radius:8px;background:transparent;color:#f0dce2;text-align:left;text-decoration:none;font:600 12px "DM Sans",Arial,sans-serif;cursor:pointer}
+.ksuc-side-link span{width:20px;min-width:20px;text-align:center;font-size:17px}
+.ksuc-side-link:hover,.ksuc-side-link.is-active{background:rgba(55,8,24,.35);color:#fff}.ksuc-side-link.is-active{box-shadow:inset 3px 0 0 #f0c5d1}
+.ksuc-side-bottom{margin-top:auto;padding-top:18px;border-top:1px solid rgba(255,255,255,.16)}
+.page{margin-left:255px}.topbar{margin-left:255px;background:#fff;color:#202b3c;border-bottom:1px solid #e5eaf0;box-shadow:0 3px 14px rgba(24,36,53,.035)}
+.topbar .brand small{color:#758294}.topbar .brand-mark{background:#F8E9EE;color:#8A1C3A}.top-button{border-color:#e5eaf0;background:#fff;color:#465468}.top-button:hover{background:#F8E9EE;color:#8A1C3A}
+
+@media(max-width:850px){.ksuc-side-nav{inset:auto 0 0;width:100%;min-height:0;height:68px;padding:7px 10px;background:#8A1C3A;box-shadow:0 -4px 18px rgba(40,12,23,.12)}.ksuc-side-brand,.ksuc-side-label,.ksuc-side-bottom{display:none}.ksuc-side-nav nav{height:100%;display:flex;align-items:center;justify-content:space-around;gap:4px}.ksuc-side-link{justify-content:center;flex:1;min-height:48px;padding:8px 5px;font-size:10px;gap:5px;flex-direction:column}.ksuc-side-link span{font-size:16px}.page,.topbar,.content{margin-left:0!important}.page{padding-bottom:68px}.topbar{padding-left:16px!important;padding-right:16px!important}.content{padding:22px 16px 90px!important}}
+
 </style>
 </head>
 
 <body>
+
+<aside class="ksuc-side-nav" aria-label="KSUCflow navigation">
+  <a class="ksuc-side-brand" href="index.html"><span class="ksuc-side-mark">K</span><span><strong>KSUCflow</strong><small>DOCUMENT PORTAL</small></span></a>
+  <p class="ksuc-side-label">WORKSPACE</p>
+  <nav>
+    <a class="ksuc-side-link" href="index.html"><span>⌂</span> Dashboard</a>
+    <a class="ksuc-side-link is-active" href="documents.html"><span>▤</span> All Documents</a>
+    <button class="ksuc-side-link" type="button" onclick="registerDocument()"><span>＋</span> Register Document</button>
+  </nav>
+  <div class="ksuc-side-bottom"><button class="ksuc-side-link" type="button" onclick="signOut()"><span>↪</span> Sign Out</button></div>
+</aside>
 
 <div class="page">
 
