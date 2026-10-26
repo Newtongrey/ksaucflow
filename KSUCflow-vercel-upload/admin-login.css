@@ -1,7 +1,7 @@
 :root {
-  --maroon: #7D0000;
-  --maroon-dark: #5d0000;
-  --maroon-light: #f8eeee;
+  --maroon: #8A1C3A;
+  --maroon-dark: #5C1026;
+  --maroon-light: #F8E9EE;
 
   --ink: #182435;
   --muted: #758294;
@@ -189,7 +189,7 @@ input:focus {
   border-color: var(--maroon);
 
   box-shadow:
-    0 0 0 3px rgba(125, 0, 0, 0.08);
+    0 0 0 3px rgba(138, 28, 58, 0.08);
 }
 
 .password-field {
