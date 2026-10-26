@@ -1,20 +1,51 @@
+
 'use strict';
+
+/*
+ * KSUCflow browser-only administrator dashboard.
+ * Accounts, settings and records are stored in this browser.
+ * This is a prototype, not a secure multi-user production system.
+ */
 
 const DEFAULT_SETTINGS = {
   title: 'KSUCflow',
-  institution: 'KOITALEEL SAMOEI UNIVERSITY COLLEGE',
+  institution: 'KOITALEEL SAMOEI UNIVERSITY',
   primary: '#7D0000'
 };
 
 const byId = id => document.getElementById(id);
 let profiles = [];
 let departments = [];
-let visibleProfiles = [];
+
+function readArray(key) {
+  try {
+    const data = JSON.parse(localStorage.getItem(key) || '[]');
+    return Array.isArray(data) ? data : [];
+  } catch (_) {
+    return [];
+  }
+}
+
+function saveUsers() {
+  localStorage.setItem('ksucUsers', JSON.stringify(profiles));
+}
 
 function escapeHtml(value) {
-  return String(value == null ? '' : value).replace(/[&<>"']/g, function (char) {
-    return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[char];
-  });
+  return String(value == null ? '' : value).replace(/[&<>"']/g, char => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;',
+    '"': '&quot;', "'": '&#39;'
+  })[char]);
+}
+
+function roleName(value) {
+  const role = String(value || 'Staff').toLowerCase().trim();
+  if (['admin', 'administrator', 'system admin', 'super admin'].includes(role)) {
+    return 'Administrator';
+  }
+  if (['hod', 'head of department', 'department head'].includes(role)) {
+    return 'Department Head';
+  }
+  return 'Staff';
 }
 
 function displayDate(value) {
@@ -22,13 +53,28 @@ function displayDate(value) {
   const date = new Date(value);
   return Number.isNaN(date.getTime())
     ? '—'
-    : date.toLocaleDateString('en-KE', { day: '2-digit', month: 'short', year: 'numeric' });
+    : date.toLocaleDateString('en-KE', {
+        day: '2-digit', month: 'short', year: 'numeric'
+      });
 }
 
-function roleName(value) {
-  return typeof window.ksucRoleName === 'function'
-    ? window.ksucRoleName(value)
-    : (String(value || 'Staff').toLowerCase() === 'administrator' ? 'Administrator' : String(value || 'Staff'));
+function showToast(message) {
+  let toast = byId('adminToast');
+  if (!toast) {
+    toast = document.createElement('div');
+    toast.id = 'adminToast';
+    toast.className = 'notice';
+    toast.style.cssText =
+      'position:fixed;right:20px;bottom:20px;z-index:10000;' +
+      'max-width:min(440px,calc(100vw - 40px));box-shadow:0 8px 28px #0002';
+    document.body.appendChild(toast);
+  }
+  toast.textContent = message;
+  toast.hidden = false;
+  clearTimeout(window.ksucAdminToastTimer);
+  window.ksucAdminToastTimer = setTimeout(() => {
+    toast.hidden = true;
+  }, 3500);
 }
 
 function setCheck(id, message, state) {
@@ -43,12 +89,14 @@ function setCheck(id, message, state) {
 
 function showDirectoryError(message) {
   const banner = byId('directoryError');
+  if (!banner) return;
   banner.textContent = message;
   banner.hidden = false;
 }
 
 function clearDirectoryError() {
   const banner = byId('directoryError');
+  if (!banner) return;
   banner.textContent = '';
   banner.hidden = true;
 }
@@ -56,218 +104,193 @@ function clearDirectoryError() {
 function getSettings() {
   try {
     const saved = JSON.parse(localStorage.getItem('ksucAdminSettings') || 'null');
-    if (saved && typeof saved === 'object') return { ...DEFAULT_SETTINGS, ...saved };
-    // Migrate the old visual settings only. Old local user/password demo data is ignored.
-    const legacy = JSON.parse(localStorage.getItem('routeflowAdminSettings') || 'null');
-    if (legacy && typeof legacy === 'object') {
-      const migrated = { ...DEFAULT_SETTINGS, title: legacy.title || DEFAULT_SETTINGS.title,
-        institution: legacy.institution || DEFAULT_SETTINGS.institution,
-        primary: legacy.primary || DEFAULT_SETTINGS.primary };
-      localStorage.setItem('ksucAdminSettings', JSON.stringify(migrated));
-      return migrated;
-    }
-  } catch (error) {
-    console.warn('KSUCflow could not read saved portal settings.', error);
+    return saved && typeof saved === 'object'
+      ? { ...DEFAULT_SETTINGS, ...saved }
+      : { ...DEFAULT_SETTINGS };
+  } catch (_) {
+    return { ...DEFAULT_SETTINGS };
   }
-  return { ...DEFAULT_SETTINGS };
 }
 
 function applySettings(settings) {
-  byId('appName').value = settings.title;
-  byId('institution').value = settings.institution;
-  byId('primaryColor').value = /^#[0-9a-f]{6}$/i.test(settings.primary) ? settings.primary : '#7D0000';
-  byId('colourValue').textContent = byId('primaryColor').value.toUpperCase();
-  byId('brandName').textContent = settings.title;
-  byId('mark').textContent = (settings.title.trim().charAt(0) || 'K').toUpperCase();
-  document.documentElement.style.setProperty('--brand', byId('primaryColor').value);
-  document.documentElement.style.setProperty('--brand-dark', byId('primaryColor').value);
+  if (byId('appName')) byId('appName').value = settings.title;
+  if (byId('institution')) byId('institution').value = settings.institution;
+  if (byId('primaryColor')) {
+    byId('primaryColor').value =
+      /^#[0-9a-f]{6}$/i.test(settings.primary)
+        ? settings.primary : DEFAULT_SETTINGS.primary;
+  }
+  if (byId('colourValue')) {
+    byId('colourValue').textContent = byId('primaryColor')?.value.toUpperCase() || '';
+  }
+  if (byId('brandName')) byId('brandName').textContent = settings.title;
+  if (byId('mark')) {
+    byId('mark').textContent = (settings.title.trim().charAt(0) || 'K').toUpperCase();
+  }
+
+  document.documentElement.style.setProperty('--brand', settings.primary);
+  document.documentElement.style.setProperty('--brand-dark', settings.primary);
+}
+
+function loadLocalData() {
+  profiles = readArray('ksucUsers');
+  departments = readArray('ksucDepartments');
+
+  if (!departments.length) {
+    departments = [
+      { id: 'registry', name: 'Registry' },
+      { id: 'administration', name: 'Administration' },
+      { id: 'academics', name: 'Academics' },
+      { id: 'finance', name: 'Finance' },
+      { id: 'admissions', name: 'Admissions' },
+      { id: 'planning', name: 'Planning' },
+      { id: 'ict', name: 'ICT' }
+    ];
+    localStorage.setItem('ksucDepartments', JSON.stringify(departments));
+  }
+
+  profiles = profiles.map(user => ({
+    ...user,
+    id: String(user.id || user.email || ('user-' + Date.now())),
+    name: user.name || user.full_name || user.email || 'Unnamed user',
+    full_name: user.full_name || user.name || '',
+    email: String(user.email || '').trim().toLowerCase(),
+    role: roleName(user.role),
+    department_id: user.department_id || user.department || '',
+    active: user.active !== false && user.status !== 'inactive',
+    created_at: user.created_at || user.createdAt || new Date().toISOString()
+  }));
+
+  saveUsers();
+}
+
+function renderDepartmentFilter() {
+  const filter = byId('departmentFilter');
+  if (filter) {
+    const selected = filter.value;
+    filter.innerHTML = '<option value="">All departments</option>' +
+      departments.map(department =>
+        '<option value="' + escapeHtml(department.id) + '">' +
+        escapeHtml(department.name) + '</option>'
+      ).join('');
+    filter.value = selected;
+  }
+
+  const invite = byId('inviteDepartment');
+  if (invite) {
+    const selected = invite.value;
+    invite.innerHTML = '<option value="">Select department</option>' +
+      departments.map(department =>
+        '<option value="' + escapeHtml(department.id) + '">' +
+        escapeHtml(department.name) + '</option>'
+      ).join('');
+    invite.value = selected;
+  }
 }
 
 function renderProfileDirectory() {
-  const search = byId('profileSearch').value.trim().toLowerCase();
-  const departmentId = byId('departmentFilter').value;
-  const selectedRole = byId('roleFilter').value;
+  const search = (byId('profileSearch')?.value || '').trim().toLowerCase();
+  const departmentId = byId('departmentFilter')?.value || '';
+  const selectedRole = byId('roleFilter')?.value || '';
 
-  visibleProfiles = profiles.filter(function (profile) {
+  const visible = profiles.filter(profile => {
     const name = profile.full_name || profile.name || '';
-    const id = profile.id || '';
-    const role = roleName(profile.role);
-    const matchesSearch = !search || name.toLowerCase().includes(search) || id.toLowerCase().includes(search);
-    const matchesDepartment = !departmentId || String(profile.department_id || '') === departmentId;
-    const matchesRole = !selectedRole || role === selectedRole;
+    const matchesSearch =
+      !search ||
+      name.toLowerCase().includes(search) ||
+      String(profile.email || '').toLowerCase().includes(search) ||
+      String(profile.id || '').toLowerCase().includes(search);
+
+    const matchesDepartment = !departmentId ||
+      String(profile.department_id || '') === departmentId;
+
+    const matchesRole = !selectedRole || roleName(profile.role) === selectedRole;
     return matchesSearch && matchesDepartment && matchesRole;
   });
 
   const tbody = byId('userRows');
-  if (!visibleProfiles.length) {
-    tbody.innerHTML = '<tr><td colspan="5" class="table-message">No profiles match these filters.</td></tr>';
-  } else {
-    tbody.innerHTML = visibleProfiles.map(function (profile) {
-      const name = profile.full_name || profile.name || 'Unnamed profile';
-      const role = roleName(profile.role);
-      const department = departments.find(function (item) {
-        return String(item.id) === String(profile.department_id);
-      });
-      const departmentName = department ? department.name : 'Unassigned';
-      const initials = name.trim().split(/\s+/).slice(0, 2).map(function (part) {
-        return part.charAt(0);
-      }).join('').toUpperCase() || 'U';
-      const roleClass = role === 'Administrator' ? 'admin' : (role === 'Department Head' ? 'head' : '');
-      const shortId = String(profile.id || '').length > 12
-        ? String(profile.id).slice(0, 8) + '…' + String(profile.id).slice(-4)
-        : String(profile.id || '—');
-
-      const departmentOptions = '<option value="">Unassigned</option>' + departments.map(function (item) {
-        return '<option value="' + escapeHtml(item.id) + '"' +
-          (String(item.id) === String(profile.department_id || '') ? ' selected' : '') + '>' +
-          escapeHtml(item.name) + '</option>';
-      }).join('');
-      const roleOptions = ['Staff', 'Department Head', 'Administrator'].map(function (item) {
-        return '<option value="' + item + '"' + (role === item ? ' selected' : '') + '>' + item + '</option>';
-      }).join('');
-      return '<tr>' +
-        '<td><div class="profile-name"><span class="profile-avatar">' + escapeHtml(initials) + '</span><span><strong>' +
-        escapeHtml(name) + '</strong><small title="' + escapeHtml(profile.id || '') + '">' + escapeHtml(shortId) + '</small></span></div></td>' +
-        '<td><select class="admin-inline-select" aria-label="Department for ' + escapeHtml(name) + '" data-department-for="' + escapeHtml(profile.id || '') + '">' + departmentOptions + '</select></td>' +
-        '<td><select class="admin-inline-select" aria-label="Role for ' + escapeHtml(name) + '" data-role-for="' + escapeHtml(profile.id || '') + '">' + roleOptions + '</select></td>' +
-        '<td>' + escapeHtml(displayDate(profile.created_at)) + '</td>' +
-        '<td><div class="admin-row-actions"><button class="copy-button" type="button" data-save-profile="' + escapeHtml(profile.id || '') + '">Save access</button>' +
-        '<button class="copy-button" type="button" data-deactivate-profile="' + escapeHtml(profile.id || '') + '">Deactivate</button>' +
-        '<button class="copy-button" type="button" data-copy-id="' + escapeHtml(profile.id || '') + '">Copy ID</button></div></td>' +
-        '</tr>';
-    }).join('');
-  }
-
-  byId('directoryCount').textContent = 'Showing ' + visibleProfiles.length + ' of ' + profiles.length + ' profiles';
-  byId('totalUsers').textContent = profiles.length;
-  byId('activeUsers').textContent = profiles.filter(function (profile) {
-    return roleName(profile.role) !== 'Administrator';
-  }).length;
-  byId('adminUsers').textContent = profiles.filter(function (profile) {
-    return roleName(profile.role) === 'Administrator';
-  }).length;
-
-  let localDocuments = 0;
-  try {
-    const stored = JSON.parse(localStorage.getItem('ksucDocuments') || '[]');
-    localDocuments = Array.isArray(stored) ? stored.length : 0;
-  } catch (_) {}
-  byId('documentTotal').textContent = localDocuments;
-}
-
-function renderDepartmentFilter() {
-  const select = byId('departmentFilter');
-  const selected = select.value;
-  select.innerHTML = '<option value="">All departments</option>' + departments.map(function (department) {
-    return '<option value="' + escapeHtml(department.id) + '">' + escapeHtml(department.name) + '</option>';
-  }).join('');
-  if (departments.some(function (department) { return String(department.id) === selected; })) {
-    select.value = selected;
-  }
-
-  const inviteSelect = byId('inviteDepartment');
-  if (inviteSelect) {
-    const inviteSelected = inviteSelect.value;
-    inviteSelect.innerHTML = '<option value="">Select department</option>' + departments.map(function (department) {
-      return '<option value="' + escapeHtml(department.id) + '">' + escapeHtml(department.name) + '</option>';
-    }).join('');
-    if (departments.some(function (department) { return String(department.id) === inviteSelected; })) {
-      inviteSelect.value = inviteSelected;
-    }
-  }
-}
-
-async function loadDirectory() {
-  clearDirectoryError();
-  byId('userRows').innerHTML = '<tr><td colspan="5" class="table-message">Loading profiles from Supabase…</td></tr>';
-  setCheck('db', 'Querying profiles and departments…', null);
-
-  try {
-    const results = await Promise.all([
-      window.ksucSupabase.from('profiles').select('id,full_name,department_id,role,created_at').order('full_name'),
-      window.ksucSupabase.from('departments').select('id,name').order('name')
-    ]);
-
-    if (results[0].error) throw results[0].error;
-    profiles = Array.isArray(results[0].data) ? results[0].data : [];
-    if (results[1].error) {
-      console.warn('KSUCflow could not load departments.', results[1].error);
-      departments = [];
-      setCheck('db', 'Profiles loaded; department lookup is unavailable.', 'error');
+  if (tbody) {
+    if (!visible.length) {
+      tbody.innerHTML =
+        '<tr><td colspan="5" class="table-message">No accounts match these filters.</td></tr>';
     } else {
-      departments = Array.isArray(results[1].data) ? results[1].data : [];
-      setCheck('db', 'Connected · ' + profiles.length + ' profiles loaded.', 'ok');
+      tbody.innerHTML = visible.map(profile => {
+        const name = profile.full_name || profile.name || profile.email;
+        const department = departments.find(item =>
+          String(item.id) === String(profile.department_id)
+        );
+        const departmentOptions =
+          '<option value="">Unassigned</option>' +
+          departments.map(item =>
+            '<option value="' + escapeHtml(item.id) + '"' +
+            (String(item.id) === String(profile.department_id) ? ' selected' : '') +
+            '>' + escapeHtml(item.name) + '</option>'
+          ).join('');
+
+        const roleOptions = ['Staff', 'Department Head', 'Administrator']
+          .map(role => '<option value="' + role + '"' +
+            (roleName(profile.role) === role ? ' selected' : '') +
+            '>' + role + '</option>').join('');
+
+        const status = profile.active ? 'Active' : 'Inactive';
+
+        return '<tr>' +
+          '<td><div class="profile-name"><span class="profile-avatar">' +
+          escapeHtml(name.split(/\s+/).slice(0, 2).map(part => part.charAt(0)).join('').toUpperCase()) +
+          '</span><span><strong>' + escapeHtml(name) + '</strong><small>' +
+          escapeHtml(profile.email) + '</small><small>' + status + '</small></span></div></td>' +
+          '<td><select class="admin-inline-select" data-department-for="' +
+          escapeHtml(profile.id) + '">' + departmentOptions + '</select></td>' +
+          '<td><select class="admin-inline-select" data-role-for="' +
+          escapeHtml(profile.id) + '">' + roleOptions + '</select></td>' +
+          '<td>' + escapeHtml(displayDate(profile.created_at)) + '</td>' +
+          '<td><div class="admin-row-actions">' +
+          '<button class="copy-button" type="button" data-save-profile="' +
+          escapeHtml(profile.id) + '">Save access</button>' +
+          '<button class="copy-button" type="button" data-toggle-profile="' +
+          escapeHtml(profile.id) + '">' + (profile.active ? 'Deactivate' : 'Activate') + '</button>' +
+          '<button class="copy-button" type="button" data-copy-id="' +
+          escapeHtml(profile.id) + '">Copy ID</button></div></td></tr>';
+      }).join('');
     }
+  }
 
-    renderDepartmentFilter();
-    renderProfileDirectory();
-  } catch (error) {
-    console.error('KSUCflow profile directory failed:', error);
-    profiles = [];
-    departments = [];
-    renderDepartmentFilter();
-    renderProfileDirectory();
-    setCheck('db', 'Profile query failed.', 'error');
-    showDirectoryError('The profile directory could not be loaded: ' +
-      (error && error.message ? error.message : 'Unknown database error') +
-      '. Check the profiles table SELECT policy for administrators.');
+  if (byId('directoryCount')) {
+    byId('directoryCount').textContent =
+      'Showing ' + visible.length + ' of ' + profiles.length + ' accounts';
+  }
+  if (byId('totalUsers')) byId('totalUsers').textContent = profiles.length;
+  if (byId('activeUsers')) {
+    byId('activeUsers').textContent = profiles.filter(user =>
+      user.active && roleName(user.role) !== 'Administrator'
+    ).length;
+  }
+  if (byId('adminUsers')) {
+    byId('adminUsers').textContent = profiles.filter(user =>
+      roleName(user.role) === 'Administrator'
+    ).length;
+  }
+  if (byId('documentTotal')) {
+    byId('documentTotal').textContent = readArray('ksucDocuments').length;
   }
 }
 
-function showToast(message) {
-  let toast = byId('adminToast');
-  if (!toast) {
-    toast = document.createElement('div');
-    toast.id = 'adminToast';
-    toast.className = 'notice';
-    toast.style.position = 'fixed';
-    toast.style.right = '20px';
-    toast.style.bottom = '20px';
-    toast.style.zIndex = '10000';
-    toast.style.maxWidth = 'min(440px, calc(100vw - 40px))';
-    toast.style.boxShadow = '0 8px 28px rgba(0,0,0,.12)';
-    document.body.appendChild(toast);
-  }
-  toast.textContent = message;
-  toast.hidden = false;
-  clearTimeout(window.ksucAdminToastTimer);
-  window.ksucAdminToastTimer = setTimeout(function () {
-    toast.hidden = true;
-  }, 2600);
+function loadDirectory() {
+  clearDirectoryError();
+  loadLocalData();
+  renderDepartmentFilter();
+  renderProfileDirectory();
+  setCheck('db', 'Loaded accounts from this browser.', 'ok');
 }
 
-async function signOut() {
-  const button = byId('signOut');
-  button.disabled = true;
-  button.textContent = 'Signing out…';
-  try {
-    const result = await window.ksucSupabase.auth.signOut();
-    if (result.error) throw result.error;
-  } catch (error) {
-    console.error('KSUCflow sign-out warning:', error);
-  } finally {
-    localStorage.removeItem('ksucSession');
-    window.location.replace(new URL('/admin-login.html', window.location.origin).href);
-  }
+function signOut() {
+  localStorage.removeItem('ksucSession');
+  window.location.replace('admin-login.html');
 }
 
-
-/* =========================================================
-   REPORTS & CSV EXPORT
-   Profile data comes from Supabase. Documents and activity
-   remain browser-local until the shared workflow migration.
-========================================================= */
+/* Reports and CSV export */
 let currentReportRows = [];
 let currentReportColumns = [];
-
-function readLocalArray(key) {
-  try {
-    const value = JSON.parse(localStorage.getItem(key) || '[]');
-    return Array.isArray(value) ? value : [];
-  } catch (_) {
-    return [];
-  }
-}
 
 function reportDateValue(row, type) {
   const value = type === 'profiles'
@@ -280,52 +303,63 @@ function reportDateValue(row, type) {
 
 function csvCell(value) {
   let text = String(value == null ? '' : value);
-  // Prevent spreadsheet formula execution when a CSV is opened in Excel.
   if (/^[=+\-@\t\r]/.test(text)) text = "'" + text;
   return '"' + text.replace(/"/g, '""') + '"';
 }
 
 function renderReport() {
-  const type = byId('reportType').value;
-  const fromValue = byId('reportFrom').value;
-  const toValue = byId('reportTo').value;
+  const type = byId('reportType')?.value || 'documents';
+  const fromValue = byId('reportFrom')?.value || '';
+  const toValue = byId('reportTo')?.value || '';
   const fromDate = fromValue ? new Date(fromValue + 'T00:00:00') : null;
   const toDate = toValue ? new Date(toValue + 'T23:59:59.999') : null;
+
   let rows = [];
   let columns = [];
 
   if (type === 'profiles') {
     rows = profiles.map(profile => {
-      const department = departments.find(item => String(item.id) === String(profile.department_id));
+      const department = departments.find(item =>
+        String(item.id) === String(profile.department_id)
+      );
       return {
-        name: profile.full_name || profile.name || 'Unnamed profile',
+        name: profile.full_name || profile.name || '',
         profile_id: profile.id || '',
         email: profile.email || '',
         department: department ? department.name : 'Unassigned',
         role: roleName(profile.role),
-        created_at: profile.created_at || ''
+        created_at: profile.created_at || '',
+        status: profile.active ? 'Active' : 'Inactive'
       };
     });
     columns = [
-      ['name', 'Name'], ['profile_id', 'Profile ID'], ['email', 'Email'],
-      ['department', 'Department'], ['role', 'Role'], ['created_at', 'Created']
+      ['name', 'Name'], ['profile_id', 'Account ID'], ['email', 'Email'],
+      ['department', 'Department'], ['role', 'Role'],
+      ['status', 'Status'], ['created_at', 'Created']
     ];
   } else if (type === 'activity') {
-    rows = readLocalArray('ksucActivity').map(item => ({
-      date: item.date || '', action: item.action || '',
-      detail: item.detail || '', user: item.user || '',
-      department: item.department || '', type: item.type || ''
+    rows = readArray('ksucActivity').map(item => ({
+      date: item.date || item.createdAt || '',
+      action: item.action || '',
+      detail: item.detail || '',
+      user: item.user || '',
+      department: item.department || '',
+      type: item.type || ''
     }));
     columns = [
       ['date', 'Date'], ['action', 'Action'], ['detail', 'Detail'],
       ['user', 'User'], ['department', 'Department'], ['type', 'Type']
     ];
   } else {
-    rows = readLocalArray('ksucDocuments').map(item => ({
-      ref: item.ref || '', title: item.title || item.subject || '',
-      origin: item.origin || '', destination: item.destination || '',
-      current_office: item.currentOffice || '', status: item.status || '',
-      registered_by: item.registeredBy || '', created_at: item.createdAt || '',
+    rows = readArray('ksucDocuments').map(item => ({
+      ref: item.ref || '',
+      title: item.title || item.subject || '',
+      origin: item.origin || '',
+      destination: item.destination || '',
+      current_office: item.currentOffice || '',
+      status: item.status || '',
+      registered_by: item.registeredBy || '',
+      created_at: item.createdAt || '',
       attachment: item.attachmentName || ''
     }));
     columns = [
@@ -336,12 +370,10 @@ function renderReport() {
     ];
   }
 
-  const dateKey = type === 'profiles' ? 'created_at' : (type === 'activity' ? 'date' : 'created_at');
   if (fromDate || toDate) {
+    const dateKey = type === 'activity' ? 'date' : 'created_at';
     rows = rows.filter(row => {
-      const raw = row[dateKey];
-      if (!raw) return false;
-      const date = new Date(raw);
+      const date = new Date(row[dateKey] || '');
       if (Number.isNaN(date.getTime())) return false;
       return (!fromDate || date >= fromDate) && (!toDate || date <= toDate);
     });
@@ -349,43 +381,52 @@ function renderReport() {
 
   currentReportRows = rows;
   currentReportColumns = columns;
-  const head = byId('reportHead');
-  const body = byId('reportRows');
-  head.innerHTML = '<tr>' + columns.map(col => '<th>' + escapeHtml(col[1]) + '</th>').join('') + '</tr>';
 
-  if (!rows.length) {
-    body.innerHTML = '<tr><td colspan="' + columns.length + '" class="table-message">No records match this report and date range.</td></tr>';
-  } else {
-    const preview = rows.slice(0, 25);
-    body.innerHTML = preview.map(row => '<tr>' + columns.map(col =>
-      '<td>' + escapeHtml(row[col[0]] || '—') + '</td>'
-    ).join('') + '</tr>').join('');
-    if (rows.length > preview.length) {
-      body.insertAdjacentHTML('beforeend', '<tr><td class="table-message" colspan="' + columns.length + '">Showing first 25 of ' + rows.length + ' records. Export CSV for the complete result.</td></tr>');
+  if (byId('reportHead')) {
+    byId('reportHead').innerHTML =
+      '<tr>' + columns.map(col => '<th>' + escapeHtml(col[1]) + '</th>').join('') + '</tr>';
+  }
+
+  if (byId('reportRows')) {
+    if (!rows.length) {
+      byId('reportRows').innerHTML =
+        '<tr><td colspan="' + columns.length + '" class="table-message">No records found.</td></tr>';
+    } else {
+      byId('reportRows').innerHTML = rows.slice(0, 25).map(row =>
+        '<tr>' + columns.map(col =>
+          '<td>' + escapeHtml(row[col[0]] || '—') + '</td>'
+        ).join('') + '</tr>'
+      ).join('');
     }
   }
 
-  const label = type === 'profiles' ? 'Supabase user profiles'
-    : (type === 'activity' ? 'browser-local activity entries' : 'browser-local document records');
-  byId('reportSummary').textContent = rows.length + ' records in ' + label +
-    (fromValue || toValue ? ' for the selected date range.' : '.');
+  if (byId('reportSummary')) {
+    byId('reportSummary').textContent = rows.length +
+      ' records loaded from this browser.';
+  }
 }
 
 function exportReportCsv() {
   if (!currentReportColumns.length) {
-    showToast('There are no report columns to export.');
+    showToast('No report columns to export.');
     return;
   }
+
   const lines = [
     currentReportColumns.map(col => csvCell(col[1])).join(','),
-    ...currentReportRows.map(row => currentReportColumns.map(col => csvCell(row[col[0]])).join(','))
+    ...currentReportRows.map(row =>
+      currentReportColumns.map(col => csvCell(row[col[0]])).join(',')
+    )
   ];
-  const blob = new Blob(['\uFEFF' + lines.join('\r\n')], { type: 'text/csv;charset=utf-8;' });
+
+  const blob = new Blob(['\uFEFF' + lines.join('\r\n')], {
+    type: 'text/csv;charset=utf-8;'
+  });
   const url = URL.createObjectURL(blob);
   const anchor = document.createElement('a');
-  const date = new Date().toISOString().slice(0, 10);
   anchor.href = url;
-  anchor.download = 'KSUCflow-' + byId('reportType').value + '-report-' + date + '.csv';
+  anchor.download = 'KSUCflow-report-' +
+    new Date().toISOString().slice(0, 10) + '.csv';
   document.body.appendChild(anchor);
   anchor.click();
   anchor.remove();
@@ -393,174 +434,197 @@ function exportReportCsv() {
   showToast('CSV report exported.');
 }
 
-
-async function callAdminApi(payload) {
-  const sessionResult = await window.ksucSupabase.auth.getSession();
-  if (sessionResult.error) throw sessionResult.error;
-  const token = sessionResult.data && sessionResult.data.session && sessionResult.data.session.access_token;
-  if (!token) throw new Error('Your administrator session has expired. Sign in again.');
-  const response = await fetch('/api/admin-users', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
-    body: JSON.stringify(payload)
-  });
-  let result = {};
-  try { result = await response.json(); } catch (_) {}
-  if (!response.ok) throw new Error(result.error || 'The account management request failed.');
-  return result;
-}
-
-async function inviteUser(event) {
+/* Create local staff accounts */
+function inviteUser(event) {
   event.preventDefault();
-  const submit = byId('inviteUserSubmit');
+
   const feedback = byId('inviteFeedback');
-  const payload = {
-    action: 'invite',
-    full_name: byId('inviteFullName').value.trim(),
-    email: byId('inviteEmail').value.trim(),
-    department_id: byId('inviteDepartment').value || null,
-    role: byId('inviteRole').value
-  };
-  submit.disabled = true;
-  submit.textContent = 'Sending invitation…';
-  feedback.textContent = '';
-  try {
-    const result = await callAdminApi(payload);
-    feedback.textContent = result.message || 'Invitation sent.';
-    byId('inviteUserForm').reset();
-    await loadDirectory();
-    renderReport();
-  } catch (error) {
-    feedback.textContent = error.message || 'Could not send invitation.';
-    feedback.style.color = '#9c3030';
-  } finally {
-    submit.disabled = false;
-    submit.textContent = 'Send staff invitation';
-  }
-}
+  const submit = byId('inviteUserSubmit');
+  const name = byId('inviteFullName')?.value.trim() || '';
+  const email = (byId('inviteEmail')?.value || '').trim().toLowerCase();
+  const departmentId = byId('inviteDepartment')?.value || '';
+  const role = byId('inviteRole')?.value || 'Staff';
 
-async function saveProfileAccess(id) {
-  const roleControl = document.querySelector('[data-role-for="' + CSS.escape(id) + '"]');
-  const departmentControl = document.querySelector('[data-department-for="' + CSS.escape(id) + '"]');
-  const profile = profiles.find(item => String(item.id) === String(id));
-  if (!roleControl || !departmentControl || !profile) return;
-  const button = document.querySelector('[data-save-profile="' + CSS.escape(id) + '"]');
-  button.disabled = true;
-  try {
-    const result = await callAdminApi({
-      action: 'update-profile',
-      user_id: id,
-      full_name: profile.full_name || profile.name || 'KSUCflow user',
-      role: roleControl.value,
-      department_id: departmentControl.value || null
-    });
-    showToast(result.message || 'Profile updated.');
-    await loadDirectory();
-    renderReport();
-  } catch (error) {
-    showToast(error.message || 'Could not update profile.');
-  } finally {
-    if (button) button.disabled = false;
-  }
-}
-
-async function deactivateProfile(id) {
-  const profile = profiles.find(item => String(item.id) === String(id));
-  if (!profile) return;
-  const name = profile.full_name || profile.name || 'this account';
-  if (!window.confirm('Deactivate sign-in access for ' + name + '? The profile and document history will be retained.')) return;
-  const button = document.querySelector('[data-deactivate-profile="' + CSS.escape(id) + '"]');
-  if (button) button.disabled = true;
-  try {
-    const result = await callAdminApi({ action: 'deactivate', user_id: id });
-    showToast(result.message || 'Account deactivated.');
-  } catch (error) {
-    showToast(error.message || 'Could not deactivate account.');
-  } finally {
-    if (button) button.disabled = false;
-  }
-}
-
-async function initialiseAdmin() {
-  applySettings(getSettings());
-  setCheck('auth', 'Verifying administrator session…', null);
-
-  let currentProfile = null;
-  try {
-    currentProfile = await window.ksucAuthReady;
-  } catch (error) {
-    console.error('KSUCflow auth guard did not complete.', error);
-  }
-
-  if (!currentProfile || currentProfile.role !== 'Administrator') {
-    setCheck('auth', 'Administrator session not verified.', 'error');
+  if (!name || !email) {
+    if (feedback) feedback.textContent = 'Enter the staff member’s name and email.';
     return;
   }
 
-  byId('adminName').textContent = currentProfile.name || currentProfile.email || 'Administrator';
-  byId('adminRole').textContent = currentProfile.department
-    ? 'Administrator · ' + currentProfile.department
-    : 'System administrator';
-  byId('adminAvatar').textContent = (currentProfile.name || currentProfile.email || 'A')
-    .trim().split(/\s+/).slice(0, 2).map(function (part) { return part.charAt(0); }).join('').toUpperCase();
-  setCheck('auth', 'Signed in as an administrator.', 'ok');
-  await loadDirectory();
+  if (profiles.some(user => String(user.email).toLowerCase() === email)) {
+    if (feedback) feedback.textContent = 'An account with this email already exists.';
+    return;
+  }
+
+  // Generate a temporary password for the administrator to share securely.
+  const temporaryPassword = 'KSU-' +
+    Math.random().toString(36).slice(2, 8).toUpperCase() + '-' +
+    Math.random().toString(36).slice(2, 6).toUpperCase();
+
+  profiles.push({
+    id: 'user-' + Date.now(),
+    name,
+    full_name: name,
+    email,
+    password: temporaryPassword,
+    role: roleName(role),
+    department_id: departmentId,
+    active: true,
+    created_at: new Date().toISOString()
+  });
+
+  saveUsers();
+  renderProfileDirectory();
+
+  if (feedback) {
+    feedback.style.color = '';
+    feedback.textContent =
+      'Account created for ' + email +
+      '. Temporary password: ' + temporaryPassword +
+      '. Copy it now and share it with the staff member.';
+  }
+
+  if (byId('inviteUserForm')) byId('inviteUserForm').reset();
+  renderDepartmentFilter();
+  showToast('Local staff account created.');
   renderReport();
 }
 
-byId('reportType').addEventListener('change', renderReport);
-byId('reportFrom').addEventListener('change', renderReport);
-byId('reportTo').addEventListener('change', renderReport);
-byId('refreshReports').addEventListener('click', async function () {
-  await loadDirectory();
+function saveProfileAccess(id) {
+  const profile = profiles.find(user => String(user.id) === String(id));
+  if (!profile) return;
+
+  const roleControl = document.querySelector('[data-role-for="' + CSS.escape(id) + '"]');
+  const departmentControl = document.querySelector('[data-department-for="' + CSS.escape(id) + '"]');
+  if (!roleControl || !departmentControl) return;
+
+  profile.role = roleName(roleControl.value);
+  profile.department_id = departmentControl.value;
+  saveUsers();
+  renderProfileDirectory();
   renderReport();
+  showToast('Account access updated.');
+}
+
+function toggleProfile(id) {
+  const profile = profiles.find(user => String(user.id) === String(id));
+  if (!profile) return;
+
+  const nextActive = !profile.active;
+  const name = profile.full_name || profile.name || profile.email;
+
+  if (!window.confirm((nextActive ? 'Reactivate ' : 'Deactivate ') + name + '?')) {
+    return;
+  }
+
+  const session = JSON.parse(localStorage.getItem('ksucSession') || 'null');
+  if (!nextActive && session && String(session.id) === String(profile.id)) {
+    showToast('You cannot deactivate the account currently signed in.');
+    return;
+  }
+
+  profile.active = nextActive;
+  profile.status = nextActive ? 'active' : 'inactive';
+  saveUsers();
+  renderProfileDirectory();
+  renderReport();
+  showToast(nextActive ? 'Account activated.' : 'Account deactivated.');
+}
+
+async function copyAccountId(id) {
+  try {
+    await navigator.clipboard.writeText(id);
+    showToast('Account ID copied.');
+  } catch (_) {
+    showToast('Copy was blocked by the browser.');
+  }
+}
+
+function initialiseAdmin() {
+  applySettings(getSettings());
+  loadDirectory();
+
+  let session = null;
+  try {
+    session = JSON.parse(localStorage.getItem('ksucSession') || 'null');
+  } catch (_) {}
+
+  if (!session || roleName(session.role) !== 'Administrator') {
+    window.location.replace('admin-login.html');
+    return;
+  }
+
+  if (byId('adminName')) {
+    byId('adminName').textContent = session.name || session.email || 'Administrator';
+  }
+  if (byId('adminRole')) {
+    byId('adminRole').textContent = session.department
+      ? 'Administrator · ' + session.department
+      : 'System administrator';
+  }
+  if (byId('adminAvatar')) {
+    byId('adminAvatar').textContent =
+      (session.name || session.email || 'A')
+        .trim().split(/\s+/).slice(0, 2)
+        .map(part => part.charAt(0)).join('').toUpperCase();
+  }
+
+  setCheck('auth', 'Signed in as an administrator.', 'ok');
+  renderReport();
+}
+
+/* Wire up dashboard controls */
+byId('reportType')?.addEventListener('change', renderReport);
+byId('reportFrom')?.addEventListener('change', renderReport);
+byId('reportTo')?.addEventListener('change', renderReport);
+byId('refreshReports')?.addEventListener('click', renderReport);
+byId('exportReport')?.addEventListener('click', exportReportCsv);
+byId('inviteUserForm')?.addEventListener('submit', inviteUser);
+
+byId('userRows')?.addEventListener('click', event => {
+  const save = event.target.closest('[data-save-profile]');
+  if (save) return saveProfileAccess(save.getAttribute('data-save-profile'));
+
+  const toggle = event.target.closest('[data-toggle-profile]');
+  if (toggle) return toggleProfile(toggle.getAttribute('data-toggle-profile'));
+
+  const copy = event.target.closest('[data-copy-id]');
+  if (copy) copyAccountId(copy.getAttribute('data-copy-id'));
 });
-byId('exportReport').addEventListener('click', exportReportCsv);
-byId('inviteUserForm').addEventListener('submit', inviteUser);
-byId('userRows').addEventListener('click', async function (event) {
-  const saveButton = event.target.closest('[data-save-profile]');
-  if (saveButton) return saveProfileAccess(saveButton.getAttribute('data-save-profile'));
-  const deactivateButton = event.target.closest('[data-deactivate-profile]');
-  if (deactivateButton) return deactivateProfile(deactivateButton.getAttribute('data-deactivate-profile'));
-});
-byId('profileSearch').addEventListener('input', renderProfileDirectory);
-byId('departmentFilter').addEventListener('change', renderProfileDirectory);
-byId('roleFilter').addEventListener('change', renderProfileDirectory);
-byId('refreshProfiles').addEventListener('click', loadDirectory);
-byId('primaryColor').addEventListener('input', function () {
-  const value = byId('primaryColor').value.toUpperCase();
-  byId('colourValue').textContent = value;
+
+byId('profileSearch')?.addEventListener('input', renderProfileDirectory);
+byId('departmentFilter')?.addEventListener('change', renderProfileDirectory);
+byId('roleFilter')?.addEventListener('change', renderProfileDirectory);
+byId('refreshProfiles')?.addEventListener('click', loadDirectory);
+
+byId('primaryColor')?.addEventListener('input', function () {
+  const value = this.value.toUpperCase();
+  if (byId('colourValue')) byId('colourValue').textContent = value;
   document.documentElement.style.setProperty('--brand', value);
   document.documentElement.style.setProperty('--brand-dark', value);
 });
-byId('settingsForm').addEventListener('submit', function (event) {
+
+byId('settingsForm')?.addEventListener('submit', function (event) {
   event.preventDefault();
   const settings = {
-    title: byId('appName').value.trim() || DEFAULT_SETTINGS.title,
-    institution: byId('institution').value.trim() || DEFAULT_SETTINGS.institution,
-    primary: byId('primaryColor').value.toUpperCase()
+    title: byId('appName')?.value.trim() || DEFAULT_SETTINGS.title,
+    institution: byId('institution')?.value.trim() || DEFAULT_SETTINGS.institution,
+    primary: byId('primaryColor')?.value.toUpperCase() || DEFAULT_SETTINGS.primary
   };
   localStorage.setItem('ksucAdminSettings', JSON.stringify(settings));
   applySettings(settings);
-  byId('settingsFeedback').textContent = 'Appearance saved in this browser.';
-});
-byId('resetSettings').addEventListener('click', function () {
-  localStorage.removeItem('ksucAdminSettings');
-  applySettings({ ...DEFAULT_SETTINGS });
-  byId('settingsFeedback').textContent = 'Default appearance restored.';
-});
-byId('userRows').addEventListener('click', async function (event) {
-  const button = event.target.closest('[data-copy-id]');
-  if (!button) return;
-  const id = button.getAttribute('data-copy-id');
-  if (!id) return;
-  try {
-    await navigator.clipboard.writeText(id);
-    showToast('Profile ID copied.');
-  } catch (_) {
-    showToast('Copy was blocked by the browser. Select the profile ID shown in the row instead.');
+  if (byId('settingsFeedback')) {
+    byId('settingsFeedback').textContent = 'Appearance saved in this browser.';
   }
 });
-byId('signOut').addEventListener('click', signOut);
+
+byId('resetSettings')?.addEventListener('click', function () {
+  localStorage.removeItem('ksucAdminSettings');
+  applySettings({ ...DEFAULT_SETTINGS });
+  if (byId('settingsFeedback')) {
+    byId('settingsFeedback').textContent = 'Default appearance restored.';
+  }
+});
+
+byId('signOut')?.addEventListener('click', signOut);
 
 initialiseAdmin();
