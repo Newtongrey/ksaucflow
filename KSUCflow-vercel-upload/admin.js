@@ -10,7 +10,7 @@
 const DEFAULT_SETTINGS = {
   title: 'KSUCflow',
   institution: 'KOITALEEL SAMOEI UNIVERSITY',
-  primary: '#7D0000'
+  primary: '#8A1C3A'
 };
 
 const byId = id => document.getElementById(id);
@@ -104,9 +104,15 @@ function clearDirectoryError() {
 function getSettings() {
   try {
     const saved = JSON.parse(localStorage.getItem('ksucAdminSettings') || 'null');
-    return saved && typeof saved === 'object'
-      ? { ...DEFAULT_SETTINGS, ...saved }
-      : { ...DEFAULT_SETTINGS };
+    if (saved && typeof saved === 'object') {
+      const settings = { ...DEFAULT_SETTINGS, ...saved };
+      if (['#7D0000', '#7d0000', '#5D0000', '#5d0000'].includes(settings.primary)) {
+        settings.primary = DEFAULT_SETTINGS.primary;
+        localStorage.setItem('ksucAdminSettings', JSON.stringify(settings));
+      }
+      return settings;
+    }
+    return { ...DEFAULT_SETTINGS };
   } catch (_) {
     return { ...DEFAULT_SETTINGS };
   }
