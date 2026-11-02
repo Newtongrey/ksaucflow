@@ -126,6 +126,8 @@
           <label>Email address<input id="inviteEmail" type="email" maxlength="254" autocomplete="email" required placeholder="name@ksuc.ac.ke"></label>
           <label>Department<select id="inviteDepartment" required style="display:block;width:100%;margin-top:6px;padding:10px 11px;border:1px solid #dfe5ec;border-radius:7px;background:#fff;color:#202b3c"><option value="">Loading departments…</option></select></label>
           <label>Role<select id="inviteRole" required style="display:block;width:100%;margin-top:6px;padding:10px 11px;border:1px solid #dfe5ec;border-radius:7px;background:#fff;color:#202b3c"><option>Staff</option><option>Department Head</option><option>Administrator</option></select></label>
+          <label>Set password<input id="invitePassword" type="password" minlength="8" autocomplete="new-password" required placeholder="At least 8 characters"></label>
+          <label>Confirm password<input id="invitePasswordConfirm" type="password" minlength="8" autocomplete="new-password" required placeholder="Re-enter password"></label>
           <div style="grid-column:span 2"><button class="button button-primary" id="inviteUserSubmit" type="submit">Create staff account</button><p class="form-feedback" id="inviteFeedback" role="status" aria-live="polite"></p></div>
         </form>
       </section>
@@ -173,7 +175,7 @@
 
           <section class="panel guidance-panel">
             <div class="panel-heading"><div><p class="section-label">ADMIN GUIDANCE</p><h2>Account security</h2></div></div>
-            <p>This prototype stores account details and passwords in this browser. Create and manage staff accounts from this page. Do not use real or reused passwords.</p>
+            <p>Administrators can set a password when creating an account or use Set password in the user directory to reset an existing staff account. Passwords are stored in this browser for this prototype. Do not use real or reused passwords.</p>
             <p>Changes apply only to this browser and will not synchronize to other computers. A shared production system requires secure server-side authentication and storage.</p>
             
           </section>
