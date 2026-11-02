@@ -72,10 +72,19 @@
         <span>Administration</span>
       </a>
 
-      <button type="button" class="nav-item" id="signOutBtn">
-        <span>↪</span>
-        <span>Sign Out</span>
-      </button>
+      <div class="staff-account-card">
+        <div class="staff-account-identity">
+          <span class="staff-account-avatar user-avatar" id="userAvatar">U</span>
+          <span class="staff-account-details">
+            <strong id="currentUserName">User</strong>
+            <small id="currentUserRole">Staff</small>
+          </span>
+        </div>
+        <button type="button" class="staff-account-signout" id="signOutBtn">
+          <span>↪</span>
+          <span>Sign Out</span>
+        </button>
+      </div>
 
     </div>
 
@@ -102,20 +111,7 @@
           <span class="notification-dot" id="notificationDot"></span>
         </a>
 
-        <button
-          type="button"
-          class="user-menu"
-          id="userMenuBtn"
-        >
-          <span class="user-avatar" id="userAvatar">U</span>
 
-          <span class="user-details">
-            <strong id="currentUserName">User</strong>
-            <small id="currentUserRole">Staff</small>
-          </span>
-
-          <span>⌄</span>
-        </button>
 
       </div>
 
