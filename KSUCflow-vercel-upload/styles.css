@@ -1437,3 +1437,42 @@ dialog.modal .btn.primary{background:linear-gradient(110deg,#68152e,#8a1c3a);box
 .topbar .user-menu .user-details small{color:#596579!important}
 .topbar .user-menu>span:last-child{color:#596579}
 .topbar .user-menu .user-avatar{background:#8a1c3a;color:#fff;border:2px solid #f4dfe6}
+
+
+/* Staff account card — mirrors the administrator sidebar profile */
+.staff-account-card{
+  margin-top:14px;
+  padding:13px 11px 10px;
+  border:1px solid rgba(255,255,255,.16);
+  border-radius:12px;
+  background:rgba(255,255,255,.08);
+}
+.staff-account-identity{display:flex;align-items:center;gap:10px;min-width:0}
+.staff-account-avatar{
+  flex:0 0 38px;
+  width:38px;height:38px;
+  border:2px solid rgba(255,255,255,.35);
+  border-radius:50%;
+  background:#fff!important;
+  color:#7d0000!important;
+  display:grid;place-items:center;
+  font-size:13px;font-weight:800;
+  background-size:cover!important;
+  background-position:center!important;
+}
+.staff-account-details{display:flex;flex:1;min-width:0;flex-direction:column;gap:4px}
+.staff-account-details strong{overflow:hidden;color:#fff;font-size:12px;font-weight:700;text-overflow:ellipsis;white-space:nowrap}
+.staff-account-details small{color:#f3dce3;font-size:10px;text-transform:capitalize}
+.staff-account-signout{
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  width:100%;margin-top:12px;padding:9px 10px;
+  border:1px solid rgba(255,255,255,.22);border-radius:8px;
+  background:rgba(255,255,255,.1);color:#fff;
+  font:600 12px inherit;cursor:pointer;transition:background .2s ease;
+}
+.staff-account-signout:hover{background:rgba(255,255,255,.2)}
+.staff-account-signout span:first-child{font-size:16px}
+@media(max-width:768px){
+  .staff-account-card{margin-top:10px}
+  .staff-account-signout{min-height:40px}
+}
