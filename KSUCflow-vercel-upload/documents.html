@@ -680,15 +680,11 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
     </div>
 
     <div class="top-actions">
-
-        <button class="top-button" onclick="goBack()">
-            ← Dashboard
-        </button>
-
-        <button class="top-button" onclick="signOut()">
-            Sign out
-        </button>
-
+        <a class="top-button" href="index.html">Dashboard</a>
+        <a class="top-button" href="register-document.html">Register</a>
+        <a class="top-button" href="reports.html">Reports</a>
+        <a class="top-button" href="notifications.html">Activity</a>
+        <button class="top-button" onclick="signOut()">Sign out</button>
     </div>
 
 </header>
@@ -706,12 +702,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
             </p>
         </div>
 
-        <button
-            class="primary"
-            onclick="registerDocument()"
-        >
-            + Register Document
-        </button>
+        <a class="primary" href="register-document.html" style="text-decoration:none">+ Register Document</a>
 
     </div>
 
