@@ -1476,3 +1476,9 @@ dialog.modal .btn.primary{background:linear-gradient(110deg,#68152e,#8a1c3a);box
   .staff-account-card{margin-top:10px}
   .staff-account-signout{min-height:40px}
 }
+
+
+/* Keep the personalised dashboard greeting white */
+#greeting {
+  color: #FFFFFF !important;
+}
