@@ -648,7 +648,10 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 
 @media(max-width:850px){.ksuc-side-nav{inset:auto 0 0;width:100%;min-height:0;height:68px;padding:7px 10px;background:#8A1C3A;box-shadow:0 -4px 18px rgba(40,12,23,.12)}.ksuc-side-brand,.ksuc-side-label,.ksuc-side-bottom{display:none}.ksuc-side-nav nav{height:100%;display:flex;align-items:center;justify-content:space-around;gap:4px}.ksuc-side-link{justify-content:center;flex:1;min-height:48px;padding:8px 5px;font-size:10px;gap:5px;flex-direction:column}.ksuc-side-link span{font-size:16px}.page,.topbar,.content{margin-left:0!important}.page{padding-bottom:68px}.topbar{padding-left:16px!important;padding-right:16px!important}.content{padding:22px 16px 90px!important}}
 
- .ksuc-confirm-dialog{border:0;border-radius:18px;padding:0;width:min(420px,calc(100vw - 28px));box-shadow:0 25px 80px #10182845}.ksuc-confirm-dialog::backdrop{background:#10182888;backdrop-filter:blur(5px)}.confirm-inner{padding:28px}.confirm-mark{display:grid;place-items:center;width:44px;height:44px;border-radius:13px;background:#f8e9ee;color:#8a1c3a;font-size:22px}.confirm-inner h2{margin:18px 0 7px;font-size:20px;color:#26364e}.confirm-inner p{margin:0;color:#748197;font-size:13px;line-height:1.6}.confirm-actions{display:flex;justify-content:flex-end;gap:9px;margin-top:24px}.confirm-actions button{padding:10px 14px;border:1px solid #e1e6ed;border-radius:9px;background:white;color:#536174;font-weight:700}.confirm-actions .confirm-accept{border-color:#8a1c3a;background:#8a1c3a;color:white}@media(max-width:480px){.confirm-actions{flex-direction:column-reverse}.confirm-actions button{width:100%}}</style>
+ .ksuc-confirm-dialog{border:0;border-radius:18px;padding:0;width:min(420px,calc(100vw - 28px));box-shadow:0 25px 80px #10182845}.ksuc-confirm-dialog::backdrop{background:#10182888;backdrop-filter:blur(5px)}.confirm-inner{padding:28px}.confirm-mark{display:grid;place-items:center;width:44px;height:44px;border-radius:13px;background:#f8e9ee;color:#8a1c3a;font-size:22px}.confirm-inner h2{margin:18px 0 7px;font-size:20px;color:#26364e}.confirm-inner p{margin:0;color:#748197;font-size:13px;line-height:1.6}.confirm-actions{display:flex;justify-content:flex-end;gap:9px;margin-top:24px}.confirm-actions button{padding:10px 14px;border:1px solid #e1e6ed;border-radius:9px;background:white;color:#536174;font-weight:700}.confirm-actions .confirm-accept{border-color:#8a1c3a;background:#8a1c3a;color:white}@media(max-width:480px){.confirm-actions{flex-direction:column-reverse}.confirm-actions button{width:100%}}.restricted-document-row { background: #fbf8f9; }
+.restricted-document-row .doc-title { color: #766b70; }
+.restricted-label { display: inline-flex; align-items: center; padding: 6px 10px; border-radius: 20px; background: #f4e9ed; color: #8A1C3A; font-size: 11px; font-weight: 700; }
+</style>
 </head>
 
 <body>
@@ -1004,19 +1007,39 @@ function saveDocuments() {
 
 
 function getCurrentUser() {
-
     try {
-
-        return JSON.parse(
-            localStorage.getItem('ksucSession') || 'null'
-        );
-
+        return JSON.parse(localStorage.getItem('ksucSession') || 'null');
     } catch (error) {
-
         return null;
-
     }
+}
 
+function normalizeDepartment(value) {
+    return String(value || '')
+        .toLowerCase()
+        .replace(/\bdepartment\b/g, '')
+        .replace(/[^a-z0-9]/g, '')
+        .trim();
+}
+
+function isAdminUser() {
+    const role = String(getCurrentUser()?.role || '').toLowerCase();
+    return ['admin', 'administrator', 'system admin', 'system administrator'].includes(role);
+}
+
+function canViewDocument(doc) {
+    if (isAdminUser()) return true;
+    const department = normalizeDepartment(getCurrentUser()?.department);
+    if (!department) return false;
+    return [
+        doc.origin,
+        doc.currentOffice,
+        doc.destination
+    ].some(value => normalizeDepartment(value) === department);
+}
+
+function restrictedDocumentLabel() {
+    return 'Restricted – Not your department';
 }
 
 
@@ -1134,162 +1157,46 @@ function renderDocuments() {
 
     } else {
 
-        table.innerHTML =
-            filteredDocuments.map((doc,index) => `
-
+        table.innerHTML = filteredDocuments.map((doc,index) => {
+            const canView = canViewDocument(doc);
+            if (!canView) {
+                return `
+                    <tr class="restricted-document-row">
+                        <td>
+                            <span class="doc-title">🔒 Restricted document</span>
+                            <span class="ref">${escapeHtml(doc.ref || 'Reference unavailable')}</span>
+                        </td>
+                        <td colspan="4"><span class="restricted-label">${restrictedDocumentLabel()}</span></td>
+                        <td>${formatDate(doc)}</td>
+                        <td class="action-cell"><span aria-label="Content hidden">🔒</span></td>
+                    </tr>`;
+            }
+            return `
                 <tr>
-
                     <td>
-
-                        <span class="doc-title">
-                            ${escapeHtml(
-                                doc.title ||
-                                'Untitled document'
-                            )}
-                        </span>
-
-                        <span class="ref">
-                            ${escapeHtml(
-                                doc.ref ||
-                                'No reference'
-                            )}
-                        </span>
-
+                        <span class="doc-title">${escapeHtml(doc.title || 'Untitled document')}</span>
+                        <span class="ref">${escapeHtml(doc.ref || 'No reference')}</span>
                     </td>
-
-
-                    <td>
-                        ${escapeHtml(
-                            doc.origin || '—'
-                        )}
-                    </td>
-
-
-                    <td>
-                        ${escapeHtml(
-                            doc.destination || '—'
-                        )}
-                    </td>
-
-
-                    <td>
-
-                        <span class="tag ${
-                            doc.kind || 'action'
-                        }">
-
-                            ${escapeHtml(
-                                doc.action ||
-                                'For action'
-                            )}
-
-                        </span>
-
-                    </td>
-
-
-                    <td>
-
-                        <span class="status ${
-                            statusClass(doc.status)
-                        }">
-
-                            ${escapeHtml(
-                                doc.status ||
-                                'Registered'
-                            )}
-
-                        </span>
-
-                    </td>
-
-
-                    <td>
-                        ${formatDate(doc)}
-                    </td>
-
-
+                    <td>${escapeHtml(doc.origin || '—')}</td>
+                    <td>${escapeHtml(doc.currentOffice || doc.destination || '—')}</td>
+                    <td><span class="tag ${doc.kind || 'action'}">${escapeHtml(doc.action || 'For action')}</span></td>
+                    <td><span class="status ${statusClass(doc.status)}">${escapeHtml(doc.status || 'Registered')}</span></td>
+                    <td>${formatDate(doc)}</td>
                     <td class="action-cell">
-
-                        <button
-                            class="action-button"
-                            onclick="toggleMenu(event, ${index})"
-                            aria-label="Document actions"
-                        >
-                            ⋮
-                        </button>
-
-
-                        <div
-                            id="menu-${index}"
-                            class="action-menu"
-                        >
-
-                            <button
-                                onclick="viewDocument(${index})"
-                            >
-                                👁 &nbsp; Quick view
-                            </button>
-
-
-                            <button
-                                onclick="openDocument(${index})"
-                            >
-                                📄 &nbsp; Open tracking record
-                            </button>
-
-
-                            <button
-                                onclick="routeDocument(${index})"
-                            >
-                                ➡ &nbsp; Forward / Route
-                            </button>
-
-
-                            ${
-                                doc.status === 'Awaiting action'
-                                ? `
-                                <button
-                                    onclick="takeAction(${index})"
-                                >
-                                    ✓ &nbsp; Take action
-                                </button>
-                                `
-                                : ''
-                            }
-
-
-                            <button
-                                onclick="viewHistory(${index})"
-                            >
-                                🕘 &nbsp; View history
-                            </button>
-
-
-                            <button
-                                onclick="printDocument(${index})"
-                            >
-                                🖨 &nbsp; Print
-                            </button>
-
-
+                        <button class="action-button" onclick="toggleMenu(event, ${index})" aria-label="Document actions">⋮</button>
+                        <div id="menu-${index}" class="action-menu">
+                            <button onclick="viewDocument(${index})">👁 &nbsp; Quick view</button>
+                            <button onclick="openDocument(${index})">📄 &nbsp; Open tracking record</button>
+                            <button onclick="routeDocument(${index})">➡ &nbsp; Forward / Route</button>
+                            ${doc.status === 'Awaiting action' ? `<button onclick="takeAction(${index})">✓ &nbsp; Take action</button>` : ''}
+                            <button onclick="viewHistory(${index})">🕘 &nbsp; View history</button>
+                            <button onclick="printDocument(${index})">🖨 &nbsp; Print</button>
                             <div class="menu-divider"></div>
-
-
-                            <button
-                                class="danger"
-                                onclick="deleteDocument(${index})"
-                            >
-                                🗑 &nbsp; Delete
-                            </button>
-
+                            <button class="danger" onclick="deleteDocument(${index})">🗑 &nbsp; Delete</button>
                         </div>
-
                     </td>
-
-                </tr>
-
-            `).join('');
+                </tr>`;
+        }).join('');
 
     }
 
@@ -1384,17 +1291,10 @@ function applyFilters() {
     filteredDocuments =
         documents.filter(doc => {
 
-            const searchable = [
-                doc.ref,
-                doc.title,
-                doc.origin,
-                doc.destination,
-                doc.action,
-                doc.status,
-                doc.registeredBy
-            ]
-            .join(' ')
-            .toLowerCase();
+            const canView = canViewDocument(doc);
+            const searchable = canView
+                ? [doc.ref, doc.title, doc.origin, doc.destination, doc.action, doc.status, doc.registeredBy].join(' ').toLowerCase()
+                : [doc.ref, doc.status].join(' ').toLowerCase();
 
 
             const matchesSearch =
@@ -1536,10 +1436,12 @@ function resetFilters() {
 
 function viewDocument(index) {
 
-    const doc =
-        filteredDocuments[index];
-
+    const doc = filteredDocuments[index];
     if (!doc) return;
+    if (!canViewDocument(doc)) {
+        showToast('This document is restricted to its department.', 'error');
+        return;
+    }
 
     selectedDocument = doc;
 
@@ -1639,6 +1541,16 @@ function openDocument(index) {
 
     if (!doc) return;
 
+    if (!canViewDocument(doc)) {
+        showToast('This document is restricted to its department.', 'error');
+        return;
+    }
+
+    if (!canViewDocument(doc)) {
+        showToast('This document is restricted to its department.', 'error');
+        return;
+    }
+
     localStorage.setItem(
         'ksucSelectedDocument',
         JSON.stringify(doc)
@@ -1660,6 +1572,11 @@ function routeDocument(index) {
         filteredDocuments[index];
 
     if (!doc) return;
+
+    if (!canViewDocument(doc)) {
+        showToast('This document is restricted to its department.', 'error');
+        return;
+    }
 
     localStorage.setItem(
         'ksucSelectedDocument',
@@ -1683,6 +1600,11 @@ function takeAction(index) {
 
     if (!doc) return;
 
+    if (!canViewDocument(doc)) {
+        showToast('This document is restricted to its department.', 'error');
+        return;
+    }
+
     localStorage.setItem(
         'ksucSelectedDocument',
         JSON.stringify(doc)
@@ -1705,6 +1627,11 @@ function viewHistory(index) {
 
     if (!doc) return;
 
+    if (!canViewDocument(doc)) {
+        showToast('This document is restricted to its department.', 'error');
+        return;
+    }
+
     localStorage.setItem(
         'ksucSelectedDocument',
         JSON.stringify(doc)
@@ -1726,6 +1653,11 @@ function printDocument(index) {
         filteredDocuments[index];
 
     if (!doc) return;
+
+    if (!canViewDocument(doc)) {
+        showToast('This document is restricted to its department.', 'error');
+        return;
+    }
 
     const printWindow =
         window.open('', '_blank');
@@ -1834,6 +1766,11 @@ function deleteDocument(index) {
         filteredDocuments[index];
 
     if (!doc) return;
+
+    if (!canViewDocument(doc)) {
+        showToast('This document is restricted to its department.', 'error');
+        return;
+    }
 
     documentToDelete = doc;
 
