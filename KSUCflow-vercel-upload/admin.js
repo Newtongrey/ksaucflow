@@ -63,10 +63,7 @@ function showToast(message) {
   if (!toast) {
     toast = document.createElement('div');
     toast.id = 'adminToast';
-    toast.className = 'notice';
-    toast.style.cssText =
-      'position:fixed;right:20px;bottom:20px;z-index:10000;' +
-      'max-width:min(440px,calc(100vw - 40px));box-shadow:0 8px 28px #0002';
+    toast.className = 'admin-toast';
     document.body.appendChild(toast);
   }
   toast.textContent = message;
@@ -519,33 +516,49 @@ function saveProfileAccess(id) {
   showToast('Account access updated.');
 }
 
-function setProfilePassword(id) {
+function openAdminPasswordDialog(profile) {
+  return new Promise(resolve => {
+    let dialog = byId('adminPasswordDialog');
+    if (!dialog) {
+      dialog = document.createElement('dialog');
+      dialog.id = 'adminPasswordDialog';
+      dialog.className = 'admin-dialog';
+      dialog.innerHTML = '<form method="dialog" class="admin-dialog-inner" id="adminPasswordForm">' +
+        '<p class="section-label">ACCOUNT SECURITY</p><h2>Set staff password</h2>' +
+        '<p id="adminPasswordUser"></p>' +
+        '<label>New password<input id="adminNewPassword" type="password" minlength="8" autocomplete="new-password" required placeholder="At least 8 characters"></label>' +
+        '<label>Confirm password<input id="adminConfirmPassword" type="password" minlength="8" autocomplete="new-password" required placeholder="Re-enter password"></label>' +
+        '<p id="adminPasswordError" class="form-feedback" role="alert"></p>' +
+        '<div class="admin-dialog-actions"><button type="button" class="button button-secondary" id="adminPasswordCancel">Cancel</button><button type="submit" class="button button-primary">Save password</button></div></form>';
+      document.body.appendChild(dialog);
+      byId('adminPasswordCancel').addEventListener('click', () => { dialog.close(); resolve(null); });
+      byId('adminPasswordForm').addEventListener('submit', event => {
+        event.preventDefault();
+        const password = byId('adminNewPassword').value;
+        const confirmation = byId('adminConfirmPassword').value;
+        if (password.length < 8) { byId('adminPasswordError').textContent = 'Use at least 8 characters.'; return; }
+        if (password !== confirmation) { byId('adminPasswordError').textContent = 'The passwords do not match.'; return; }
+        dialog.close();
+        resolve(password);
+      });
+      dialog.addEventListener('cancel', event => { event.preventDefault(); dialog.close(); resolve(null); });
+    }
+    byId('adminPasswordUser').textContent = 'Set a new password for ' + (profile.full_name || profile.name || profile.email) + '.';
+    byId('adminPasswordForm').reset();
+    byId('adminPasswordError').textContent = '';
+    dialog.showModal();
+  });
+}
+
+async function setProfilePassword(id) {
   const profile = profiles.find(user => String(user.id) === String(id));
   if (!profile) return;
-
   if (roleName(profile.role) === 'Administrator') {
     showToast('Use the administrator account controls for administrator passwords.');
     return;
   }
-
-  const password = window.prompt(
-    'Enter a new password for ' + (profile.full_name || profile.name || profile.email) +
-    ' (at least 8 characters):'
-  );
-  if (password === null) return;
-
-  if (password.length < 8) {
-    showToast('Password must be at least 8 characters.');
-    return;
-  }
-
-  const confirmation = window.prompt('Confirm the new password:');
-  if (confirmation === null) return;
-  if (password !== confirmation) {
-    showToast('Passwords do not match. No changes were made.');
-    return;
-  }
-
+  const password = await openAdminPasswordDialog(profile);
+  if (!password) return;
   profile.password = password;
   saveUsers();
   showToast('Password updated for ' + (profile.full_name || profile.email) + '.');
