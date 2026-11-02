@@ -253,7 +253,9 @@ function renderProfileDirectory() {
           '<td><div class="admin-row-actions">' +
           '<button class="copy-button" type="button" data-save-profile="' +
           escapeHtml(profile.id) + '">Save access</button>' +
-          '<button class="copy-button" type="button" data-toggle-profile="' +
+          '<button class="copy-button" type="button" data-set-password="' +
+          escapeHtml(profile.id) + '">Set password</button>' +
+          '<button class="copy-button" type="button" data-toggle-profile="'
           escapeHtml(profile.id) + '">' + (profile.active ? 'Deactivate' : 'Activate') + '</button>' +
           '<button class="copy-button" type="button" data-copy-id="' +
           escapeHtml(profile.id) + '">Copy ID</button></div></td></tr>';
@@ -450,6 +452,8 @@ function inviteUser(event) {
   const email = (byId('inviteEmail')?.value || '').trim().toLowerCase();
   const departmentId = byId('inviteDepartment')?.value || '';
   const role = byId('inviteRole')?.value || 'Staff';
+  const password = byId('invitePassword')?.value || '';
+  const confirmPassword = byId('invitePasswordConfirm')?.value || '';
 
   if (!name || !email) {
     if (feedback) feedback.textContent = 'Enter the staff member’s name and email.';
@@ -461,17 +465,22 @@ function inviteUser(event) {
     return;
   }
 
-  // Generate a temporary password for the administrator to share securely.
-  const temporaryPassword = 'KSU-' +
-    Math.random().toString(36).slice(2, 8).toUpperCase() + '-' +
-    Math.random().toString(36).slice(2, 6).toUpperCase();
+  if (password.length < 8) {
+    if (feedback) feedback.textContent = 'Password must be at least 8 characters.';
+    return;
+  }
+
+  if (password !== confirmPassword) {
+    if (feedback) feedback.textContent = 'The passwords do not match.';
+    return;
+  }
 
   profiles.push({
     id: 'user-' + Date.now(),
     name,
     full_name: name,
     email,
-    password: temporaryPassword,
+    password,
     role: roleName(role),
     department_id: departmentId,
     active: true,
@@ -485,8 +494,7 @@ function inviteUser(event) {
     feedback.style.color = '';
     feedback.textContent =
       'Account created for ' + email +
-      '. Temporary password: ' + temporaryPassword +
-      '. Copy it now and share it with the staff member.';
+      '. The password you set is ready to share securely with the staff member.';
   }
 
   if (byId('inviteUserForm')) byId('inviteUserForm').reset();
@@ -509,6 +517,38 @@ function saveProfileAccess(id) {
   renderProfileDirectory();
   renderReport();
   showToast('Account access updated.');
+}
+
+function setProfilePassword(id) {
+  const profile = profiles.find(user => String(user.id) === String(id));
+  if (!profile) return;
+
+  if (roleName(profile.role) === 'Administrator') {
+    showToast('Use the administrator account controls for administrator passwords.');
+    return;
+  }
+
+  const password = window.prompt(
+    'Enter a new password for ' + (profile.full_name || profile.name || profile.email) +
+    ' (at least 8 characters):'
+  );
+  if (password === null) return;
+
+  if (password.length < 8) {
+    showToast('Password must be at least 8 characters.');
+    return;
+  }
+
+  const confirmation = window.prompt('Confirm the new password:');
+  if (confirmation === null) return;
+  if (password !== confirmation) {
+    showToast('Passwords do not match. No changes were made.');
+    return;
+  }
+
+  profile.password = password;
+  saveUsers();
+  showToast('Password updated for ' + (profile.full_name || profile.email) + '.');
 }
 
 function toggleProfile(id) {
@@ -587,6 +627,9 @@ byId('exportReport')?.addEventListener('click', exportReportCsv);
 byId('inviteUserForm')?.addEventListener('submit', inviteUser);
 
 byId('userRows')?.addEventListener('click', event => {
+  const setPassword = event.target.closest('[data-set-password]');
+  if (setPassword) return setProfilePassword(setPassword.getAttribute('data-set-password'));
+
   const save = event.target.closest('[data-save-profile]');
   if (save) return saveProfileAccess(save.getAttribute('data-save-profile'));
 
