@@ -1518,6 +1518,10 @@ function closeViewModal() {
 function openFullDocument() {
 
     if (!selectedDocument) return;
+    if (!canViewDocument(selectedDocument)) {
+        showToast('This document is restricted to its department.', 'error');
+        return;
+    }
 
     localStorage.setItem(
         'ksucSelectedDocument',
@@ -1540,11 +1544,6 @@ function openDocument(index) {
         filteredDocuments[index];
 
     if (!doc) return;
-
-    if (!canViewDocument(doc)) {
-        showToast('This document is restricted to its department.', 'error');
-        return;
-    }
 
     if (!canViewDocument(doc)) {
         showToast('This document is restricted to its department.', 'error');
