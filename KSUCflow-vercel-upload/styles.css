@@ -1468,7 +1468,7 @@ dialog.modal .btn.primary{background:linear-gradient(110deg,#68152e,#8a1c3a);box
   width:100%;margin-top:12px;padding:9px 10px;
   border:1px solid rgba(255,255,255,.22);border-radius:8px;
   background:rgba(255,255,255,.1);color:#fff;
-  font:600 12px inherit;cursor:pointer;transition:background .2s ease;
+  font:600 12px "DM Sans",Arial,sans-serif;cursor:pointer;transition:background .2s ease;
 }
 .staff-account-signout:hover{background:rgba(255,255,255,.2)}
 .staff-account-signout span:first-child{font-size:16px}
