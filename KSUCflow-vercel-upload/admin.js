@@ -217,7 +217,7 @@ function renderProfileDirectory() {
       tbody.innerHTML =
         '<tr><td colspan="5" class="table-message">No accounts match these filters.</td></tr>';
     } else {
-      tbody.innerHTML = visible.map(profile => {
+      tbody.innerHTML = visible.map((profile, index) => {
         const name = profile.full_name || profile.name || profile.email;
         const department = departments.find(item =>
           String(item.id) === String(profile.department_id)
@@ -238,6 +238,7 @@ function renderProfileDirectory() {
         const status = profile.active ? 'Active' : 'Inactive';
 
         return '<tr>' +
+          '<td class="directory-number">' + (index + 1) + '</td>' +
           '<td><div class="profile-name"><span class="profile-avatar">' +
           escapeHtml(name.split(/\s+/).slice(0, 2).map(part => part.charAt(0)).join('').toUpperCase()) +
           '</span><span><strong>' + escapeHtml(name) + '</strong><small>' +
@@ -252,7 +253,7 @@ function renderProfileDirectory() {
           escapeHtml(profile.id) + '">Save access</button>' +
           '<button class="copy-button" type="button" data-set-password="' +
           escapeHtml(profile.id) + '">Set password</button>' +
-          '<button class="copy-button" type="button" data-toggle-profile="'
+          '<button class="copy-button" type="button" data-toggle-profile="' +
           escapeHtml(profile.id) + '">' + (profile.active ? 'Deactivate' : 'Activate') + '</button>' +
           '<button class="copy-button" type="button" data-copy-id="' +
           escapeHtml(profile.id) + '">Copy ID</button></div></td></tr>';
