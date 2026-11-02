@@ -495,3 +495,14 @@ body { background: #f5f7fa; }
   .overview-date { white-space: normal; }
   .signed-in small { max-width: 105px; }
 }
+
+
+/* Contrast corrections: admin header and maroon sidebar */
+.topbar .signed-in strong,.topbar .signed-in span strong{color:#fff!important}
+.topbar .signed-in small,.topbar .signed-in span small{color:#f7dfe6!important}
+.topbar .signed-in .avatar{background:#fff!important;color:#7b1834!important;border:1px solid rgba(255,255,255,.55)}
+.admin-sidebar,.admin-sidebar *{color:#fff}
+.admin-sidebar .sidebar-label{color:#f3d5de}
+.admin-sidebar .sidebar-link,.admin-sidebar .sidebar-link>span{color:#fff}
+.admin-sidebar .sidebar-link:hover,.admin-sidebar .sidebar-link.active{color:#fff;background:rgba(255,255,255,.16)}
+.admin-sidebar .sidebar-bottom{color:#f4dfe6}
