@@ -564,23 +564,40 @@ async function setProfilePassword(id) {
   showToast('Password updated for ' + (profile.full_name || profile.email) + '.');
 }
 
-function toggleProfile(id) {
+function openAdminConfirmDialog(message, confirmLabel = 'Confirm') {
+  return new Promise(resolve => {
+    let dialog = byId('adminConfirmDialog');
+    if (!dialog) {
+      dialog = document.createElement('dialog');
+      dialog.id = 'adminConfirmDialog';
+      dialog.className = 'admin-dialog';
+      dialog.innerHTML = '<div class="admin-dialog-inner"><p class="section-label">PLEASE CONFIRM</p><h2>Confirm account change</h2><p id="adminConfirmMessage"></p><div class="admin-dialog-actions"><button type="button" class="button button-secondary" id="adminConfirmCancel">Cancel</button><button type="button" class="button button-primary" id="adminConfirmAccept">Confirm</button></div></div>';
+      document.body.appendChild(dialog);
+      byId('adminConfirmCancel').addEventListener('click',()=>{dialog.close();resolve(false)});
+      byId('adminConfirmAccept').addEventListener('click',()=>{dialog.close();resolve(true)});
+      dialog.addEventListener('cancel',event=>{event.preventDefault();dialog.close();resolve(false)});
+    }
+    byId('adminConfirmMessage').textContent=message;
+    byId('adminConfirmAccept').textContent=confirmLabel;
+    dialog.showModal();
+  });
+}
+
+async function toggleProfile(id) {
   const profile = profiles.find(user => String(user.id) === String(id));
   if (!profile) return;
-
   const nextActive = !profile.active;
   const name = profile.full_name || profile.name || profile.email;
-
-  if (!window.confirm((nextActive ? 'Reactivate ' : 'Deactivate ') + name + '?')) {
-    return;
-  }
-
   const session = JSON.parse(localStorage.getItem('ksucSession') || 'null');
   if (!nextActive && session && String(session.id) === String(profile.id)) {
     showToast('You cannot deactivate the account currently signed in.');
     return;
   }
-
+  const confirmed = await openAdminConfirmDialog(
+    (nextActive ? 'Reactivate ' : 'Deactivate ') + name + '?',
+    nextActive ? 'Reactivate account' : 'Deactivate account'
+  );
+  if (!confirmed) return;
   profile.active = nextActive;
   profile.status = nextActive ? 'active' : 'inactive';
   saveUsers();
