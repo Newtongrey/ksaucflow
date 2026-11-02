@@ -9,7 +9,7 @@
     window.location.pathname.toLowerCase().split('/').filter(Boolean).pop()
     || 'index.html';
 
-  const isAdminPage = pageName === 'admin.html';
+  const isAdminPage = pageName.startsWith('admin-') || pageName === 'admin.html';
   const isAdminLogin = pageName === 'admin-login.html';
   const isStaffLogin = pageName === 'login.html';
   const isLoginPage = isAdminLogin || isStaffLogin;
