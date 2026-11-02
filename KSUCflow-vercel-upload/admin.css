@@ -506,3 +506,28 @@ body { background: #f5f7fa; }
 .admin-sidebar .sidebar-link,.admin-sidebar .sidebar-link>span{color:#fff}
 .admin-sidebar .sidebar-link:hover,.admin-sidebar .sidebar-link.active{color:#fff;background:rgba(255,255,255,.16)}
 .admin-sidebar .sidebar-bottom{color:#f4dfe6}
+
+
+/* Dashboard welcome greeting: white greeting text with a black administrator name */
+.page-heading > div:first-child {
+  padding: 20px 24px;
+  border-radius: 13px;
+  background: linear-gradient(115deg, #4F1023 0%, #8A1C3A 100%);
+}
+.page-heading .dashboard-greeting {
+  margin: 0 0 8px;
+  color: #fff !important;
+}
+.page-heading .dashboard-greeting span {
+  display: inline-block;
+  margin-left: 5px;
+  padding: 2px 9px;
+  border-radius: 6px;
+  background: #fff;
+  color: #111827 !important;
+}
+.page-heading > div:first-child .eyebrow { color: #f4dce4; }
+.page-heading > div:first-child .subtitle { color: #f8e9ee; }
+@media (max-width:760px) {
+  .page-heading > div:first-child { width:100%; padding:17px; }
+}
