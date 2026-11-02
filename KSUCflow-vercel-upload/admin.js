@@ -633,6 +633,9 @@ function initialiseAdmin() {
   if (byId('adminName')) {
     byId('adminName').textContent = session.name || session.email || 'Administrator';
   }
+  if (byId('dashboardWelcomeName')) {
+    byId('dashboardWelcomeName').textContent = session.name || session.email || 'Administrator';
+  }
   if (byId('adminRole')) {
     byId('adminRole').textContent = session.department
       ? 'Administrator · ' + session.department
