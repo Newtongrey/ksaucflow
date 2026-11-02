@@ -1482,3 +1482,188 @@ dialog.modal .btn.primary{background:linear-gradient(110deg,#68152e,#8a1c3a);box
 #greeting {
   color: #FFFFFF !important;
 }
+
+
+
+/* =====================================================
+   STAFF PORTAL VISUAL ALIGNMENT — ADMIN CONSOLE THEME
+   Shared KSUCflow maroon palette, surfaces and spacing.
+===================================================== */
+:root {
+  --ink: #202b3c;
+  --muted: #718096;
+  --line: #e5eaf0;
+  --paper: #ffffff;
+  --canvas: #f5f7fa;
+  --navy: #68152e;
+  --navy-light: #7d1b3b;
+  --blue: #8a1c3a;
+  --blue-dark: #5c1026;
+  --shadow: 0 8px 28px rgba(24, 36, 53, .055);
+}
+
+/* Match the admin console's deep maroon gradient sidebar. */
+.sidebar {
+  width: 252px;
+  padding: 25px 16px 18px;
+  background: linear-gradient(180deg, #4f1023 0%, #68152e 58%, #7d1b3b 100%);
+  box-shadow: 5px 0 24px rgba(38, 17, 27, .10);
+}
+.brand {
+  padding: 0 8px 27px;
+  border-bottom-color: rgba(255,255,255,.15);
+}
+.brand-mark {
+  flex: 0 0 40px;
+  width: 40px;
+  height: 40px;
+  border: 1px solid rgba(255,255,255,.18);
+  background: rgba(255,255,255,.14);
+  border-radius: 11px;
+}
+.brand-name { font-size: 11px; letter-spacing: .35px; }
+.brand-subtitle { color: #e9cbd4; }
+.sidebar-nav { gap: 6px; margin-top: 27px; }
+.nav-item {
+  min-height: 44px;
+  padding: 11px 12px;
+  border: 1px solid transparent;
+  border-radius: 9px;
+  color: #f3e6ea;
+  font-size: 12px;
+}
+.nav-item > span:first-child { color: #e3b8c5; }
+.nav-item:hover,
+.nav-item.active {
+  color: #fff;
+  background: rgba(255,255,255,.13);
+  border-color: rgba(255,255,255,.12);
+}
+.nav-item.active { box-shadow: inset 3px 0 #f1c1cf; }
+.nav-item.active > span:first-child,
+.nav-item:hover > span:first-child { color: #fff; }
+.sidebar-bottom {
+  padding: 16px 10px 4px;
+  border-top-color: rgba(255,255,255,.15);
+}
+.nav-badge { background: rgba(255,255,255,.16); color: #fff; }
+
+/* Admin-style white header and typography. */
+.main {
+  margin-left: 252px;
+  padding: 30px clamp(20px, 3vw, 44px) 42px;
+}
+.topbar {
+  min-height: 76px;
+  padding: 0 0 20px;
+  margin-bottom: 25px;
+  border-bottom: 1px solid #e7eaf0;
+}
+.topbar h1 {
+  color: #202b3c;
+  font-family: "Playfair Display", Georgia, serif;
+  font-size: clamp(27px, 3vw, 34px);
+  letter-spacing: -.4px;
+}
+.topbar p, #greeting { color: #718096 !important; }
+
+/* Admin-like cards, subtle shadows and softer corners. */
+.stats-grid { gap: 15px; margin-bottom: 25px; }
+.stat-card {
+  min-height: 112px;
+  padding: 19px;
+  border-radius: 12px;
+  box-shadow: 0 8px 28px rgba(24,36,53,.045);
+  transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+}
+.stat-card:hover {
+  transform: translateY(-2px);
+  border-color: #e2c5ce;
+  box-shadow: 0 12px 28px rgba(79,16,35,.08);
+}
+.stat-icon {
+  border-radius: 10px;
+  background: #f8e9ee;
+  color: #8a1c3a;
+}
+.stat-card strong { color: #202b3c; font-size: 27px; letter-spacing: -.5px; }
+
+.section-heading { margin-bottom: 15px; }
+.section-heading h2 { font-size: 18px; letter-spacing: -.2px; }
+.quick-actions { gap: 14px; margin-bottom: 24px; }
+.quick-action-card {
+  min-height: 100px;
+  padding: 19px;
+  border-radius: 12px;
+  box-shadow: 0 8px 28px rgba(24,36,53,.035);
+  transition: transform .18s ease, border-color .18s ease, box-shadow .18s ease;
+}
+.quick-action-card:hover {
+  transform: translateY(-2px);
+  border-color: #d7b2bd;
+  box-shadow: 0 12px 28px rgba(79,16,35,.08);
+}
+.quick-icon {
+  width: 42px;
+  height: 42px;
+  min-width: 42px;
+  border-radius: 11px;
+  background: #f8e9ee;
+  color: #8a1c3a;
+}
+.workspace-grid { gap: 18px; }
+.panel {
+  border-radius: 12px;
+  box-shadow: 0 8px 28px rgba(24,36,53,.045);
+}
+.panel-header {
+  padding: 21px 22px;
+  border-bottom: 1px solid #edf0f4;
+}
+.panel-header h2 { font-size: 16px; letter-spacing: -.15px; }
+.text-link { color: #8a1c3a; }
+.search-box {
+  border-radius: 9px;
+  background: #fcfcfd;
+}
+.search-box:focus-within {
+  border-color: #8a1c3a;
+  box-shadow: 0 0 0 3px rgba(138,28,58,.10);
+}
+
+/* Keep the account card coordinated with the admin sidebar profile. */
+.staff-account-card {
+  border-color: rgba(255,255,255,.16);
+  border-radius: 12px;
+  background: rgba(255,255,255,.08);
+}
+
+/* Tablet and mobile spacing follows the admin console breakpoints. */
+@media (max-width: 1100px) {
+  .main { padding-left: 24px; padding-right: 24px; }
+}
+@media (max-width: 760px) {
+  .sidebar {
+    width: 100%;
+    height: auto;
+    min-height: 0;
+    position: relative;
+    padding: 14px;
+  }
+  .brand { padding-bottom: 12px; }
+  .sidebar-nav { grid-template-columns: repeat(2, minmax(0,1fr)); margin-top: 12px; }
+  .sidebar-bottom { margin-top: 12px; padding-top: 12px; }
+  .main { margin-left: 0; padding: 23px 16px 32px; }
+  .topbar { min-height: 0; padding-bottom: 16px; }
+  .stats-grid { grid-template-columns: repeat(2, minmax(0,1fr)); gap: 10px; }
+  .stat-card { min-height: 96px; padding: 14px; gap: 10px; }
+  .stat-icon { width: 36px; height: 36px; min-width: 36px; }
+  .stat-card strong { font-size: 24px; }
+  .quick-actions { grid-template-columns: 1fr; }
+  .workspace-grid { grid-template-columns: 1fr; }
+}
+@media (max-width: 420px) {
+  .sidebar-nav { grid-template-columns: 1fr 1fr; }
+  .main { padding-left: 13px; padding-right: 13px; }
+  .panel-header { padding: 17px; }
+}
