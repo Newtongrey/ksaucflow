@@ -1424,3 +1424,16 @@ dialog.modal .btn.primary{background:linear-gradient(110deg,#68152e,#8a1c3a);box
 @keyframes ksucToastIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 .nav-item[href],.quick-action-card[href]{text-decoration:none}
 @media(max-width:600px){dialog.modal .modal-content{padding:18px}dialog.modal .modal-actions{flex-direction:column-reverse}dialog.modal .modal-actions .btn{width:100%}}
+
+
+/* Contrast corrections: staff header and maroon navigation */
+.sidebar,.sidebar *{color:#fff}
+.sidebar .brand-subtitle{color:#f8e6eb}
+.sidebar .nav-item,.sidebar .nav-item span{color:#fff}
+.sidebar .nav-item:hover,.sidebar .nav-item.active{color:#fff;background:rgba(255,255,255,.15)}
+.sidebar .nav-badge{background:#fff;color:#7b1834}
+.topbar .user-menu{background:#fff;border:1px solid #e6d7dc;color:#263548}
+.topbar .user-menu .user-details strong{color:#263548!important}
+.topbar .user-menu .user-details small{color:#596579!important}
+.topbar .user-menu>span:last-child{color:#596579}
+.topbar .user-menu .user-avatar{background:#8a1c3a;color:#fff;border:2px solid #f4dfe6}
