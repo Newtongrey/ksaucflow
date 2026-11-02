@@ -38,6 +38,17 @@ function currentUserDepartment() {
   return getCurrentUser()?.department || '';
 }
 
+function normalizeDepartment(value) {
+  return String(value || '').toLowerCase().replace(/\\bdepartment\\b/g, '').replace(/[^a-z0-9]/g, '').trim();
+}
+
+function canViewDocument(documentRecord) {
+  const department = normalizeDepartment(currentUserDepartment());
+  if (!department) return false;
+  return [documentRecord.origin, documentRecord.currentOffice, documentRecord.destination]
+    .some(value => normalizeDepartment(value) === department);
+}
+
 function escapeHtml(value) {
   return String(value ?? '').replace(/[&<>"']/g, char => ({
     '&': '&amp;',
@@ -812,7 +823,7 @@ function renderDocuments(searchTerm = '') {
 
   const search = String(searchTerm).trim().toLowerCase();
 
-  let documents = loadDocuments();
+  let documents = loadDocuments().filter(canViewDocument);
 
   if (search) {
     documents = documents.filter(item => [
