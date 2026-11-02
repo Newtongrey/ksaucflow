@@ -475,6 +475,48 @@ function renderDashboard() {
 
   const completed = documents.filter(isCompleted).length;
 
+  // Daily totals are calculated from workflow history for documents visible to this department.
+  const visibleDocuments = documents.filter(canViewDocument);
+  const todayKey = new Date().toLocaleDateString('en-CA');
+  const isToday = value => {
+    if (!value) return false;
+    const date = new Date(value);
+    return !Number.isNaN(date.getTime()) &&
+      date.toLocaleDateString('en-CA') === todayKey;
+  };
+  const departmentKey = normalizeDepartment(currentUserDepartment());
+  const isMyDepartmentHistory = entry => {
+    const recordedDepartment = normalizeDepartment(entry.department);
+    const fromDepartment = normalizeDepartment(entry.from);
+    const toDepartment = normalizeDepartment(entry.to);
+    return !departmentKey ||
+      recordedDepartment === departmentKey ||
+      fromDepartment === departmentKey ||
+      toDepartment === departmentKey;
+  };
+  const processedToday = visibleDocuments.filter(item =>
+    Array.isArray(item.history) && item.history.some(entry =>
+      isToday(entry.date) &&
+      !/registered|created|system started/i.test(String(entry.action || '')) &&
+      isMyDepartmentHistory(entry)
+    )
+  ).length;
+  const approvalsToday = visibleDocuments.reduce((total, item) =>
+    total + (Array.isArray(item.history) ? item.history.filter(entry =>
+      isToday(entry.date) &&
+      /approved/i.test(String(entry.action || '')) &&
+      isMyDepartmentHistory(entry)
+    ).length : 0), 0
+  );
+
+  if (byId('processedToday')) {
+    byId('processedToday').textContent = processedToday;
+  }
+
+  if (byId('approvalsToday')) {
+    byId('approvalsToday').textContent = approvalsToday;
+  }
+
   if (byId('totalDocuments')) {
     byId('totalDocuments').textContent = documents.length;
   }
@@ -669,9 +711,20 @@ function injectDashboardPolish() {
       white-space: nowrap;
     }
 
-    #recentDocuments .document-view-link:hover {
-      background: #8A1C3A;
-      color: #fff;
+    #recentDocuments .document-track-label {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 30px;
+      padding: 5px 10px;
+      border: 1px solid #ead9d9;
+      border-radius: 8px;
+      background: #fbf6f6;
+      color: #8A1C3A;
+      font-size: 11px;
+      font-weight: 700;
+      white-space: nowrap;
+      cursor: default;
     }
 
     #recentDocuments .empty-state {
@@ -806,10 +859,11 @@ function injectDashboardPolish() {
         grid-column: 1;
       }
 
-      #recentDocuments .document-view-link {
+      #recentDocuments .document-track-label {
         grid-column: 2;
         grid-row: 2 / span 2;
         align-self: center;
+        justify-self: end;
       }
     }
   `;
@@ -876,10 +930,9 @@ function renderDocuments(searchTerm = '') {
 
       <div class="document-date">${formatDate(item.createdAt)}</div>
 
-      <a class="document-view-link"
-         href="document-view.html?ref=${encodeURIComponent(item.ref || '')}">
-        View record
-      </a>
+      <span class="document-track-label" aria-label="Tracking information only">
+        Tracking only
+      </span>
     </div>
   `).join('');
 }
